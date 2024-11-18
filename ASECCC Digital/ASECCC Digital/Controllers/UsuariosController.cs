@@ -6,10 +6,10 @@ using System.Web.Mvc;
 
 namespace ASECCC_Digital.Controllers
 {
-    public class UsuarioController : Controller
+    public class UsuariosController : Controller
     {
         // GET: Usuario
-        public ActionResult Index()
+        public ActionResult Usuario()
         {
             return View();
         }

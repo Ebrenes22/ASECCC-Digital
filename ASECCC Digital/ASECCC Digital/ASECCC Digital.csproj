@@ -128,7 +128,7 @@
     <Compile Include="Controllers\PrestamosController.cs" />
     <Compile Include="Controllers\ReportesController.cs" />
     <Compile Include="Controllers\SeguridadyPermisosController.cs" />
-    <Compile Include="Controllers\UsuarioController.cs" />
+    <Compile Include="Controllers\UsuariosController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -270,7 +270,7 @@
     <Content Include="Views\Notificaciones\Notificacion.cshtml" />
     <Content Include="Views\Prestamos\Prestamo.cshtml" />
     <Content Include="Views\Reportes\Reporte.cshtml" />
-    <Content Include="Views\Usuarios\Usuarios.cshtml" />
+    <Content Include="Views\Usuarios\Usuario.cshtml" />
     <Content Include="Views\Shared\_Layout_Externo.cshtml" />
     <Content Include="Views\SeguridadyPermisos\SeguridadyPermiso.cshtml" />
   </ItemGroup>
