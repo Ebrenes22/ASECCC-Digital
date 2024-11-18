@@ -6,13 +6,12 @@ using System.Web.Mvc;
 
 namespace ASECCC_Digital.Controllers
 {
-    public class HomeController : Controller
+    public class NotificacionesController : Controller
     {
-        public ActionResult Index()
+        // GET: Notificaciones
+        public ActionResult Notificacion()
         {
             return View();
         }
-
-    
     }
 }

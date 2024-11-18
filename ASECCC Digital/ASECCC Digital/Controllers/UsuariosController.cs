@@ -6,13 +6,12 @@ using System.Web.Mvc;
 
 namespace ASECCC_Digital.Controllers
 {
-    public class HomeController : Controller
+    public class UsuarioController : Controller
     {
+        // GET: Usuario
         public ActionResult Index()
         {
             return View();
         }
-
-    
     }
 }

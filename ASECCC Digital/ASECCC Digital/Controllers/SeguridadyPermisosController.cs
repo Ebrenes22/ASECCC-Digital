@@ -6,13 +6,12 @@ using System.Web.Mvc;
 
 namespace ASECCC_Digital.Controllers
 {
-    public class HomeController : Controller
+    public class SeguridadyPermisosController : Controller
     {
-        public ActionResult Index()
+        // GET: SeguridadyPermisos
+        public ActionResult SeguridadyPermiso()
         {
             return View();
         }
-
-    
     }
 }
