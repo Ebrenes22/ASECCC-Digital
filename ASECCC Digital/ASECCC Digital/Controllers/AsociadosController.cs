@@ -13,5 +13,10 @@ namespace ASECCC_Digital.Controllers
         {
             return View();
         }
+
+        public ActionResult Registrar()
+        {
+            return View();
+        }
     }
 }

@@ -273,6 +273,7 @@
     <Content Include="Views\Usuarios\Usuario.cshtml" />
     <Content Include="Views\Shared\_Layout_Externo.cshtml" />
     <Content Include="Views\SeguridadyPermisos\SeguridadyPermiso.cshtml" />
+    <Content Include="Views\Asociados\Registrar.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
