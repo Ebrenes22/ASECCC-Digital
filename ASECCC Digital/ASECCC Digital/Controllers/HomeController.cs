@@ -8,11 +8,14 @@ namespace ASECCC_Digital.Controllers
 {
     public class HomeController : Controller
     {
+
+        //--------VISTAS ADMIN--------------//
         public ActionResult Index()
         {
+            Session["UserRole"] = "Asociado";
             return View();
         }
 
-    
+        //--------VISTAS ASOCIADO-------------//
     }
 }
