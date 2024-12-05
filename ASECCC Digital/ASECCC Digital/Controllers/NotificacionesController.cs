@@ -8,10 +8,13 @@ namespace ASECCC_Digital.Controllers
 {
     public class NotificacionesController : Controller
     {
+        //--------VISTAS ADMIN--------------//
         // GET: Notificaciones
         public ActionResult Notificacion()
         {
             return View();
         }
+
+        //--------VISTAS ASOCIADOS--------------//
     }
 }
