@@ -274,10 +274,36 @@
     <Content Include="Views\Shared\_Layout_Externo.cshtml" />
     <Content Include="Views\SeguridadyPermisos\SeguridadyPermiso.cshtml" />
     <Content Include="Views\Asociados\Registrar.cshtml" />
+<<<<<<< HEAD
     <Content Include="Views\Shared\_FormLayout.cshtml" />
     <Content Include="Views\Asociados\Editar.cshtml" />
     <Content Include="Views\Asociados\Eliminar.cshtml" />
     <Content Include="Views\Asociados\Buscar.cshtml" />
+=======
+    <Content Include="Views\Shared\_MenuModulos.cshtml" />
+    <Content Include="Views\Asociados\Actualizar.cshtml" />
+    <Content Include="Views\Asociados\Buscar.cshtml" />
+    <Content Include="Views\Asociados\Liquidar.cshtml" />
+    <Content Include="Views\Prestamos\RegistrarAbonos.cshtml" />
+    <Content Include="Views\Prestamos\ConsultaPrestamosAdmin.cshtml" />
+    <Content Include="Views\Prestamos\RevisionPrestamos.cshtml" />
+    <Content Include="Views\Prestamos\SolicitudPrestamo.cshtml" />
+    <Content Include="Views\Prestamos\ConsultaPrestamoAsociado.cshtml" />
+    <Content Include="Views\BeneficiosyServicios\GestionarBenefyServ.cshtml" />
+    <Content Include="Views\BeneficiosyServicios\ConsultarBenefyServAdmin.cshtml" />
+    <Content Include="Views\BeneficiosyServicios\RegistrarCuentaxCobrar.cshtml" />
+    <Content Include="Views\BeneficiosyServicios\RegistrarAbonoBenefyServ.cshtml" />
+    <Content Include="Views\BeneficiosyServicios\BenefyServDisponibles.cshtml" />
+    <Content Include="Views\BeneficiosyServicios\ConsultarBenefyServAsociado.cshtml" />
+    <Content Include="Views\AhorrosyAportes\GestionarAportes.cshtml" />
+    <Content Include="Views\AhorrosyAportes\GestionarAhorrosAdmin.cshtml" />
+    <Content Include="Views\AhorrosyAportes\ConsultaAhorrosyAporteAdmin.cshtml" />
+    <Content Include="Views\AhorrosyAportes\ConsultarAportesAsociado.cshtml" />
+    <Content Include="Views\AhorrosyAportes\ConsultarAhorrosAsociado.cshtml" />
+    <Content Include="Views\AhorrosyAportes\CrearAhorro.cshtml" />
+    <Content Include="Views\AhorrosyAportes\ModificarAhorro.cshtml" />
+    <Content Include="Views\AhorrosyAportes\FinalizarAhorro.cshtml" />
+>>>>>>> 5983544f5d60eb677a6a608c80ea1883d3a72cc6
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
