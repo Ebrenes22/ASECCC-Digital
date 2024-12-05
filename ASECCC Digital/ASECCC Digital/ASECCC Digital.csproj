@@ -275,12 +275,8 @@
     <Content Include="Views\SeguridadyPermisos\SeguridadyPermiso.cshtml" />
     <Content Include="Views\Asociados\Registrar.cshtml" />
     <Content Include="Views\Shared\_FormLayout.cshtml" />
-    <Content Include="Views\Asociados\Editar.cshtml" />
-    <Content Include="Views\Asociados\Eliminar.cshtml" />
-    <Content Include="Views\Asociados\Buscar.cshtml" />
     <Content Include="Views\Shared\_MenuModulos.cshtml" />
     <Content Include="Views\Asociados\Actualizar.cshtml" />
-    <Content Include="Views\Asociados\Buscar.cshtml" />
     <Content Include="Views\Asociados\Liquidar.cshtml" />
     <Content Include="Views\Prestamos\RegistrarAbonos.cshtml" />
     <Content Include="Views\Prestamos\ConsultaPrestamosAdmin.cshtml" />
@@ -305,7 +301,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Models\" />
-    <Folder Include="Views\Usuario\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />
