@@ -274,10 +274,6 @@
     <Content Include="Views\Shared\_Layout_Externo.cshtml" />
     <Content Include="Views\SeguridadyPermisos\SeguridadyPermiso.cshtml" />
     <Content Include="Views\Asociados\Registrar.cshtml" />
-    <Content Include="Views\Shared\_FormLayout.cshtml" />
-    <Content Include="Views\Asociados\Editar.cshtml" />
-    <Content Include="Views\Asociados\Eliminar.cshtml" />
-    <Content Include="Views\Asociados\Buscar.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
