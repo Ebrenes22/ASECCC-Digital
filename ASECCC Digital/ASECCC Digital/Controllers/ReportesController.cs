@@ -8,14 +8,10 @@ namespace ASECCC_Digital.Controllers
 {
     public class ReportesController : Controller
     {
-
-        //--------VISTAS ADMIN--------------//
         // GET: Reportes
         public ActionResult Reporte()
         {
             return View();
         }
-
-        //--------VISTAS USUARIO-------------//
     }
 }
