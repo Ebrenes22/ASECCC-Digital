@@ -18,5 +18,20 @@ namespace ASECCC_Digital.Controllers
         {
             return View();
         }
+
+        public ActionResult Editar()
+        {
+            return View();
+        }
+
+        public ActionResult Eliminar()
+        {
+            return View();
+        }
+
+        public ActionResult Buscar()
+        {
+            return View();
+        }
     }
 }
