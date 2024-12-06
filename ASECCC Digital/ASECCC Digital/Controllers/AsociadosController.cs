@@ -15,28 +15,28 @@ namespace ASECCC_Digital.Controllers
         }
         //--------VISTAS ADMIN--------------//
         // GET: Asociados
-        public ActionResult Asociado()
+        public ActionResult IndexAsociado()
         {
             return View();
         }
 
-        public ActionResult Registrar()
+        public ActionResult RegistrarAsociado()
         {
             return View();
         }
 
 
-        public ActionResult Actualizar()
+        public ActionResult ActualizarAsociado()
         {
             return View();
         }
 
-        public ActionResult Buscar()
+        public ActionResult BuscarAsociado()
         {
             return View();
         }
 
-        public ActionResult Liquidar()
+        public ActionResult LiquidarAsociado()
         {
             return View();
         }

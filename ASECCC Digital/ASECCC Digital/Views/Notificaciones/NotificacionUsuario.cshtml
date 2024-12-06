@@ -1,0 +1,40 @@
+﻿@{
+    ViewBag.Title = "Notificaciones";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="container mt-4" style="margin-left: 60px;">
+    <h3 class="mb-4">Bandeja de Notificaciones</h3>
+
+    <!-- Tabla de notificaciones -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Asunto</th>
+                <th>Detalle</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>2024-12-05</td>
+                <td>10:30 AM</td>
+                <td>Actualización de Beneficios</td>
+                <td>Se han actualizado los beneficios para los asociados. <a href="#">Ver más</a></td>
+            </tr>
+            <tr>
+                <td>2024-12-03</td>
+                <td>3:15 PM</td>
+                <td>Renovación de Servicio</td>
+                <td>Tu suscripción al servicio XYZ está por caducar. <a href="#">Renovar</a></td>
+            </tr>
+            <tr>
+                <td>2024-12-01</td>
+                <td>8:00 AM</td>
+                <td>Evento Anual</td>
+                <td>Invitación al evento anual de la asociación. <a href="#">Ver detalles</a></td>
+            </tr>
+        </tbody>
+    </table>
+</section>

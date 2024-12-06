@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 
 namespace ASECCC_Digital.Controllers
 {
@@ -15,6 +11,22 @@ namespace ASECCC_Digital.Controllers
             return View();
         }
 
+        public ActionResult NotificacionAdministrador()
+        {
+            return View();
+        }
+
+        public ActionResult NotificacionAdminGestion()
+        {
+            return View();
+        }
+
         //--------VISTAS ASOCIADOS--------------//
+
+        public ActionResult NotificacionUsuario()
+        {
+            return View();
+        }
+
     }
 }

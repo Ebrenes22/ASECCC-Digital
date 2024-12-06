@@ -1,0 +1,44 @@
+﻿@{
+    ViewBag.Title = "Enviar Notificaciones";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="container mt-4" style="margin-left: 60px;">
+    <h3 class="mb-4">Enviar Notificaciones</h3>
+
+    <form method="post" action="/Notificaciones/Enviar">
+        <div class="row g-3">
+            <div class="col-md-12">
+                <label for="tipoNotificacion" class="form-label">Tipo de Notificación</label>
+                <select class="form-select" id="tipoNotificacion" name="tipoNotificacion">
+                    <option value="masiva">Masiva (a todos los asociados)</option>
+                    <option value="personalizada">Personalizada (a usuarios específicos)</option>
+                </select>
+            </div>
+            <div class="col-md-12">
+                <label for="destinatarios" class="form-label">Destinatarios</label>
+                <input type="text" class="form-control" id="destinatarios" name="destinatarios" placeholder="Ingrese nombres o IDs (separados por comas)" disabled>
+                <small class="text-muted">Este campo solo se habilitará para notificaciones personalizadas.</small>
+            </div>
+            <div class="col-md-12">
+                <label for="asunto" class="form-label">Asunto</label>
+                <input type="text" class="form-control" id="asunto" name="asunto" required>
+            </div>
+            <div class="col-md-12">
+                <label for="mensaje" class="form-label">Mensaje</label>
+                <textarea class="form-control" id="mensaje" name="mensaje" rows="5" required></textarea>
+            </div>
+        </div>
+        <div class="text-end mt-3">
+            <button type="submit" class="btn btn-primary">Enviar Notificación</button>
+        </div>
+    </form>
+</section>
+
+<script>
+    // Habilitar o deshabilitar destinatarios según el tipo de notificación
+    document.getElementById('tipoNotificacion').addEventListener('change', function () {
+        const destinatarios = document.getElementById('destinatarios');
+        destinatarios.disabled = this.value !== 'personalizada';
+    });
+</script>

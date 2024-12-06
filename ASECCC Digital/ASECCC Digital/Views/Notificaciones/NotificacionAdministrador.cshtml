@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "Notificaciones de Solicitudes de Préstamo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="container mt-4" style="margin-left: 60px;">
+    <h3 class="mb-4">Notificaciones de Solicitudes de Préstamo</h3>
+
+    <!-- Tabla de notificaciones -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Solicitante</th>
+                <th>Monto</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>2024-12-05</td>
+                <td>10:00 AM</td>
+                <td>Juan Pérez</td>
+                <td>$5,000</td>
+                <td>Pendiente</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" onclick="verDetalles()">Ver Detalles</button>
+                    <button class="btn btn-success btn-sm">Marcar como Revisada</button>
+                </td>
+            </tr>
+            <tr>
+                <td>2024-12-04</td>
+                <td>2:45 PM</td>
+                <td>María Gómez</td>
+                <td>$3,000</td>
+                <td>Revisada</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" disabled>Ver Detalles</button>
+                    <button class="btn btn-secondary btn-sm" disabled>Revisada</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<script>
+    function verDetalles() {
+        alert('Detalles de la solicitud...');
+        // Aquí se puede redirigir a una página con los detalles de la solicitud
+    }
+</script>

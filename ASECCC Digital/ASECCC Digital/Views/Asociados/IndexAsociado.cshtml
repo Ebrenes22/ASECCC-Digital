@@ -16,16 +16,16 @@
             <div class="collapse navbar-collapse" id="submenuAsociados">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" href="@Url.Action("Registrar", "Asociados")">Registrar Asociado</a>
+                        <a class="nav-link active" href="@Url.Action("RegistrarAsociado", "Asociados")">Registrar Asociado</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#actualizacion">Actualizar Asociado</a>
+                        <a class="nav-link" href=@Url.Action("ActualizarAsociado", "Asociados")>Actualizar Asociado</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#baja">Dar de Baja Asociado</a>
+                        <a class="nav-link" href=@Url.Action("LiquidarAsociado", "Asociados")>Dar de Baja Asociado</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#busqueda">Buscar Asociado</a>
+                        <a class="nav-link" href=@Url.Action("BuscarAsociado", "Asociados")>>Buscar Asociado</a>
                     </li>
                 </ul>
             </div>
