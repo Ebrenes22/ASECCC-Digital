@@ -8,7 +8,7 @@ namespace ASECCC_Digital.Controllers
 {
 
 
-    public class PerfilAsociadoController : Controller
+    public class PerfilController : Controller
     {
 
 

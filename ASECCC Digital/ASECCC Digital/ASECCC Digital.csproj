@@ -122,7 +122,7 @@
     <Compile Include="Controllers\BeneficiosyServiciosController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NotificacionesController.cs" />
-    <Compile Include="Controllers\PerfilAsociadoController.cs" />
+    <Compile Include="Controllers\PerfilController.cs" />
     <Compile Include="Controllers\PrestamosController.cs" />
     <Compile Include="Controllers\ReportesController.cs" />
     <Compile Include="Controllers\SeguridadyPermisosController.cs" />
