@@ -15,6 +15,9 @@ namespace ASECCC_Digital.Controllers
             base.OnActionExecuting(filterContext);
             ViewBag.CurrentModule = "Prestamos"; //Asigno el CurrentModule para validarlo en el _MenuModulos
         }
+
+
+
         //--------VISTAS ADMIN--------------//
 
         // GET: Prestamos

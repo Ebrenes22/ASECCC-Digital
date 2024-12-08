@@ -1,10 +1,11 @@
 ﻿@{
     ViewBag.Title = "Enviar Notificaciones";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    @Html.Partial("_MenuModulos.cshtml")
 }
 
 <section class="container mt-4" style="margin-left: 60px;">
-    <h3 class="mb-4">Enviar Notificaciones</h3>
+    <h3 class="mb-4">Crear Notificaciones</h3>
 
     <form method="post" action="/Notificaciones/Enviar">
         <div class="row g-3">

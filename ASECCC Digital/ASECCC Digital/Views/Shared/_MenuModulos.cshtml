@@ -22,24 +22,29 @@
                         if (userRole == "Admin")
                         {
                             <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Registrar", "Asociados")">Registrar Asociado</a>
+                                <a class="nav-link" href="@Url.Action("RegistrarAsociado", "Asociados")">Registrar Asociado</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Actualizar", "Asociados")">Actualizar Asociado</a>
+                                <a class="nav-link" href="@Url.Action("ActualizarAsociado", "Asociados")">Editar Asociado</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Buscar", "Asociados")">Buscar Asociado</a>
+                                <a class="nav-link" href="@Url.Action("BuscarAsociado", "Asociados")">Buscar Asociado</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Liquidar", "Asociados")">Liquidar Asociado</a>
+                                <a class="nav-link" href="@Url.Action("LiquidarAsociado", "Asociados")">Liquidar Asociado</a>
                             </li>
                         }
                         else if (userRole == "Asociado")
                         {
                             <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Asociado", "Asociados")">Asociado</a>
+                                <a class="nav-link" href="@Url.Action("PerfilAsociado", "Perfil")">Mi Perfil</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("BeneficiariosAsociado", "Perfl")">Beneficiarios</a>
                             </li>
                         }
+
+
                     }
                     <!-- Rutas Menu Prestamos-->
                     @if (currentModule == "Prestamos")
@@ -103,9 +108,6 @@
                             </li>
                         }
                     }
-
-
-
                     <!-- Rutas Menu BeneficiosyServicios-->
 
                     @if (currentModule == "BenefyServ")
@@ -138,9 +140,66 @@
                     }
 
                     <!-- Rutas Menu Reportes-->
+
+                    @if (currentModule == "Reportes")
+                    {
+                        if (userRole == "Admin")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("EstadodeCuentaAsociados", "Reportes")">Estado de cuenta por Asociado</a>
+                            </li>
+
+                        }
+                        else if (userRole == "Asociado")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("GenerarEstadoAsociado", "Reportes")">Generar estado de Cuent</a>
+                            </li>
+                        }
+                    }
                     <!-- Rutas Menu Notificaciones-->
+
+                    @if (currentModule == "Notificaciones")
+                    {
+                        if (userRole == "Admin")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("CrearNotificacion", "Notificaciones")">Crear Notificación</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("NotificacionesAdministrador", "Notificaciones")">Historial Notificaciones Enviadas</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("HistorialNotificacionesAdmin", "Notificaciones")">Historial Notificaciones Enviadas</a>
+                            </li>
+
+                        }
+                        else if (userRole == "Asociado")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("NotificacionUsuario", "Notificaciones")">Notificaciones Recibidas</a>
+                            </li>
+                        }
+                    }
+
                     <!-- Rutas Menu Seguridad-->
-                    <!-- Continuar mas Modulos -->
+
+                    @if (currentModule == "SeguridadyPermisos")
+                    {
+                        if (userRole == "Admin")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("RolesyPermisos", "Permisos")">Gestionar Roles</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("RegistroActividadAuditoria", "Permisos")">Registro de Actividad</a>
+                            </li>
+
+                        }
+                    }
+
+                    <!-- Fin Menu Modulos-->
                 </ul>
             </div>
         </div>

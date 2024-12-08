@@ -122,6 +122,7 @@
     <Compile Include="Controllers\BeneficiosyServiciosController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NotificacionesController.cs" />
+    <Compile Include="Controllers\PerfilAsociadoController.cs" />
     <Compile Include="Controllers\PrestamosController.cs" />
     <Compile Include="Controllers\ReportesController.cs" />
     <Compile Include="Controllers\SeguridadyPermisosController.cs" />
@@ -132,6 +133,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="assets\img\logos\ASECCC_LOGO_1.png" />
+    <Content Include="assets\img\logos\ASECCC_LOGO_2.png" />
     <Content Include="assets\img\wallpaper\wp3404276.jpg" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
@@ -258,20 +261,14 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\AhorrosyAportes\AhorroyAporte.cshtml" />
-    <Content Include="Views\Asociados\IndexAsociado.cshtml" />
     <Content Include="Views\BeneficiosyServicios\BeneficioyServicio.cshtml" />
-    <Content Include="Views\Notificaciones\Notificacion.cshtml" />
     <Content Include="Views\Prestamos\Prestamo.cshtml" />
     <Content Include="Views\Reportes\Reporte.cshtml" />
     <Content Include="Views\Usuarios\Usuario.cshtml" />
     <Content Include="Views\Shared\_Layout_Externo.cshtml" />
     <Content Include="Views\SeguridadyPermisos\SeguridadyPermiso.cshtml" />
     <Content Include="Views\Asociados\RegistrarAsociado.cshtml" />
-    <Content Include="Views\Shared\_FormLayout.cshtml" />
     <Content Include="Views\Shared\_MenuModulos.cshtml" />
     <Content Include="Views\Asociados\ActualizarAsociado.cshtml" />
     <Content Include="Views\Asociados\LiquidarAsociado.cshtml" />
@@ -295,8 +292,21 @@
     <Content Include="Views\AhorrosyAportes\ModificarAhorro.cshtml" />
     <Content Include="Views\AhorrosyAportes\FinalizarAhorro.cshtml" />
     <Content Include="Views\Notificaciones\NotificacionUsuario.cshtml" />
-    <Content Include="Views\Notificaciones\NotificacionAdminGestion.cshtml" />
+    <Content Include="Views\Notificaciones\CrearNotificacion.cshtml" />
     <Content Include="Views\Notificaciones\NotificacionAdministrador.cshtml" />
+    <Content Include="Views\Usuarios\Login.cshtml" />
+    <Content Include="Views\Perfil\PerfilAsociado.cshtml" />
+    <Content Include="Views\Reportes\EstadodeCuentaAsociados.cshtml" />
+    <Content Include="Views\Reportes\GenerarEstadoAsociado.cshtml" />
+    <Content Include="Views\ContactoySoporte\FAQ.cshtml" />
+    <Content Include="Views\SeguridadyPermisos\RolesyPermisos.cshtml" />
+    <Content Include="Views\SeguridadyPermisos\RegistroActividadAuditoria.cshtml" />
+    <Content Include="Views\Perfil\BeneficiariosAsociado.cshtml" />
+    <Content Include="Views\Home\About.cshtml" />
+    <Content Include="Views\Home\Contact.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Asociados\Asociados.cshtml" />
+    <Content Include="Views\Notificaciones\Notificaciones.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

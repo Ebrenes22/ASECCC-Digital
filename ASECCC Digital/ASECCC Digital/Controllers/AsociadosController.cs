@@ -14,11 +14,13 @@ namespace ASECCC_Digital.Controllers
             ViewBag.CurrentModule = "Asociados"; //Asigno el CurrentModule para validarlo en el _MenuModulos
         }
         //--------VISTAS ADMIN--------------//
+
         // GET: Asociados
-        public ActionResult IndexAsociado()
+        public ActionResult Asociados()
         {
             return View();
         }
+
 
         public ActionResult RegistrarAsociado()
         {

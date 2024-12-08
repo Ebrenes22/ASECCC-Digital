@@ -12,7 +12,7 @@ namespace ASECCC_Digital.Controllers
         //--------VISTAS ADMIN--------------//
         public ActionResult Index()
         {
-            Session["UserRole"] = "Asociado";
+            Session["UserRole"] = "Admin";
             return View();
         }
 
