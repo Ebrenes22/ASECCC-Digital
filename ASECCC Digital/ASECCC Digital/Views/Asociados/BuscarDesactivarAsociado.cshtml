@@ -1,0 +1,150 @@
+﻿
+@{
+    ViewBag.Title = "Liquidar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    @Html.Partial("_MenuModulos");
+}
+
+<section class="container mt-4 d-flex justify-content-center align-items-start" style="padding-top: 20px;">
+    <div class="w-100" style="max-width: 800px;">
+
+        <!-- Campo de búsqueda básica -->
+        <form>
+            <div class="row g-3 mb-4">
+                <div class="col-md-8">
+                    <label for="buscarAsociado" class="form-label">Buscar por Nombre o Identificación</label>
+                    <input type="text" class="form-control" id="buscarAsociado" placeholder="Ingrese el nombre o identificación del asociado" required>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="button" class="btn btn-primary w-100" onclick="buscarAsociado()">Buscar</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Opciones de búsqueda avanzada -->
+        <div class="mb-4">
+            <h5>Búsqueda Avanzada</h5>
+            <form id="busquedaAvanzada">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="filtroEstadoAfiliacion" class="form-label">Estado de Afiliación</label>
+                        <select class="form-select" id="filtroEstadoAfiliacion">
+                            <option value="">Seleccione</option>
+                            <option value="vigente">Vigente</option>
+                            <option value="suspendido">Suspendido</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="filtroTipoUsuario" class="form-label">Tipo de Usuario</label>
+                        <select class="form-select" id="filtroTipoUsuario">
+                            <option value="">Seleccione</option>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="button" class="btn btn-secondary w-100" onclick="buscarAvanzado()">Buscar Avanzado</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Resultados de la búsqueda -->
+        <div id="resultadosBusqueda" style="display: none;">
+            <h5>Resultados de Búsqueda</h5>
+            <table class="table table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Identificación</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaResultados">
+                    <!-- Resultados simulados -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mensaje sin resultados -->
+        <div id="sinResultados" style="display: none;">
+            <p class="text-danger">No se encontraron asociados que coincidan con los criterios de búsqueda.</p>
+        </div>
+</section>
+
+<script>// Simulación de búsqueda básica
+    function buscarAsociado() {
+        const buscarInput = document.getElementById('buscarAsociado').value.trim();
+
+        // Simula resultados
+        if (buscarInput === "Juan Pérez" || buscarInput === "123456789") {
+            mostrarResultados([{
+                nombre: "Juan Pérez",
+                identificacion: "123456789",
+                correo: "juan.perez@example.com",
+                telefono: "+123456789",
+                estado: "vigente"
+            }]);
+        } else {
+            mostrarSinResultados();
+        }
+    }
+
+    // Simulación de búsqueda avanzada
+    function buscarAvanzado() {
+        const estadoAfiliacion = document.getElementById('filtroEstadoAfiliacion').value;
+        const tipoUsuario = document.getElementById('filtroTipoUsuario').value;
+
+        if (estadoAfiliacion || tipoUsuario) {
+            mostrarResultados([
+                {
+                    nombre: "María Gómez",
+                    identificacion: "987654321",
+                    correo: "maria.gomez@example.com",
+                    telefono: "+987654321",
+                    estado: "inactivo"
+                }
+            ]);
+        } else {
+            mostrarSinResultados();
+        }
+    }
+
+    // Mostrar resultados
+    function mostrarResultados(resultados) {
+        const tabla = document.getElementById('tablaResultados');
+        tabla.innerHTML = ""; // Limpiar resultados previos
+
+        resultados.forEach(resultado => {
+            const fila = `
+                <tr>
+                    <td>${resultado.nombre}</td>
+                    <td>${resultado.identificacion}</td>
+                    <td>${resultado.correo}</td>
+                    <td>${resultado.telefono}</td>
+                    <td>
+                        <button type="button" class="btn btn-info btn-sm">Ver Detalles</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="desactivarCuenta('${resultado.nombre}')">Desactivar Cuenta</button>
+                    </td>
+                </tr>
+            `;
+            tabla.innerHTML += fila;
+        });
+
+        document.getElementById('resultadosBusqueda').style.display = 'block';
+        document.getElementById('sinResultados').style.display = 'none';
+    }
+
+    // Mostrar mensaje de sin resultados
+    function mostrarSinResultados() {
+        document.getElementById('resultadosBusqueda').style.display = 'none';
+        document.getElementById('sinResultados').style.display = 'block';
+    }
+
+    // Simular desactivación de cuenta
+    function desactivarCuenta(nombre) {
+        alert(`La cuenta del asociado "${nombre}" ha sido desactivada exitosamente.`);
+    }</script>
