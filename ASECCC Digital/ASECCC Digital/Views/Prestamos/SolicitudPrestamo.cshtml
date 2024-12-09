@@ -5,5 +5,27 @@
     @Html.Partial("_MenuModulos");
 }
 
-<h2>SolicitudPrestamo</h2>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Formulario de Solicitud de Préstamo</h2>
+    <form asp-action="EnviarSolicitud" method="POST">
+        <div class="form-group">
+            <label for="montoSolicitud">Monto de Solicitud</label>
+            <input type="number" class="form-control" id="montoSolicitud" name="MontoSolicitud" placeholder="Ingrese el monto solicitado" required>
+        </div>
+
+        <div class="form-group">
+            <label for="plazoMeses">Plazo en Meses</label>
+            <input type="number" class="form-control" id="plazoMeses" name="PlazoMeses" min="1" placeholder="Ingrese el plazo en meses" required>
+        </div>
+
+        <div class="form-group">
+            <label for="propositoPrestamo">Propósito del Préstamo</label>
+            <textarea class="form-control" id="propositoPrestamo" name="PropositoPrestamo" rows="4" placeholder="Escriba el propósito del préstamo" required></textarea>
+        </div>
+
+        <div class="form-group text-center">
+            <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+        </div>
+    </form>
+</div>
 

@@ -5,6 +5,8 @@
     @Html.Partial("_MenuModulos");
 }
 
+<h1 class="text-center mb-4">Liquidar Asociado</h1>
+
 <section class="container mt-4 d-flex justify-content-center align-items-start" style="padding-top: 20px;">
     <div class="w-100" style="max-width: 800px;">
 
@@ -39,7 +41,7 @@
                         <td>Préstamo personal</td>
                         <td>$5,000</td>
                         <td>
-                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Préstamo', '$5,000')">Liquidar</button>
+                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Préstamo', '¢5,000')">Liquidar</button>
                         </td>
                     </tr>
                     <tr>
@@ -47,7 +49,7 @@
                         <td>Ahorros acumulados</td>
                         <td>$3,000</td>
                         <td>
-                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Ahorros', '$3,000')">Liquidar</button>
+                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Ahorros', '¢3,000')">Liquidar</button>
                         </td>
                     </tr>
                     <tr>
@@ -55,7 +57,7 @@
                         <td>Contribuciones personales</td>
                         <td>$1,500</td>
                         <td>
-                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Aporte Personal', '$1,500')">Liquidar</button>
+                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Aporte Personal', '¢1,500')">Liquidar</button>
                         </td>
                     </tr>
                     <tr>
@@ -63,12 +65,13 @@
                         <td>Servicio XYZ</td>
                         <td>$500</td>
                         <td>
-                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Beneficios y Servicios', '$500')">Liquidar</button>
+                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Beneficios y Servicios', '¢500')">Liquidar</button>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+    </div>
 </section>
 
 <script>

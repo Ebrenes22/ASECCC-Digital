@@ -5,6 +5,9 @@
     @Html.Partial("_MenuModulos");
 }
 
+
+<h1 class="text-center mb-4">Buscar Asociado</h1>
+
 <section class="container mt-4 d-flex justify-content-center align-items-start" style="padding-top: 20px;">
     <div class="w-100" style="max-width: 800px;">
 
@@ -73,9 +76,11 @@
         <div id="sinResultados" style="display: none;">
             <p class="text-danger">No se encontraron asociados que coincidan con los criterios de búsqueda.</p>
         </div>
+    </div>
 </section>
 
-<script>// Simulación de búsqueda básica
+<script>
+    // Simulación de búsqueda básica
     function buscarAsociado() {
         const buscarInput = document.getElementById('buscarAsociado').value.trim();
 
