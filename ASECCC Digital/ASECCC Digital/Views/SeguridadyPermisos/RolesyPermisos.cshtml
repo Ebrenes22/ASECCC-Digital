@@ -5,5 +5,66 @@
     @Html.Partial("_MenuModulos")
 }
 
-<h2>RolesyPermisos</h2>
+<h2 class="text-center mb-4">Gestión de Roles y Permisos</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h3 class="text-center">Asignación de Roles a Usuarios</h3>
+            <form method="post" action="@Url.Action("AsignarRol", "RolesyPermisos")">
+                <div class="mb-3">
+                    <label for="userSelect" class="form-label">Seleccionar un usuario</label>
+                    <select id="userSelect" name="userId" class="form-select">
+                        <option value="1">Usuario 1</option>
+                        <option value="2">Usuario 2</option>
+                        <option value="3">Usuario 3</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Roles Disponibles</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="role" id="adminRole" value="admin">
+                        <label class="form-check-label" for="adminRole">Administrador</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="role" id="associateRole" value="associate">
+                        <label class="form-check-label" for="associateRole">Asociado</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            </form>
+        </div>
+
+        <div class="col-md-6">
+            <h3 class="text-center">Usuarios y Roles</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Usuario 1</td>
+                        <td>Administrador</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm">Modificar</button>
+                            <button class="btn btn-danger btn-sm">Eliminar</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Usuario 2</td>
+                        <td>Asociado</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm">Modificar</button>
+                            <button class="btn btn-danger btn-sm">Eliminar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
