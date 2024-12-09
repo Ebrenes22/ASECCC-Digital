@@ -5,63 +5,87 @@
     @Html.Partial("_MenuModulos");
 }
 
-<section class="container mt-4" style="margin-left: 60px;">
-    <h3 class="mb-4">Liquidar Asociado</h3>
+<section class="container mt-4 d-flex justify-content-center align-items-start" style="padding-top: 20px;">
+    <div class="w-100" style="max-width: 800px;">
 
-    <!-- Campo de búsqueda -->
-    <form>
-        <div class="row g-3 mb-4">
-            <div class="col-md-8">
-                <label for="buscarNombre" class="form-label">Buscar por Nombre</label>
-                <input type="text" class="form-control" id="buscarNombre" placeholder="Ingrese el nombre del asociado" required>
+        <!-- Campo de búsqueda del asociado -->
+        <form>
+            <div class="row g-3 mb-4">
+                <div class="col-md-8">
+                    <label for="buscarAsociado" class="form-label">Buscar Asociado</label>
+                    <input type="text" class="form-control" id="buscarAsociado" placeholder="Ingrese el nombre del asociado" required>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="button" class="btn btn-primary w-100" onclick="simularBusqueda()">Buscar</button>
+                </div>
             </div>
-            <div class="col-md-4 d-flex align-items-end">
-                <button type="button" class="btn btn-primary w-100" disabled>Buscar</button>
-            </div>
+        </form>
+
+        <!-- Tabla de detalles de la cuenta -->
+        <div id="detalleCuenta" style="display: none;">
+            <h5>Rubros Activos del Asociado</h5>
+            <table class="table table-bordered mt-3">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th>Saldo</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Préstamo</td>
+                        <td>Préstamo personal</td>
+                        <td>$5,000</td>
+                        <td>
+                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Préstamo', '$5,000')">Liquidar</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Ahorros</td>
+                        <td>Ahorros acumulados</td>
+                        <td>$3,000</td>
+                        <td>
+                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Ahorros', '$3,000')">Liquidar</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Aporte Personal</td>
+                        <td>Contribuciones personales</td>
+                        <td>$1,500</td>
+                        <td>
+                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Aporte Personal', '$1,500')">Liquidar</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Beneficios y Servicios</td>
+                        <td>Servicio XYZ</td>
+                        <td>$500</td>
+                        <td>
+                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Beneficios y Servicios', '$500')">Liquidar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-    </form>
-
-    <!-- Tabla de resultados (estática) -->
-    <h5 class="mt-4">Resultados</h5>
-    <table class="table table-striped mt-3">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Identificación</th>
-                <th>Correo</th>
-                <th>Teléfono</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Resultados simulados -->
-            <tr>
-                <td>Juan Pérez</td>
-                <td>123456789</td>
-                <td>juan.perez@example.com</td>
-                <td>+123456789</td>
-                <td>
-                    <button type="button" class="btn btn-danger btn-sm" disabled>Eliminar</button>
-                </td>
-            </tr>
-            <tr>
-                <td>María Gómez</td>
-                <td>987654321</td>
-                <td>maria.gomez@example.com</td>
-                <td>+987654321</td>
-                <td>
-                    <button type="button" class="btn btn-danger btn-sm" disabled>Eliminar</button>
-                </td>
-            </tr>
-            <tr>
-                <td>Pedro Sánchez</td>
-                <td>555666777</td>
-                <td>pedro.sanchez@example.com</td>
-                <td>+555666777</td>
-                <td>
-                    <button type="button" class="btn btn-danger btn-sm" disabled>Eliminar</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
 </section>
+
+<script>
+    // Simular búsqueda de asociado
+    function simularBusqueda() {
+        const buscarInput = document.getElementById('buscarAsociado').value.trim();
+
+        if (buscarInput) {
+            alert(`Asociado "${buscarInput}" encontrado. Mostrando rubros.`);
+            document.getElementById('detalleCuenta').style.display = 'block'; // Mostrar la tabla
+        } else {
+            alert('Por favor, ingrese el nombre del asociado.');
+        }
+    }
+
+    // Simular liquidación de rubro
+    function liquidar(tipo, saldo) {
+        alert(`El rubro "${tipo}" con saldo ${saldo} ha sido liquidado exitosamente.`);
+    }
+</script>

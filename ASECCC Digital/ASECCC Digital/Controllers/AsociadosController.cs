@@ -43,6 +43,11 @@ namespace ASECCC_Digital.Controllers
             return View();
         }
 
+        public ActionResult BuscarDesactivarAsociado()
+        {
+            return View();
+        }
+
         //--------VISTAS USUARIO--------------//
 
 
