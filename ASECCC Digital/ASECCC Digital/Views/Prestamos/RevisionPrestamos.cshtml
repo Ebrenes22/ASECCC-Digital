@@ -1,9 +1,206 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "RevisionPrestamos";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
+
+    // Datos simulados
+    var solicitudesPendientes = new List<dynamic> {
+        new { Id = 1, Usuario = "Juan Pérez", Monto = "₡500,000" },
+        new { Id = 2, Usuario = "María Gómez", Monto = "₡750,000" }
+    };
+
+    var solicitudesRevision = new List<dynamic> {
+        new { Id = 3, Usuario = "Carlos Sánchez", Monto = "₡1,000,000" }
+    };
+
+    var solicitudesAprobadas = new List<dynamic> {
+        new { Id = 4, Usuario = "Ana Rodríguez", Monto = "₡300,000" }
+    };
+
+    var solicitudesRechazadas = new List<dynamic> {
+        new { Id = 5, Usuario = "Luis Fernández", Monto = "₡250,000" }
+    };
 }
 
-<h2>RevisionPrestamos</h2>
+<div class="container my-4">
+    <h2 class="text-center mb-4">Solicitudes de Préstamos</h2>
+    <div class="row">
+        <!-- Columna: Pendiente -->
+        <div class="col-md-3" id="pendiente-column">
+            <h5 class="text-center text-primary">Pendiente</h5>
+            <div class="bg-light p-3 rounded shadow-sm" style="min-height: 300px;" id="pendiente">
+                @foreach (var solicitud in solicitudesPendientes)
+                {
+                    <div class="card mb-3 border-primary solicitud-card" data-id="@solicitud.Id" data-usuario="@solicitud.Usuario" data-monto="@solicitud.Monto" data-estado="Pendiente">
+                        <div class="card-body">
+                            <h6 class="card-title">Solicitud #@solicitud.Id</h6>
+                            <p class="card-text">
+                                <strong>Usuario:</strong> @solicitud.Usuario <br>
+                                <strong>Monto:</strong> @solicitud.Monto
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
 
+        <!-- Columna: En Revisión -->
+        <div class="col-md-3" id="revision-column">
+            <h5 class="text-center text-warning">En Revisión</h5>
+            <div class="bg-light p-3 rounded shadow-sm" style="min-height: 300px;" id="revision">
+                @foreach (var solicitud in solicitudesRevision)
+                {
+                    <div class="card mb-3 border-warning solicitud-card" data-id="@solicitud.Id" data-usuario="@solicitud.Usuario" data-monto="@solicitud.Monto" data-estado="En Revisión">
+                        <div class="card-body">
+                            <h6 class="card-title">Solicitud #@solicitud.Id</h6>
+                            <p class="card-text">
+                                <strong>Usuario:</strong> @solicitud.Usuario <br>
+                                <strong>Monto:</strong> @solicitud.Monto
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Columna: Aprobado -->
+        <div class="col-md-3" id="aprobado-column">
+            <h5 class="text-center text-success">Aprobado</h5>
+            <div class="bg-light p-3 rounded shadow-sm" style="min-height: 300px;" id="aprobado">
+                @foreach (var solicitud in solicitudesAprobadas)
+                {
+                    <div class="card mb-3 border-success solicitud-card" data-id="@solicitud.Id" data-usuario="@solicitud.Usuario" data-monto="@solicitud.Monto" data-estado="Aprobado">
+                        <div class="card-body">
+                            <h6 class="card-title">Solicitud #@solicitud.Id</h6>
+                            <p class="card-text">
+                                <strong>Usuario:</strong> @solicitud.Usuario <br>
+                                <strong>Monto:</strong> @solicitud.Monto
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Columna: Rechazado -->
+        <div class="col-md-3" id="rechazado-column">
+            <h5 class="text-center text-danger">Rechazado</h5>
+            <div class="bg-light p-3 rounded shadow-sm" style="min-height: 300px;" id="rechazado">
+                @foreach (var solicitud in solicitudesRechazadas)
+                {
+                    <div class="card mb-3 border-danger solicitud-card" data-id="@solicitud.Id" data-usuario="@solicitud.Usuario" data-monto="@solicitud.Monto" data-estado="Rechazado">
+                        <div class="card-body">
+                            <h6 class="card-title">Solicitud #@solicitud.Id</h6>
+                            <p class="card-text">
+                                <strong>Usuario:</strong> @solicitud.Usuario <br>
+                                <strong>Monto:</strong> @solicitud.Monto
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Revision Prestamo -->
+<div class="modal fade" id="solicitudModal" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="solicitudModalLabel">Detalles de la Solicitud</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="usuario" class="form-label">Usuario</label>
+                        <input type="text" class="form-control" id="usuario" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="monto" class="form-label">Monto</label>
+                        <input type="text" class="form-control" id="monto" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado Actual</label>
+                        <select class="form-select" id="estado">
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En Revisión">En Revisión</option>
+                            <option value="Aprobado">Aprobado</option>
+                            <option value="Rechazado">Rechazado</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="guardarEstado">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vincular el JS de Bootstrap y jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Script para manejar el modal y mover las tarjetas -->
+<script>
+    var tarjeta; // Variable para almacenar la tarjeta seleccionada
+
+    // Mostrar datos en el modal al hacer clic en la tarjeta
+    $('.solicitud-card').click(function () {
+        tarjeta = $(this); // Guardar la tarjeta clickeada
+        var id = tarjeta.data('id');
+        var usuario = tarjeta.data('usuario');
+        var monto = tarjeta.data('monto');
+        var estado = tarjeta.data('estado');
+
+        // Rellenar los campos del modal con los datos de la tarjeta
+        $('#usuario').val(usuario);
+        $('#monto').val(monto);
+        $('#estado').val(estado);
+
+        // Abrir el modal
+        $('#solicitudModal').modal('show');
+    });
+
+    // Guardar el nuevo estado y mover la tarjeta
+    $('#guardarEstado').click(function () {
+        var nuevoEstado = $('#estado').val();
+        var columnaDestino;
+
+        // Determinar la columna a la que mover la tarjeta
+        switch (nuevoEstado) {
+            case 'Pendiente':
+                columnaDestino = '#pendiente';
+                break;
+            case 'En Revisión':
+                columnaDestino = '#revision';
+                break;
+            case 'Aprobado':
+                columnaDestino = '#aprobado';
+                break;
+            case 'Rechazado':
+                columnaDestino = '#rechazado';
+                break;
+        }
+
+        // Mover la tarjeta a la nueva columna
+        $(columnaDestino).append(tarjeta);
+
+        // Cerrar el modal
+        $('#solicitudModal').modal('hide');
+    });
+</script>
+
+<style>
+    .card {
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out;
+    }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+</style>
