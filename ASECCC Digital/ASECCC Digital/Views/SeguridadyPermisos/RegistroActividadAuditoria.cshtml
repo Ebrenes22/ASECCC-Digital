@@ -1,9 +1,43 @@
 ﻿
 @{
-    ViewBag.Title = "RegistroActividadAuditoria";
+    ViewBag.Title = "Registro de Actividad y Auditoria";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos")
 }
 
-<h2>RegistroActividadAuditoria</h2>
+<h2 class="text-center mb-4">Registro de Actividad y Auditoría</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="text-center">Historial de Acceso al Sistema</h3>
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Fecha de Acceso</th>
+                        <th>Hora de Acceso</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var actividad in Model)
+                    {
+                        <tr>
+                            <td>@actividad.Usuario</td>
+                            <td>@actividad.Rol</td>
+                            <td>@actividad.FechaAcceso.ToString("dd/MM/yyyy")</td>
+                            <td>@actividad.HoraAcceso.ToString("HH:mm:ss")</td>
+                            <td>
+                                <button class="btn btn-sm btn-info">Detalles</button>
+                                <button class="btn btn-sm btn-danger">Eliminar</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
