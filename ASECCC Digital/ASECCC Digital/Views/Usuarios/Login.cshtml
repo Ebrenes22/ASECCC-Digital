@@ -1,8 +1,115 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Login";
     Layout = "~/Views/Shared/_Layout_Externo.cshtml";
 }
+<div class="login-container d-flex justify-content-center align-items-center">
+    <div class="card p-4" justify-content-center  style="max-width: 400px; width: 100%; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        <h2 class="text-center mb-4">Iniciar Sesión</h2>
+        <form id="loginForm">
+            <div class="mb-3">
+                <label for="tipoIdentificacion" class="form-label">Tipo de Identificación</label>
+                <select id="tipoIdentificacion" class="form-select" required>
+                    <option value="" disabled selected>Seleccione tipo de identificación</option>
+                    <option value="cedula">Cédula Nacional</option>
+                    <option value="dimex">Identificación DIMEX</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="cedula" class="form-label">Usuario</label>
+                <input type="text" class="form-control" id="cedula" name="cedula" placeholder="Ingrese su número de identificación" required maxlength="12">
+                <div class="invalid-feedback">
+                    Por favor ingrese un número de identificación válido.
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" name="password" required>
+                    <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                        <i class="bi bi-eye"></i> <!-- Icono de ojo -->
+                    </button>
+                </div>
+                <div class="invalid-feedback">
+                    Por favor ingrese su contraseña.
+                </div>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-<h2>Login</h2>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const cedulaInput = $('#cedula');
+        const tipoIdentificacionSelect = $('#tipoIdentificacion');
 
+        // Función para formatear la cédula o DIMEX
+        function formatCedula(value) {
+            let formattedValue = value.replace(/[^0-9]/g, ''); // Eliminar caracteres no numéricos
+
+            if (tipoIdentificacionSelect.val() === 'cedula') {
+                // Formato de Cédula Nacional: 0-0000-0000 (máximo 9 dígitos)
+                if (formattedValue.length <= 9) {
+                    formattedValue = formattedValue.replace(/^(\d{1})(\d{4})(\d+)/, '$1-$2-$3');
+                }
+            } else if (tipoIdentificacionSelect.val() === 'dimex') {
+                // Formato de Identificación DIMEX: 000000000000 (máximo 12 dígitos)
+                if (formattedValue.length <= 12) {
+                    formattedValue = formattedValue.replace(/^(\d{12})$/, '$1');
+                }
+            }
+            return formattedValue;
+        }
+
+        // Detecta el cambio de tipo de identificación
+        tipoIdentificacionSelect.on('change', function () {
+            cedulaInput.val(''); // Limpiar el campo al cambiar tipo de identificación
+        });
+
+        // Evento para formatear el número de identificación y limitar la longitud
+        cedulaInput.on('input', function () {
+            let value = cedulaInput.val();
+            value = value.replace(/[^0-9]/g, ''); // Solo permitir números
+            if (tipoIdentificacionSelect.val() === 'cedula' && value.length > 9) {
+                value = value.slice(0, 9); // Limitar a 9 dígitos para cédula nacional
+            } else if (tipoIdentificacionSelect.val() === 'dimex' && value.length > 12) {
+                value = value.slice(0, 12); // Limitar a 12 dígitos para DIMEX
+            }
+            value = formatCedula(value); // Formatear según el tipo de identificación
+            cedulaInput.val(value);
+        });
+
+        // Validación del formulario
+        $('#loginForm').on('submit', function (event) {
+            const isValid = this.checkValidity();
+            if (!isValid) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            this.classList.add('was-validated');
+        });
+
+    });
+
+    document.getElementById('togglePassword').addEventListener('click', function (e) {
+        const passwordField = document.getElementById('password');
+        const icon = this.querySelector('i');
+
+        // Alternar el tipo de input entre "password" y "text"
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash'); // Cambiar el icono
+        } else {
+            passwordField.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    });
+
+
+</script>

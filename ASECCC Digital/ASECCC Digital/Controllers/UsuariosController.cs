@@ -15,6 +15,11 @@ namespace ASECCC_Digital.Controllers
             return View();
         }
 
+        public ActionResult Login()
+        {
+            return View();
+        }
+
         //--------VISTAS USUARIO--------------//
     }
 }
