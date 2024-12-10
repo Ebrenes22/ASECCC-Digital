@@ -133,6 +133,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="assets\img\logos\ASECCC_LOGO3.1.png" />
     <Content Include="assets\img\logos\ASECCC_LOGO_1.png" />
     <Content Include="assets\img\logos\ASECCC_LOGO_2.png" />
     <Content Include="assets\img\wallpaper\wp3404276.jpg" />
