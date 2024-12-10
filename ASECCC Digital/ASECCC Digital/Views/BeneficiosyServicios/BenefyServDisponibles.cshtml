@@ -1,9 +1,39 @@
-﻿
-@{
-    ViewBag.Title = "BenefyServDisponibles";
+﻿@{
+    ViewBag.Title = "Beneficios y Servicios Disponibles";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    @Html.Partial("_MenuModulos");
 }
 
-<h2>BenefyServDisponibles</h2>
+<h1 class="text-center">Beneficios y Servicios Disponibles</h1>
+
+<div class="container">
+    <form id="filtros">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="categoria" class="form-label">Categoría</label>
+                <select class="form-control" id="categoria" name="categoria">
+                    <option value="">Seleccione Categoría</option>
+                    <option value="Salud">Salud</option>
+                    <option value="Educación">Educación</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <button class="btn btn-primary mt-4" onclick="filtrarBeneficios()">Filtrar</button>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Beneficio</th>
+                <th>Descripción</th>
+                <th>Requisitos</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="beneficiosTable">
+        </tbody>
+    </table>
+</div>
+
 

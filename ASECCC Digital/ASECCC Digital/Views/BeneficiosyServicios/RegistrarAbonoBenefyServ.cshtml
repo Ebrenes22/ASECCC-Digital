@@ -5,5 +5,21 @@
     @Html.Partial("_MenuModulos");
 }
 
-<h2>RegistrarAbonoBenefyServ</h2>
+<h1 class="text-center">Registrar Abono a Beneficio y Servicio</h1>
 
+<div class="container">
+    <form method="post" action="@Url.Action("RegistrarAbono", "Beneficio")">
+        <div class="form-group">
+            <label for="beneficio">Seleccionar Beneficio</label>
+            <select class="form-control" id="beneficio" name="beneficio">
+                {
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="monto">Monto Abonado</label>
+            <input type="number" class="form-control" id="monto" name="monto" required />
+        </div>
+        <strong></strong>
+        <button type="submit" class="btn btn-success">Registrar Abono</button>
+    </form>
+</div>

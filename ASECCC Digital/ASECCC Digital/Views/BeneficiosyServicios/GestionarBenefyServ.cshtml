@@ -1,9 +1,45 @@
-﻿
-@{
-    ViewBag.Title = "GestionarBenefyServ";
+﻿@{
+    ViewBag.Title = "Gestión de Beneficios y Servicios";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
 
-<h2>GestionarBenefyServ</h2>
+<h1 class="text-center">Gestión de Beneficios y Servicios</h1>
+
+<div class="container">
+    <button class="btn btn-success mb-3" data-toggle="modal" data-target="#modalNuevoBeneficio">Registrar Nuevo Beneficio</button>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Requisitos</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Casa en la playa</td>
+                <td>La asociación cuenta con villas y apartamentos en condominio para el disfrute de sus asociados.</td>
+                <td>Documento de identidad</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modalEditarBeneficio">Editar</button>
+                    <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalEliminarBeneficio">Eliminar</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Beneficio de Salud</td>
+                <td>Servicios médicos completos para los asociados.</td>
+                <td>Seguro médico</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modalEditarBeneficio">Editar</button>
+                    <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalEliminarBeneficio">Eliminar</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
 

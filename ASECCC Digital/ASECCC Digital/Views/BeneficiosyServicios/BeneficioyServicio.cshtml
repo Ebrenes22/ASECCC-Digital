@@ -1,9 +1,73 @@
-﻿
-@{
-    ViewBag.Title = "BeneficiosyServicios";
+﻿@{
+    ViewBag.Title = "Beneficios y Servicios";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
 
-<h2>BeneficiosyServicios</h2>
+<h1 class="text-center">Beneficios y Servicios Disponibles</h1>
+
+<div class="container">
+    <form id="filtros" class="mb-3">
+        <div class="row">
+            <div class="col-md-4">
+                <label for="categoria" class="form-label">Categoría</label>
+                <select class="form-control" id="categoria" name="categoria" onchange="filtrarBeneficios()">
+                    <option value="">Seleccione Categoría</option>
+                    <option value="Casa">Casa</option>
+                    <option value="Salud">Salud</option>
+                    <option value="Educación">Educación</option>
+                    <option value="Deporte">Deporte</option>
+                </select>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Requisitos</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="beneficiosTable">
+            <tr>
+                <td><a href="#" onclick="mostrarDetalle('Casa  playa')">Casa en la playa</a></td>
+                <td>La asociación cuenta con villas y apartamentos en condominio para el disfrute de sus asociados.</td>
+                <td>Documento de identidad</td>
+                <td><button class="btn btn-info btn-sm" onclick="mostrarDetalle('Casaplaya')">Ver Detalles</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<div id="detalleModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="detalleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detalleModalLabel">Detalles del Beneficio</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="detalleContenido">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function mostrarDetalle(beneficio) {
+        var detalles = {
+            "Casa en la playa": "Detalles: La asociación tiene villas y apartamentos en condominio para el disfrute de sus asociados. Condiciones de acceso: Presentar documento de identidad.",
+        };
+    }
+
+</script>
 
