@@ -1,9 +1,139 @@
-﻿
-@{
-    ViewBag.Title = "ConsultarAportesAsociado";
+﻿@{
+    ViewBag.Title = "ConsultaAportesAsociado";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
 
-<h2>ConsultarAportesAsociado</h2>
+<div class="container my-5">
+    <h1 class="text-center mb-4">Gestión de Aportes</h1>
 
+    <!-- Nombre del Asociado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 id="nombreAsociadoTitulo" class="text-center"></h3>
+        </div>
+    </div>
+
+    <!-- Cards de Aportes -->
+    <div class="row d-flex justify-content-center flex-wrap" id="cardsAportes">
+        <!-- Cards dinámicas generadas por JavaScript -->
+    </div>
+</div>
+
+<!-- Modal para Historial de Registro -->
+<div class="modal fade" id="modalHistorialRegistro" tabindex="-1" aria-labelledby="modalHistorialRegistroLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalHistorialRegistroLabel">Historial de Abonos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="tablaHistorial">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Historial dinámico generado por JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const asociados = [
+        { id: 1, nombre: 'Carlos Pérez', identificacion: '101010101' },
+        { id: 2, nombre: 'Ana Rodríguez', identificacion: '202020202' }
+    ];
+
+    const aportes = [
+        { id: 1, asociadoId: 1, tipo: 'Personal', monto: 50000, fecha: '2024-10-01', estado: 'Activo' },
+        { id: 2, asociadoId: 1, tipo: 'Patronal', monto: 200000, fecha: '2023-05-15', estado: 'Activo' },
+        { id: 3, asociadoId: 2, tipo: 'Personal', monto: 15000, fecha: '2024-11-10', estado: 'Inactivo' },
+        { id: 4, asociadoId: 2, tipo: 'Patronal', monto: 250000, fecha: '2022-02-20', estado: 'Inactivo' }
+    ];
+
+    const historialAbonos = {
+        1: [
+            { fecha: '2024-09-15', monto: 20000 },
+            { fecha: '2024-09-30', monto: 30000 }
+        ],
+        2: [
+            { fecha: '2023-06-01', monto: 100000 },
+            { fecha: '2023-06-15', monto: 100000 }
+        ]
+    };
+
+    // Mostrar los aportes del asociado
+    function mostrarAportes(asociadoId) {
+        const asociado = asociados.find(a => a.id === asociadoId);
+        document.getElementById('nombreAsociadoTitulo').textContent = `Aportes de ${asociado.nombre}`;
+
+        const aportesFiltrados = aportes.filter(aporte => aporte.asociadoId === asociado.id);
+        const cardsAportes = document.getElementById('cardsAportes');
+        cardsAportes.innerHTML = '';
+
+        if (aportesFiltrados.length === 0) {
+            cardsAportes.innerHTML = '<div class="col-12 text-center">No se encontraron aportes para este asociado.</div>';
+            return;
+        }
+
+        aportesFiltrados.forEach(aporte => {
+            const card = document.createElement('div');
+            card.classList.add('col-12', 'col-md-6', 'col-lg-4', 'mb-4');
+            card.innerHTML = `
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">${aporte.tipo}</h5>
+                        <p class="card-text">
+                            <strong>Fecha:</strong> ${aporte.fecha}<br>
+                            <strong>Monto:</strong> ${formatearMonto(aporte.monto)}<br>
+                            <strong>Estado:</strong> ${aporte.estado}
+                        </p>
+                        <button class="btn btn-info btn-sm" onclick="verHistorial(${aporte.id})" data-bs-toggle="modal" data-bs-target="#modalHistorialRegistro">
+                            <i class="bi bi-clock-history"></i> Ver Historial
+                        </button>
+                    </div>
+                </div>
+            `;
+            cardsAportes.appendChild(card);
+        });
+    }
+
+    function formatearMonto(monto) {
+        return monto.toLocaleString('es-CR', { style: 'currency', currency: 'CRC' });
+    }
+
+    function verHistorial(aporteId) {
+        const tablaHistorial = document.querySelector('#tablaHistorial tbody');
+        tablaHistorial.innerHTML = '';
+
+        if (!historialAbonos[aporteId] || historialAbonos[aporteId].length === 0) {
+            tablaHistorial.innerHTML = '<tr><td colspan="2" class="text-center">No hay historial de abonos para este aporte.</td></tr>';
+            return;
+        }
+
+        historialAbonos[aporteId].forEach(abono => {
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+                <td>${abono.fecha}</td>
+                <td>${formatearMonto(abono.monto)}</td>
+            `;
+            tablaHistorial.appendChild(fila);
+        });
+    }
+
+    // Llamar a la función de mostrarAportes con el ID del asociado al cargar la página
+    mostrarAportes(1); // Cambiar el ID según el asociado que se desea mostrar
+</script>
