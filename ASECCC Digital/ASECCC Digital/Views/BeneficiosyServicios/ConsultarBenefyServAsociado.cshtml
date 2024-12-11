@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "ConsultarBenefyServAsociado";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
@@ -8,20 +7,38 @@
 <h2>ConsultarBenefyServAsociado</h2>
 
 <div class="container">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Beneficio</th>
-                <th>Descripción</th>
-                <th>Requisitos</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-        <td>Casa en la playa</td>
-        <td>La asociación cuenta con villas y apartamentos en condominio para el disfrute de sus asociados</td>
-        <td>Documento de identidad</td>
-        <td>Activo</td>
-        </tbody>
-    </table>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Casa en la playa</h5>
+                    <p class="card-text">La asociación cuenta con villas y apartamentos en condominio para el disfrute de sus asociados.</p>
+                    <p><strong>Requisitos:</strong> Documento de identidad</p>
+                    <p><strong>Estado:</strong> Activo</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Servicio de Transporte</h5>
+                    <p class="card-text">Ofrecemos transporte exclusivo para los asociados a diferentes puntos turísticos.</p>
+                    <p><strong>Requisitos:</strong> Documento de identidad, ser asociado activo</p>
+                    <p><strong>Estado:</strong> Activo</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Piscina y áreas recreativas</h5>
+                    <p class="card-text">Acceso a una piscina y zonas recreativas dentro del complejo para los miembros de la asociación.</p>
+                    <p><strong>Requisitos:</strong> Documento de identidad</p>
+                    <p><strong>Estado:</strong> Activo</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
