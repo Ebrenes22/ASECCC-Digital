@@ -288,9 +288,6 @@
     <Content Include="Views\AhorrosyAportes\GestionarAhorrosAdmin.cshtml" />
     <Content Include="Views\AhorrosyAportes\ConsultarAportesAsociado.cshtml" />
     <Content Include="Views\AhorrosyAportes\ConsultarAhorrosAsociado.cshtml" />
-    <Content Include="Views\AhorrosyAportes\CrearAhorro.cshtml" />
-    <Content Include="Views\AhorrosyAportes\ModificarAhorro.cshtml" />
-    <Content Include="Views\AhorrosyAportes\FinalizarAhorro.cshtml" />
     <Content Include="Views\Notificaciones\NotificacionUsuario.cshtml" />
     <Content Include="Views\Notificaciones\CrearNotificacion.cshtml" />
     <Content Include="Views\Notificaciones\NotificacionAdministrador.cshtml" />

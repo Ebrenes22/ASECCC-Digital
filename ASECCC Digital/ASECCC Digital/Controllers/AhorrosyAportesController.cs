@@ -45,21 +45,6 @@ namespace ASECCC_Digital.Controllers
             return View();
         }
 
-        public ActionResult CrearAhorro()
-        {
-            return View();
-        }
-
-        public ActionResult ModificarAhorro()
-        {
-            return View();
-        }
-
-        public ActionResult FinalizarAhorro()
-        {
-            return View();
-        }
-
 
 
     }
