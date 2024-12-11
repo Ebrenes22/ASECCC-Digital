@@ -4,36 +4,42 @@
     @Html.Partial("_MenuModulos");
 }
 
-<section class="container mt-4" style="margin-left: 60px;">
-    <h3 class="mb-4">Crear Notificaciones</h3>
+<section class="d-flex justify-content-center align-items-center" style="height: 80vh; padding-top: 50px;">
+    <div class="container">
+        <h3 class="mb-4 text-center">Crear Notificación</h3>
 
-    <form method="post" action="/Notificaciones/Enviar">
-        <div class="row g-3">
-            <div class="col-md-12">
-                <label for="tipoNotificacion" class="form-label">Tipo de Notificación</label>
-                <select class="form-select" id="tipoNotificacion" name="tipoNotificacion">
-                    <option value="masiva">Masiva (a todos los asociados)</option>
-                    <option value="personalizada">Personalizada (a usuarios específicos)</option>
-                </select>
-            </div>
-            <div class="col-md-12">
-                <label for="destinatarios" class="form-label">Destinatarios</label>
-                <input type="text" class="form-control" id="destinatarios" name="destinatarios" placeholder="Ingrese nombres o IDs (separados por comas)" disabled>
-                <small class="text-muted">Este campo solo se habilitará para notificaciones personalizadas.</small>
-            </div>
-            <div class="col-md-12">
-                <label for="asunto" class="form-label">Asunto</label>
-                <input type="text" class="form-control" id="asunto" name="asunto" required>
-            </div>
-            <div class="col-md-12">
-                <label for="mensaje" class="form-label">Mensaje</label>
-                <textarea class="form-control" id="mensaje" name="mensaje" rows="5" required></textarea>
+        <div class="card">
+            <div class="card-body">
+                <form method="post" action="/Notificaciones/Enviar">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label for="tipoNotificacion" class="form-label">Tipo de Notificación</label>
+                            <select class="form-select" id="tipoNotificacion" name="tipoNotificacion">
+                                <option value="masiva">Masiva (a todos los asociados)</option>
+                                <option value="personalizada">Personalizada (a usuarios específicos)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="destinatarios" class="form-label">Destinatarios</label>
+                            <input type="text" class="form-control" id="destinatarios" name="destinatarios" placeholder="Ingrese nombres o IDs (separados por comas)" disabled>
+                            <small class="text-muted">Este campo solo se habilitará para notificaciones personalizadas.</small>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="asunto" class="form-label">Asunto</label>
+                            <input type="text" class="form-control" id="asunto" name="asunto" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="mensaje" class="form-label">Mensaje</label>
+                            <textarea class="form-control" id="mensaje" name="mensaje" rows="5" required></textarea>
+                        </div>
+                    </div>
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-primary">Enviar Notificación</button>
+                    </div>
+                </form>
             </div>
         </div>
-        <div class="text-end mt-3">
-            <button type="submit" class="btn btn-primary">Enviar Notificación</button>
-        </div>
-    </form>
+    </div>
 </section>
 
 <script>
