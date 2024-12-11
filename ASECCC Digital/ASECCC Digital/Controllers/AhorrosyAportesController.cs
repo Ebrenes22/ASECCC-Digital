@@ -32,10 +32,7 @@ namespace ASECCC_Digital.Controllers
             return View();
         }
 
-        public ActionResult ConsultaAhorrosyAporteAdmin()
-        {
-            return View();
-        }
+      
         //--------VISTAS ASOCIADOS--------------//
 
         public ActionResult ConsultarAportesAsociado()

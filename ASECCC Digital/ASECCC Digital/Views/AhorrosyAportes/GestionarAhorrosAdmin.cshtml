@@ -1,9 +1,247 @@
-﻿
-@{
-    ViewBag.Title = "GestionarAhorrosAdmin";
+﻿@{
+    ViewBag.Title = "ConsultaAhorrosAsociado";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
 
-<h2>GestionarAhorrosAdmin</h2>
+<div class="container my-5">
+    <h1 class="text-center mb-4">Gestión de Ahorros</h1>
 
+    <!-- Filtros de búsqueda -->
+    <div class="row mb-4">
+        <!-- Filtro de asociado -->
+        <div class="col-12 mb-3">
+            <label for="asociado" class="form-label">Buscar Asociado</label>
+            <input type="text" id="asociado" class="form-control" placeholder="Ingrese el nombre del asociado">
+        </div>
+    </div>
+
+    <!-- Botones fuera de la tabla -->
+    <div class="d-flex justify-content-between mb-4">
+        <button class="btn btn-primary" onclick="consultarAhorros()">
+            <i class="bi bi-search"></i> Consultar
+        </button>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarAhorro">
+            <i class="bi bi-plus-circle"></i> Registrar Ahorro
+        </button>
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalHistorialRegistro">
+            <i class="bi bi-clock-history"></i> Historial de Registro
+        </button>
+    </div>
+
+    <!-- Resultados en forma de tabla -->
+    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-bordered table-sm" id="tablaAhorros" style="font-size: 14px;">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 20%;">Tipo de Ahorro</th>
+                    <th style="width: 20%;">Fecha</th>
+                    <th style="width: 20%;">Monto</th>
+                    <th style="width: 20%;">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Filas dinámicas generadas por JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal para Registrar Ahorro -->
+    <div class="modal fade" id="modalRegistrarAhorro" tabindex="-1" aria-labelledby="modalRegistrarAhorroLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalRegistrarAhorroLabel">Registrar Nuevo Ahorro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formRegistrarAhorro">
+                        <div class="mb-3">
+                            <label for="nombreAsociado" class="form-label">Nombre del Asociado</label>
+                            <input type="text" id="nombreAsociado" class="form-control" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipoAhorro" class="form-label">Tipo de Ahorro</label>
+                            <select id="tipoAhorro" class="form-select">
+                                <option value="Navideño">Navideño</option>
+                                <option value="Marchamo">Marchamo</option>
+                                <option value="Escolar">Escolar</option>
+                                <option value="A la Vista">A la Vista</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fechaAhorro" class="form-label">Fecha</label>
+                            <input type="date" id="fechaAhorro" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="montoAhorro" class="form-label">Monto</label>
+                            <input type="number" id="montoAhorro" class="form-control" placeholder="Ingrese el monto del ahorro">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="registrarAhorro()">Registrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Historial de Registro -->
+    <div class="modal fade" id="modalHistorialRegistro" tabindex="-1" aria-labelledby="modalHistorialRegistroLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalHistorialRegistroLabel">Historial de Abonos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Selector para cambiar el tipo de ahorro -->
+                    <div class="mb-3">
+                        <label for="tipoHistorial" class="form-label">Tipo de Ahorro</label>
+                        <select id="tipoHistorial" class="form-select" onchange="mostrarHistorial()">
+                            <option value="Navideño">Navideño</option>
+                            <option value="Marchamo">Marchamo</option>
+                            <option value="Escolar">Escolar</option>
+                            <option value="A la Vista">A la Vista</option>
+                        </select>
+                    </div>
+
+                    <!-- Tabla de historial -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="tablaHistorial">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Historial dinámico generado por JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const asociados = [
+        { id: 1, nombre: 'Carlos Pérez', identificacion: '101010101' },
+        { id: 2, nombre: 'Ana Rodríguez', identificacion: '202020202' }
+    ];
+
+    const ahorros = [
+        { id: 1, asociadoId: 1, tipo: 'Navideño', monto: 50000, fecha: '2024-10-01', estado: 'Activo' },
+        { id: 2, asociadoId: 1, tipo: 'Marchamo', monto: 200000, fecha: '2023-05-15', estado: 'Activo' },
+        { id: 3, asociadoId: 2, tipo: 'Escolar', monto: 15000, fecha: '2024-11-10', estado: 'Inactivo' },
+        { id: 4, asociadoId: 2, tipo: 'A la Vista', monto: 250000, fecha: '2022-02-20', estado: 'Inactivo' }
+    ];
+
+    const historialAbonos = {
+        'Navideño': [
+            { fecha: '2024-09-15', monto: 20000 },
+            { fecha: '2024-09-30', monto: 30000 }
+        ],
+        'Marchamo': [
+            { fecha: '2023-06-01', monto: 100000 },
+            { fecha: '2023-06-15', monto: 100000 }
+        ],
+        'Escolar': [
+            { fecha: '2024-08-01', monto: 5000 }
+        ],
+        'A la Vista': [
+            { fecha: '2023-12-10', monto: 50000 }
+        ]
+    };
+
+    let tipoAhorroSeleccionado = '';
+
+    function consultarAhorros() {
+        const nombreAsociado = document.getElementById('asociado').value.toLowerCase();
+        const asociado = asociados.find(a =>
+            a.nombre.toLowerCase().includes(nombreAsociado) ||
+            a.identificacion.includes(nombreAsociado)
+        );
+
+        if (!asociado) {
+            alert('No se encontró el asociado.');
+            return;
+        }
+
+        const ahorrosFiltrados = ahorros.filter(ahorro => ahorro.asociadoId === asociado.id);
+        const tablaBody = document.querySelector('#tablaAhorros tbody');
+        tablaBody.innerHTML = '';
+
+        if (ahorrosFiltrados.length === 0) {
+            tablaBody.innerHTML = '<tr><td colspan="4" class="text-center">No se encontraron ahorros para este asociado.</td></tr>';
+            return;
+        }
+
+        document.getElementById('nombreAsociado').value = asociado.nombre;
+
+        ahorrosFiltrados.forEach(ahorro => {
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+                <td>${ahorro.tipo}</td>
+                <td>${ahorro.fecha}</td>
+                <td>${formatearMonto(ahorro.monto)}</td>
+                <td>${ahorro.estado}</td>
+            `;
+            tablaBody.appendChild(fila);
+        });
+    }
+
+    function formatearMonto(monto) {
+        return monto.toLocaleString('es-CR', { style: 'currency', currency: 'CRC' });
+    }
+
+    function registrarAhorro() {
+        const nombreAsociado = document.getElementById('nombreAsociado').value;
+        const fechaAhorro = document.getElementById('fechaAhorro').value;
+        const montoAhorro = document.getElementById('montoAhorro').value;
+        const tipoAhorro = document.getElementById('tipoAhorro').value;
+
+        const nuevoAhorro = {
+            id: ahorros.length + 1,
+            asociadoId: asociados.find(a => a.nombre === nombreAsociado).id,
+            tipo: tipoAhorro,
+            monto: parseFloat(montoAhorro),
+            fecha: fechaAhorro,
+            estado: 'Activo'
+        };
+
+        ahorros.push(nuevoAhorro);
+        alert('Ahorro registrado con éxito.');
+        document.getElementById('formRegistrarAhorro').reset();
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalRegistrarAhorro'));
+        modal.hide();
+    }
+
+    function mostrarHistorial() {
+        const tipoAhorroSeleccionado = document.getElementById('tipoHistorial').value;
+        const historial = historialAbonos[tipoAhorroSeleccionado] || [];
+        const tablaHistorial = document.querySelector('#tablaHistorial tbody');
+        tablaHistorial.innerHTML = '';
+
+        historial.forEach(abono => {
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+                <td>${abono.fecha}</td>
+                <td>${formatearMonto(abono.monto)}</td>
+            `;
+            tablaHistorial.appendChild(fila);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        mostrarHistorial();
+    });
+</script>

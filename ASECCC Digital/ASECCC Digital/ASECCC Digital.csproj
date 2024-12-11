@@ -286,7 +286,6 @@
     <Content Include="Views\BeneficiosyServicios\ConsultarBenefyServAsociado.cshtml" />
     <Content Include="Views\AhorrosyAportes\GestionarAportes.cshtml" />
     <Content Include="Views\AhorrosyAportes\GestionarAhorrosAdmin.cshtml" />
-    <Content Include="Views\AhorrosyAportes\ConsultaAhorrosyAporteAdmin.cshtml" />
     <Content Include="Views\AhorrosyAportes\ConsultarAportesAsociado.cshtml" />
     <Content Include="Views\AhorrosyAportes\ConsultarAhorrosAsociado.cshtml" />
     <Content Include="Views\AhorrosyAportes\CrearAhorro.cshtml" />
