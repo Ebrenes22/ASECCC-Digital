@@ -127,6 +127,18 @@
     <Compile Include="Controllers\ReportesController.cs" />
     <Compile Include="Controllers\SeguridadyPermisosController.cs" />
     <Compile Include="Controllers\UsuariosController.cs" />
+    <Compile Include="Entities\Beneficiario.cs" />
+    <Compile Include="Entities\Ahorro.cs" />
+    <Compile Include="Entities\AhorroTransaccion.cs" />
+    <Compile Include="Entities\Aportes.cs" />
+    <Compile Include="Entities\AportesTransaccion.cs" />
+    <Compile Include="Entities\BeneficioServicio.cs" />
+    <Compile Include="Entities\BeneficioServicioTransaccion.cs" />
+    <Compile Include="Entities\SeguridadAuditoria.cs" />
+    <Compile Include="Entities\Notificacion.cs" />
+    <Compile Include="Entities\PrestamoTransaccion.cs" />
+    <Compile Include="Entities\Prestamo.cs" />
+    <Compile Include="Entities\Usuario.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
