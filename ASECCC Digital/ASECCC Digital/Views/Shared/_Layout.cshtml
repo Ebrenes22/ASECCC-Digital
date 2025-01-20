@@ -47,7 +47,10 @@
                 <li><a href="@Url.Action("BeneficioyServicio", "BeneficiosyServicios")"><i class="bi bi-person-lines-fill"></i><span>Beneficios y Servicio</span></a></li>
                 <li><a href="@Url.Action("Reporte", "Reportes")"><i class="bi bi-file-earmark-text"></i><span>Reportes</span></a></li>
                 <li><a href="@Url.Action("Notificaciones", "Notificaciones")"><i class="bi bi-envelope navicon"></i><span>Notificaciones</span></a></li>
-                <li><a href="@Url.Action("SeguridadyPermiso", "SeguridadyPermisos")"><i class="bi bi-lock"></i><span>Seguridad y Permiso</span></a></li>
+                @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "Admin")
+                {
+                    <li><a href="@Url.Action("SeguridadyPermiso", "SeguridadyPermisos")"><i class="bi bi-lock"></i><span>Seguridad y Permiso</span></a></li>
+                }
             </ul>
         </nav>
     </header>
@@ -89,39 +92,69 @@
     <!-- Footer -->
     <footer id="footer" class="footer position-relative light-background py-4">
         <div class="container">
-            <div class="row">
-                <!-- Contact Section -->
+            @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "Asociado")
+            {
 
-                <div class="col-md-4 text-center">
-                    <h4>Contacto</h4>
-                    <ul class="list-unstyled">
-                        <li>
-                            <i class="bi bi-phone" aria-hidden="true"></i>
-                            <span class="sr-only"></span> 2551-0782 / 2551-1376
-                        </li>
-                        <li>
-                            <i class="bi bi-envelope" aria-hidden="true"></i>
-                            <span class="sr-only">  </span>
-                            <a href="mailto:aseccc.cartago2009@gmail.com">aseccc.cartago2009@gmail.com</a>
-                        </li>
-                    </ul>
+                <section id="info-section" class="py-5">
+                    <div class="container">
+                        <div class="row">
+                            <!-- Misión -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card shadow">
+                                    <div class="card-body">
+                                        <h2 class="card-title text-center">Misión</h2>
+                                        <p class="card-text">Ofrecer servicios y beneficios innovadores que impulsen el bienestar económico, social y personal de nuestros asociados, fomentando valores de solidaridad, cooperación y responsabilidad compartida para mejorar su calidad de vida y fortalecer la comunidad.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Visión -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card shadow">
+                                    <div class="card-body">
+                                        <h2 class="card-title text-center">Visión</h2>
+                                        <p class="card-text">Convertirnos en un pilar fundamental para el progreso económico y social de nuestros asociados, promoviendo la solidaridad y el trabajo conjunto como herramientas para alcanzar el bienestar común y el desarrollo sostenible de nuestras comunidades.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <div class="row">
+                    <!-- Contact Section -->
+                    <div class="col-md-4 text-center">
+                        <h4>Contacto</h4>
+                        <ul class="list-unstyled">
+                            <li>
+                                <i class="bi bi-phone" aria-hidden="true"></i>
+                                <span class="sr-only"></span> 2551-0782 / 2551-1376
+                            </li>
+                            <li>
+                                <i class="bi bi-envelope" aria-hidden="true"></i>
+                                <span class="sr-only">  </span>
+                                <a href="mailto:aseccc.cartago2009@gmail.com">aseccc.cartago2009@gmail.com</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Logo Section -->
+                    <div class="col-md-4 text-center">
+                        <a href="#" class="navbar-brand">
+                            <img src="~/Assets/img/logos/ASECCC_LOGO_1.png" alt="Logo" class="d-inline-block align-top" height="150">
+                        </a>
+                    </div>
+
+                    <!-- About Us Section -->
+                    <div class="col-md-4 text-center">
+                        <h4>Sobre Nosotros</h4>
+                        <p class="text-muted">
+                            Somos una asociación dedicada a fomentar el ahorro y el bienestar de nuestros afiliados mediante servicios innovadores y apoyo solidario.
+                        </p>
+                    </div>
                 </div>
 
-                <!-- Logo Section -->
-                <div class="col-md-4 text-center">
-                    <a href="#" class="navbar-brand">
-                        <img src="~/Assets/img/logos/ASECCC_LOGO_1.png" alt="Logo" class="d-inline-block align-top" height="150">
-                    </a>
-                </div>
-                <!-- About Us Section -->
-                <div class="col-md-4 text-center">
-                    <h4>Sobre Nosotros</h4>
 
-                    <p class="text-muted">
-                        Somos una asociación dedicada a fomentar el ahorro y el bienestar de nuestros afiliados mediante servicios innovadores y apoyo solidario.
-                    </p>
-                </div>
-            </div>
+            }
             <div class="row">
                 <div class="col text-center">
                     <div class="copyright">

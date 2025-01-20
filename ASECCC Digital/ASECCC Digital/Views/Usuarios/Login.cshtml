@@ -3,7 +3,7 @@
     Layout = "~/Views/Shared/_Layout_Externo.cshtml";
 }
 <div class="login-container d-flex justify-content-center align-items-center">
-    <div class="card p-4" justify-content-center  style="max-width: 400px; width: 100%; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <div class="card p-4" justify-content-center style="max-width: 400px; width: 100%; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
         <h2 class="text-center mb-4">Iniciar Sesión</h2>
         <form id="loginForm">
             <div class="mb-3">
@@ -26,20 +26,59 @@
                 <div class="input-group">
                     <input type="password" class="form-control" id="password" name="password" required>
                     <button type="button" class="btn btn-outline-secondary" id="togglePassword">
-                        <i class="bi bi-eye"></i> <!-- Icono de ojo -->
+                        <i class="bi bi-eye"></i>
                     </button>
                 </div>
                 <div class="invalid-feedback">
                     Por favor ingrese su contraseña.
                 </div>
             </div>
-            <div class="d-grid">
+            <div class="d-grid mb-3">
                 <a href="@Url.Action("Index", "Home")" class="btn btn-primary text-center">
                     Iniciar Sesión
                 </a>
             </div>
-
+            <div class="text-center">
+                <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
+                    ¿Olvidó su contraseña?
+                </a>
+            </div>
         </form>
+    </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="forgotPasswordModalLabel">Restablecer Contraseña</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="forgotPasswordForm">
+                    <div class="mb-3">
+                        <label for="resetTipoIdentificacion" class="form-label">Tipo de Identificación</label>
+                        <select id="resetTipoIdentificacion" class="form-select" required>
+                            <option value="" disabled selected>Seleccione tipo de identificación</option>
+                            <option value="cedula">Cédula Nacional</option>
+                            <option value="dimex">Identificación DIMEX</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="resetCedula" class="form-label">Número de Identificación</label>
+                        <input type="text" class="form-control" id="resetCedula" name="resetCedula" placeholder="Ingrese su número de identificación" required maxlength="12">
+                        <div class="invalid-feedback">
+                            Por favor ingrese un número de identificación válido.
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="sendResetEmailBtn">Enviar Correo de Restablecimiento</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -49,17 +88,19 @@
     $(document).ready(function () {
         const cedulaInput = $('#cedula');
         const tipoIdentificacionSelect = $('#tipoIdentificacion');
+        const resetCedulaInput = $('#resetCedula');
+        const resetTipoIdentificacionSelect = $('#resetTipoIdentificacion');
 
-        // Función para formatear la cédula o DIMEX
-        function formatCedula(value) {
+        // Función para formatear la cédula o DIMEX (misma que en el código original)
+        function formatCedula(value, tipoSelect) {
             let formattedValue = value.replace(/[^0-9]/g, ''); // Eliminar caracteres no numéricos
 
-            if (tipoIdentificacionSelect.val() === 'cedula') {
+            if (tipoSelect.val() === 'cedula') {
                 // Formato de Cédula Nacional: 0-0000-0000 (máximo 9 dígitos)
                 if (formattedValue.length <= 9) {
                     formattedValue = formattedValue.replace(/^(\d{1})(\d{4})(\d+)/, '$1-$2-$3');
                 }
-            } else if (tipoIdentificacionSelect.val() === 'dimex') {
+            } else if (tipoSelect.val() === 'dimex') {
                 // Formato de Identificación DIMEX: 000000000000 (máximo 12 dígitos)
                 if (formattedValue.length <= 12) {
                     formattedValue = formattedValue.replace(/^(\d{12})$/, '$1');
@@ -68,12 +109,16 @@
             return formattedValue;
         }
 
-        // Detecta el cambio de tipo de identificación
+        // Detecta el cambio de tipo de identificación (para ambos campos)
         tipoIdentificacionSelect.on('change', function () {
             cedulaInput.val(''); // Limpiar el campo al cambiar tipo de identificación
         });
 
-        // Evento para formatear el número de identificación y limitar la longitud
+        resetTipoIdentificacionSelect.on('change', function () {
+            resetCedulaInput.val(''); // Limpiar el campo al cambiar tipo de identificación
+        });
+
+        // Evento para formatear el número de identificación y limitar la longitud (para ambos campos)
         cedulaInput.on('input', function () {
             let value = cedulaInput.val();
             value = value.replace(/[^0-9]/g, ''); // Solo permitir números
@@ -82,11 +127,23 @@
             } else if (tipoIdentificacionSelect.val() === 'dimex' && value.length > 12) {
                 value = value.slice(0, 12); // Limitar a 12 dígitos para DIMEX
             }
-            value = formatCedula(value); // Formatear según el tipo de identificación
+            value = formatCedula(value, tipoIdentificacionSelect);
             cedulaInput.val(value);
         });
 
-        // Validación del formulario
+        resetCedulaInput.on('input', function () {
+            let value = resetCedulaInput.val();
+            value = value.replace(/[^0-9]/g, ''); // Solo permitir números
+            if (resetTipoIdentificacionSelect.val() === 'cedula' && value.length > 9) {
+                value = value.slice(0, 9); // Limitar a 9 dígitos para cédula nacional
+            } else if (resetTipoIdentificacionSelect.val() === 'dimex' && value.length > 12) {
+                value = value.slice(0, 12); // Limitar a 12 dígitos para DIMEX
+            }
+            value = formatCedula(value, resetTipoIdentificacionSelect);
+            resetCedulaInput.val(value);
+        });
+
+        // Validación del formulario de login
         $('#loginForm').on('submit', function (event) {
             const isValid = this.checkValidity();
             if (!isValid) {
@@ -96,23 +153,61 @@
             this.classList.add('was-validated');
         });
 
+        // Validación del formulario de restablecimiento de contraseña
+        $('#sendResetEmailBtn').on('click', function () {
+            const resetForm = $('#forgotPasswordForm')[0];
+            const isValid = resetForm.checkValidity();
+
+            if (!isValid) {
+                resetForm.classList.add('was-validated');
+                return;
+            }
+
+            // Simular envío de correo de restablecimiento
+            const tipoIdentificacion = $('#resetTipoIdentificacion').val();
+            const cedula = $('#resetCedula').val();
+
+            // Mostrar mensaje de éxito
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            $('#successModalMessage').text(`Se ha enviado un correo de restablecimiento de contraseña al correo asociado a la ${tipoIdentificacion} ${cedula}`);
+            successModal.show();
+
+            // Cerrar el modal de restablecimiento
+            bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal')).hide();
+        });
     });
 
+    // Toggle de visibilidad de contraseña (misma función que en el código original)
     document.getElementById('togglePassword').addEventListener('click', function (e) {
         const passwordField = document.getElementById('password');
         const icon = this.querySelector('i');
 
-        // Alternar el tipo de input entre "password" y "text"
         if (passwordField.type === 'password') {
             passwordField.type = 'text';
             icon.classList.remove('bi-eye');
-            icon.classList.add('bi-eye-slash'); // Cambiar el icono
+            icon.classList.add('bi-eye-slash');
         } else {
             passwordField.type = 'password';
             icon.classList.remove('bi-eye-slash');
             icon.classList.add('bi-eye');
         }
     });
-
-
 </script>
+
+<!-- Modal de éxito -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">Restablecimiento de Contraseña</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="successModalMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
