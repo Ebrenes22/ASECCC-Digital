@@ -1,7 +1,9 @@
-﻿@{
-        ViewBag.Title = "SolicitudPrestamo";
-        Layout = "~/Views/Shared/_Layout.cshtml";
-        @Html.Partial("_MenuModulos");
+﻿@model ASECCC_Digital.Entities.SolicitudesPrestamo
+
+@{
+    ViewBag.Title = "SolicitudPrestamo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    @Html.Partial("_MenuModulos");
 }
 
 <div class="container-fluid mt-5">
@@ -18,11 +20,11 @@
                     <div class="form-group mb-3">
                         <label>Estado Civil</label><br>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="EstadoCivil" id="estadoSoltero" value="Soltero" required>
+                            @Html.RadioButtonFor(model => model.EstadoCivil, "Soltero", new { @class = "form-check-input", id = "estadoSoltero", required = "required" })
                             <label class="form-check-label" for="estadoSoltero">Soltero</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="EstadoCivil" id="estadoCasado" value="Casado">
+                            @Html.RadioButtonFor(model => model.EstadoCivil, "Casado", new { @class = "form-check-input", id = "estadoCasado" })
                             <label class="form-check-label" for="estadoCasado">Casado</label>
                         </div>
                     </div>
@@ -31,11 +33,13 @@
                     <div class="form-group mb-3">
                         <label for="pagaAlquiler">¿Paga Alquiler?</label><br>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="PagaAlquiler" id="pagaAlquilerSi" value="Si" onclick="mostrarCampoAlquiler()">
+                            @Html.RadioButtonFor(model => model.PagaAlquiler, "Si",
+                                new { @class = "form-check-input", id = "pagaAlquilerSi", onclick = "mostrarCampoAlquiler()" })
                             <label class="form-check-label" for="pagaAlquilerSi">Sí</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="PagaAlquiler" id="pagaAlquilerNo" value="No" onclick="ocultarCampoAlquiler()" checked>
+                            @Html.RadioButtonFor(model => model.PagaAlquiler, "No",
+                                new { @class = "form-check-input", id = "pagaAlquilerNo", onclick = "ocultarCampoAlquiler()", @checked = "checked" })
                             <label class="form-check-label" for="pagaAlquilerNo">No</label>
                         </div>
                     </div>
@@ -43,38 +47,97 @@
                     <!-- Monto de alquiler (visible solo si "Sí" se selecciona en el checkbox de "Paga Alquiler") -->
                     <div class="form-group mb-3" id="campoMontoAlquiler" style="display: none;">
                         <label for="montoAlquiler">Monto de Alquiler</label>
-                        <input type="number" class="form-control" id="montoAlquiler" name="MontoAlquiler" placeholder="Ingrese el monto de alquiler">
+                        @Html.TextBoxFor(model => model.MontoAlquiler, new
+                        {
+                            @class = "form-control",
+                            id = "montoAlquiler",
+                            placeholder = "Ingrese el monto de alquiler",
+                            type = "number"
+                        })
                     </div>
 
-                    <!-- A la fecha tengo las siguientes deudas -->
+                    <!-- Pregunta si tiene deudas -->
                     <div class="form-group mb-3">
+                        <label for="tieneDeudas">¿Tiene deudas?</label><br>
+                        <div class="form-check form-check-inline">
+                            @Html.RadioButton("tieneDeudas", "Si",
+                                new { @class = "form-check-input", id = "tieneDeudasSi", onclick = "mostrarCamposDeudas()" })
+                            <label class="form-check-label" for="tieneDeudasSi">Sí</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            @Html.RadioButton("tieneDeudas", "No",
+                                new { @class = "form-check-input", id = "tieneDeudasNo", onclick = "ocultarCamposDeudas()", @checked = "checked" })
+                            <label class="form-check-label" for="tieneDeudasNo">No</label>
+                        </div>
+                    </div>
+
+                    <!--Formulario de deudas(visible solo si "Sí" se selecciona en el checkbox de "tieneDeudas") -->
+                    <div class="form-group mb-3" id="camposDeudas" style="display: none;">
                         <h5>A la fecha tengo las siguientes deudas</h5>
 
                         <label for="nombreAcreedor">Nombre del Acreedor</label>
-                        <input type="text" class="form-control" id="nombreAcreedor" name="NombreAcreedor" placeholder="Ingrese el nombre del acreedor">
+                        @Html.TextBoxFor(model => model.NombreAcreedor, new
+                        {
+                            @class = "form-control",
+                            id = "nombreAcreedor",
+                            placeholder = "Ingrese el nombre del acreedor"
+                        })
 
                         <label for="totalCredito">Total del Crédito</label>
-                        <input type="number" class="form-control" id="totalCredito" name="TotalCredito" placeholder="Ingrese el total del crédito">
+                        @Html.TextBoxFor(model => model.TotalCredito, new
+                        {
+                            @class = "form-control",
+                            id = "totalCredito",
+                            placeholder = "Ingrese el total del crédito",
+                            type = "number"
+                        })
 
                         <label for="abonoSemanal">Abono Semanal</label>
-                        <input type="number" class="form-control" id="abonoSemanal" name="AbonoSemanal" placeholder="Ingrese el abono semanal">
+                        @Html.TextBoxFor(model => model.AbonoSemanal, new
+                        {
+                            @class = "form-control",
+                            id = "abonoSemanal",
+                            placeholder = "Ingrese el abono semanal",
+                            type = "number"
+                        })
 
                         <label for="saldoCredito">Saldo del Crédito</label>
-                        <input type="number" class="form-control" id="saldoCredito" name="SaldoCredito" placeholder="Ingrese el saldo del crédito">
+                        @Html.TextBoxFor(model => model.SaldoCredito, new
+                        {
+                            @class = "form-control",
+                            id = "saldoCredito",
+                            placeholder = "Ingrese el saldo del crédito",
+                            type = "number"
+                        })
                     </div>
 
-                    <!-- A la fecha soy fiador de los siguientes préstamos -->
-                    <div class="form-group mb-4">
+                    <!-- Pregunta si es fiador -->
+                    <div class="form-group mb-3">
+                        <label for="esFiador">¿Es fiador de algún préstamo?</label><br>
+                        <div class="form-check form-check-inline">
+                            @Html.RadioButton("esFiador", "Si",
+                                new { @class = "form-check-input", id = "esFiadorSi", onclick = "mostrarCamposFiador()" })
+                            <label class="form-check-label" for="esFiadorSi">Sí</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            @Html.RadioButton("esFiador", "No",
+                                new { @class = "form-check-input", id = "esFiadorNo", onclick = "ocultarCamposFiador()", @checked = "checked" })
+                            <label class="form-check-label" for="esFiadorNo">No</label>
+                        </div>
+                    </div>
+
+                    <!--Formulario de fiador(visible solo si "Sí" se selecciona en el checkbox de "esFiador") -->
+                    <div class="form-group mb-4" id="camposFiador" style="display: none;">
                         <h5>A la fecha soy fiador de los siguientes préstamos</h5>
 
                         <label for="nombreDeudor">Nombre del Deudor</label>
-                        <input type="text" class="form-control" id="nombreDeudor" name="NombreDeudor" placeholder="Ingrese el nombre del deudor">
+                        @Html.TextBoxFor(model => model.NombreDeudor, new { @class = "form-control", placeholder = "Ingrese el nombre del deudor" })
 
                         <label for="totalPrestamo">Total del Préstamo</label>
-                        <input type="number" class="form-control" id="totalPrestamo" name="TotalPrestamo" placeholder="Ingrese el total del préstamo">
+                        @Html.TextBoxFor(model => model.TotalPrestamo, new { @class = "form-control", placeholder = "Ingrese el total del préstamo", type = "number" })
 
                         <label for="saldoPrestamo">Saldo del Préstamo</label>
-                        <input type="number" class="form-control" id="saldoPrestamo" name="SaldoPrestamo" placeholder="Ingrese el saldo del préstamo">
+                        @Html.TextBoxFor(model => model.SaldoPrestamo, new { @class = "form-control", placeholder = "Ingrese el saldo del préstamo", type = "number" })
                     </div>
                 </div>
 
@@ -82,47 +145,60 @@
                 <div class="form-section mb-4">
                     <h4>Detalles del Préstamo</h4>
 
-                    <!-- Tipo de préstamo -->
                     <div class="form-group mb-3">
                         <label for="tipoPrestamo">Tipo de Préstamo</label>
-                        <select class="form-control" id="tipoPrestamo" name="TipoPrestamo" required>
-                            <option value="Personal">Personal</option>
-                            <option value="Urgente">Urgente</option>
-                            <option value="150%">150%</option>
-                        </select>
+                        @Html.DropDownListFor(
+                            m => m.TipoPrestamo,
+                            new SelectList(
+                                new[] { "Personal", "Urgente", "150%" },
+                                Model.TipoPrestamo
+                            ),
+                            "Selecciona el tipo de préstamo",
+                            new { @class = "form-control", required = "required" }
+                        )
                     </div>
 
-                    <!-- Monto de solicitud -->
                     <div class="form-group mb-3">
-                        <label for="montoSolicitud">Monto de Solicitud</label>
-                        <input type="number" class="form-control" id="montoSolicitud" name="MontoSolicitud" placeholder="Ingrese el monto solicitado" required oninput="calcularCuota()">
+                        @Html.LabelFor(model => model.MontoSolicitud, "Monto de Solicitud")
+                        @Html.TextBoxFor(model => model.MontoSolicitud, new { @class = "form-control", @placeholder = "Ingrese el monto a solicitar", required = "required", oninput = "calcularCuota()" })
                     </div>
 
-                    <!-- Plazo en meses -->
+
                     <div class="form-group mb-3">
-                        <label for="plazoMeses">Plazo en Meses</label>
-                        <input type="number" class="form-control" id="plazoMeses" name="PlazoMeses" min="1" placeholder="Ingrese el plazo en meses" required oninput="calcularCuota()">
+                        @Html.LabelFor(model => model.PlazoSemanas, "Plazo en Semanas")
+                        @Html.TextBoxFor(model => model.PlazoSemanas, new { @class = "form-control", @min = "1", @placeholder = "Ingrese el plazo en semanas", required = "required", oninput = "calcularCuota()" })
                     </div>
 
-                    <!-- Propósito del préstamo -->
+
                     <div class="form-group mb-3">
-                        <label for="propositoPrestamo">Propósito del Préstamo</label>
-                        <textarea class="form-control" id="propositoPrestamo" name="PropositoPrestamo" rows="4" placeholder="Escriba el propósito del préstamo" required></textarea>
+                        @Html.LabelFor(model => model.PropositoPrestamo, "Propósito del Préstamo")
+                        @Html.TextAreaFor(model => model.PropositoPrestamo, new { @class = "form-control", @rows = "4", @placeholder = "Escriba el propósito del préstamo", required = "required" })
                     </div>
 
-                    <!-- Cuota mensual estimada -->
                     <div class="form-group mb-3">
-                        <label for="cuota">Cuota Mensual Estimada</label>
-                        <input type="text" class="form-control" id="cuota" name="Cuota" placeholder="Cuota estimada" readonly>
+                        @Html.LabelFor(model => model.CuotaSemanalSolicitud, "Cuota Semanal Estimada")
+                        @Html.TextBoxFor(model => model.CuotaSemanalSolicitud, new { @class = "form-control", @placeholder = "Cuota estimada", @readonly = "readonly", @disabled = "disabled" })
                     </div>
                 </div>
+            </form>
 
+            <form id="solicitudForm" novalidate>
                 <!-- Checkbox de aceptación del reglamento -->
                 <div class="form-check mb-4">
-                    <input class="form-check-input" type="checkbox" id="aceptoReglamento" name="AceptoReglamento" required>
+                    <input class="form-check-input"
+                           type="checkbox"
+                           id="aceptoReglamento"
+                           name="AceptoReglamento" />
                     <label class="form-check-label" for="aceptoReglamento">
-                        Acepto todas las disposiciones del <a href="#" data-toggle="modal" data-target="#reglamentoModal">reglamento de crédito</a> y sus anexos.
+                        Acepto todas las disposiciones del
+                        <a href="#" data-toggle="modal" data-target="#reglamentoModal">
+                            reglamento de crédito
+                        </a>
+                        y sus anexos.
                     </label>
+                    <div id="mensajeError" class="text-danger mt-2" style="display: none;">
+                        Debes aceptar el reglamento para continuar.
+                    </div>
                 </div>
 
                 <!-- Botón de Envío -->
@@ -130,6 +206,8 @@
                     <button type="submit" class="btn btn-primary btn-block">Enviar Solicitud</button>
                 </div>
             </form>
+
+
         </div>
     </div>
 </div>
@@ -155,30 +233,10 @@
     </div>
 </div>
 
-<!-- Script para calcular la cuota -->
-<script>
-    function calcularCuota() {
-        var monto = parseFloat(document.getElementById("montoSolicitud").value);
-        var plazo = parseFloat(document.getElementById("plazoMeses").value);
 
-        if (!isNaN(monto) && !isNaN(plazo) && plazo > 0) {
-            var cuota = (monto / (plazo * 4)) + (monto * 0.12); // Ajuste según tu fórmula de cálculo
-            document.getElementById("cuota").value = cuota.toFixed(2);
-        } else {
-            document.getElementById("cuota").value = '';
-        }
-    }
-
-    function mostrarCampoAlquiler() {
-        document.getElementById("campoMontoAlquiler").style.display = 'block';
-    }
-
-    function ocultarCampoAlquiler() {
-        document.getElementById("campoMontoAlquiler").style.display = 'none';
-    }
-</script>
 
 <!-- jQuery, Popper.js, y Bootstrap JS -->
+<script src="~/Assets/js/prestamos.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
