@@ -3,6 +3,7 @@ using ASECCC_Digital.Entities;
 using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
+using System.Threading.Tasks;
 
 namespace ASECCC_Digital.Controllers
 {
@@ -10,12 +11,7 @@ namespace ASECCC_Digital.Controllers
     {
         // Instancia del modelo para la logica de negocio
         PrestamosModel prestamoM = new PrestamosModel();
-
-        //Instancias de las entidades
-        SolicitudesPrestamo solicitudE = new SolicitudesPrestamo();
-        Prestamo prestamoE = new Prestamo();
-
-
+  
 
         // Acción que se ejecuta antes de cada acción del controlador
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
@@ -56,13 +52,31 @@ namespace ASECCC_Digital.Controllers
         }
 
         //----------VISTAS ASOCIADO-----------//
+        
 
+         [HttpGet]
         public ActionResult SolicitudPrestamo()
         {
-            // Crear una nueva instancia del modelo y pasarla a la vista
-            //var registrar = prestamoM.RegistrarSolicitud();  // Llamar a un método que puede cargar los datos necesarios
-            return View(solicitudE);  // Pasar el modelo a la vista
+            return View();
         }
+
+        [HttpPost]
+        public ActionResult SolicitudPrestamo(SolicitudesPrestamo solicitud)
+        {
+            var respuesta = prestamoM.RegistrarSolicitudPrestamo(solicitud);
+
+            if (respuesta)
+            {
+                TempData["SuccessMessage"] = "Solicitud enviada con éxito!";
+                return RedirectToAction("SolicitudExito");
+            }
+            else
+            {
+                ModelState.AddModelError("", "Ocurrió un error al registrar la solicitud.");
+                return View();
+            }
+        }
+
 
         public ActionResult ConsultaPrestamoAsociado()
         {

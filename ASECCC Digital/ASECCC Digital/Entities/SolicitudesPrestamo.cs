@@ -25,7 +25,7 @@ namespace ASECCC_Digital.Entities
         public bool PagaAlquiler { get; set; }  // Indica si el solicitante paga alquiler
 
         [Range(0.01, 1000000, ErrorMessage = "Monto de alquiler fuera de rango")]
-        [Column(TypeName = "decimal(18,2)")]
+        [Column(TypeName = "decimal(10,2)")]
         public decimal? MontoAlquiler { get; set; }  // Monto del alquiler mensual (opcional)
 
         // Deudas
@@ -49,13 +49,13 @@ namespace ASECCC_Digital.Entities
 
         [Range(0, double.MaxValue, ErrorMessage = "El total del préstamo debe ser un número positivo.")]
         [Display(Name = "Total del Préstamo")]
-        public double? TotalPrestamo { get; set; }  // Total del préstamo (opcional)
+        public decimal? TotalPrestamo { get; set; }  // Total del préstamo (opcional)
 
         [Range(0, double.MaxValue, ErrorMessage = "El saldo del préstamo debe ser un número positivo.")]
         [Display(Name = "Saldo del Préstamo")]
-        public double? SaldoPrestamo { get; set; }  // Saldo del préstamo (opcional)
+        public decimal? SaldoPrestamo { get; set; }  // Saldo del préstamo (opcional)
 
-        // Sección Detalles Préstamo
+        //  Detalles Préstamo
 
         [Required(ErrorMessage = "El tipo de préstamo es requerido")]
         [StringLength(50, ErrorMessage = "El tipo de préstamo no puede superar los 50 caracteres")]
@@ -63,16 +63,16 @@ namespace ASECCC_Digital.Entities
 
         [Required(ErrorMessage = "El monto solicitado es requerido")]
         [Range(0.01, 1000000, ErrorMessage = "Monto solicitado fuera de rango")]
-        [Column(TypeName = "decimal(18,2)")]
+        [Column(TypeName = "decimal(10,2)")]
         public decimal MontoSolicitud { get; set; }  // Monto solicitado para el préstamo
 
         [Required(ErrorMessage = "El plazo en semanas es requerido")]
         [Range(1, 120, ErrorMessage = "El plazo debe estar entre 1 y 120 meses")]
-        public int PlazoSemanas { get; set; }  // Plazo en semanas para el pago del préstamo
+        public int PlazoMeses { get; set; }  // Plazo en meses para el pago del préstamo
 
         [Required(ErrorMessage = "La cuota semanal solicitada es requerida")]
         [Range(0.01, 1000000, ErrorMessage = "Cuota semanal fuera de rango")]
-        [Column(TypeName = "decimal(18,2)")]
+        [Column(TypeName = "decimal(10,2)")]
         public decimal CuotaSemanalSolicitud { get; set; }  // Cuota semanal solicitada para el préstamo
 
         [Required(ErrorMessage = "El propósito del préstamo es requerido")]

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="595a01d3608a4a59a8ff703c372e92b4" Name="Diagram1" ZoomLevel="64">
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.Ahorros" Width="1.5" PointX="3" PointY="16.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.AhorroTransacciones" Width="1.5" PointX="5.25" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.Aportes" Width="1.5" PointX="3" PointY="10.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.AportesTransacciones" Width="1.5" PointX="5.25" PointY="10.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.Beneficiarios" Width="1.5" PointX="3" PointY="13.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.BeneficiosServicios" Width="1.5" PointX="3.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.BeneficiosServiciosCuenta" Width="1.5" PointX="6" PointY="15.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.BeneficiosTransacciones" Width="1.5" PointX="8.25" PointY="15.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.CatalogoTipoAhorro" Width="1.5" PointX="0.75" PointY="20.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.CatalogoTipoTransaccion" Width="1.5" PointX="3" PointY="4.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.Notificaciones" Width="1.5" PointX="3" PointY="20.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.Prestamos" Width="1.5" PointX="3" PointY="23.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.PrestamosTransacciones" Width="1.5" PointX="5.25" PointY="24.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.SeguridadAuditoria" Width="1.5" PointX="3" PointY="27.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.SolicitudesPrestamo" Width="1.5" PointX="3" PointY="30.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ASECCC_DIGITALModel.Usuario" Width="1.5" PointX="0.75" PointY="14.5" IsExpanded="true" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__Ahorros__tipoAho__4AB81AF0" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__Ahorros__usuario__49C3F6B7" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__AhorroTra__ahorr__4E88ABD4" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__AhorroTra__tipoT__4F7CD00D" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__Aportes__usuario__628FA481" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__AportesTr__aport__66603565" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__Beneficia__usuar__44FF419A" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__Beneficio__benef__6FE99F9F" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__Beneficio__cuent__73BA3083" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__Beneficio__usuar__6EF57B66" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__Notificac__usuar__797309D9" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__Prestamos__prest__5DCAEF64" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__Prestamos__usuar__59FA5E80" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__Seguridad__usuar__7E37BEF6" ManuallyRouted="false" />
+        <AssociationConnector Association="ASECCC_DIGITALModel.FK__Solicitud__usuar__5441852A" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
