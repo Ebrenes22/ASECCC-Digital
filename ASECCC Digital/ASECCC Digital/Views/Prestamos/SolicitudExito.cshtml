@@ -1,0 +1,16 @@
+﻿@{
+    var successMessage = TempData["SuccessMessage"];
+}
+
+@if (successMessage != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: '@successMessage',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    </script>
+}

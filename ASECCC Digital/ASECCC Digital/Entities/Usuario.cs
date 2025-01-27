@@ -63,6 +63,6 @@ namespace ASECCC_Digital.Entities
         [Required(ErrorMessage = "La fecha de registro es requerida")]
         [DataType(DataType.DateTime)]
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy HH:mm:ss}", ApplyFormatInEditMode = true)]
-        public DateTime FechaRegistro { get; set; }  // Fecha de registro del usuario
+        public DateTime FechaIngreso { get; set; }  // Fecha de registro del usuario
     }
 }
