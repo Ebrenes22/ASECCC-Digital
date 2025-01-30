@@ -1,61 +1,88 @@
-﻿
+﻿@model ASECCC_Digital.Entities.Usuario
+
 @{
-    ViewBag.Title = "Registrar";
+    ViewBag.Title = "Registrar Usuario";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
 
-
+<h1 class="text-center mb-4">Registrar Asociado</h1>
 <section class="container mt-4 d-flex justify-content-center align-items-start" style="padding-top: 20px;">
     <div class="w-100" style="max-width: 800px;">
-        <!-- Ajusta el margen izquierdo -->
-        <h1 class="text-center mb-4">Registrar Asociado</h1>
-        <form method="post" action="/Asociados/Registrar">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="nombre" class="form-label">Nombre Completo</label>
-                    <input type="text" class="form-control" id="nombre" name="nombre" required>
+
+        @using (Html.BeginForm("RegistrarUsuario", "Usuarios", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(model => model.NombreCompleto, "Nombre Completo", htmlAttributes: new { @class = "form-label" })
+                    @Html.TextBoxFor(model => model.NombreCompleto, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.NombreCompleto, "", new { @class = "text-danger" })
                 </div>
-                <div class="col-md-6">
-                    <label for="identificacion" class="form-label">Número de Identificación</label>
-                    <input type="text" class="form-control" id="identificacion" name="identificacion" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
-                    <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="correo" class="form-label">Correo Electrónico</label>
-                    <input type="email" class="form-control" id="correo" name="correo" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="telefono" class="form-label">Teléfono de Contacto</label>
-                    <input type="tel" class="form-control" id="telefono" name="telefono" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="direccion" class="form-label">Dirección Completa</label>
-                    <input type="text" class="form-control" id="direccion" name="direccion" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="tipo" class="form-label">Tipo de Asociado</label>
-                    <select class="form-select" id="tipo" name="tipo" required>
-                        <option value="activo">Activo</option>
-                        <option value="inactivo">Inactivo</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label for="estado" class="form-label">Estado de la Afiliación</label>
-                    <select class="form-select" id="estado" name="estado" required>
-                        <option value="vigente">Vigente</option>
-                        <option value="suspendido">Suspendido</option>
-                    </select>
+
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(model => model.CorreoElectronico, "Correo Electronico", new { @class = "form-label" })
+                    @Html.TextBoxFor(model => model.CorreoElectronico, new { @class = "form-control", type = "email" })
+                    @Html.ValidationMessageFor(model => model.CorreoElectronico, "", new { @class = "text-danger" })
                 </div>
             </div>
-            <div class="text-end mt-3">
-                <!-- Botón alineado a la derecha -->
-                <button type="submit" class="btn btn-primary">Registrar Asociado</button>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(model => model.Contrasena, "Contraseña", new { @class = "form-label" })
+                    @Html.PasswordFor(model => model.Contrasena, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Contrasena, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(model => model.TipoIdentificacion, "Tipo de identificación", new { @class = "form-label" })
+                    @Html.DropDownListFor(model => model.TipoIdentificacion,
+                        new SelectList(new[] {
+                            new { Value = "Nacional", Text = "Nacional" },
+                            new { Value = "DIMEX", Text = "DIMEX" }
+                        }, "Value", "Text"),
+                        new { @class = "form-select" })
+                    @Html.ValidationMessageFor(model => model.TipoIdentificacion, "", new { @class = "text-danger" })
+                </div>
             </div>
-        </form>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(model => model.Identificacion, "Identificación", new { @class = "form-label" })
+                    @Html.TextBoxFor(model => model.Identificacion, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Identificacion, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(model => model.FechaNacimiento, "Fecha de nacimiento", new { @class = "form-label" })
+                    @Html.TextBoxFor(model => model.FechaNacimiento, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    @Html.ValidationMessageFor(model => model.FechaNacimiento, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(model => model.Telefono, "Teléfono", new { @class = "form-label" })
+                    @Html.TextBoxFor(model => model.Telefono, new { @class = "form-control", type = "tel" })
+                    @Html.ValidationMessageFor(model => model.Telefono, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    @Html.LabelFor(model => model.Direccion, "Dirección", new { @class = "form-label" })
+                    @Html.TextBoxFor(model => model.Direccion, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Direccion, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <!-- Botón Registrar -->
+            <div class="d-flex justify-content-center">
+                <input type="submit" value="Registrar Asociado" class="btn btn-primary" />
+            </div>
+        }
     </div>
 </section>
 
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
