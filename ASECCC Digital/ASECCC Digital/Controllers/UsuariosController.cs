@@ -19,14 +19,14 @@ namespace ASECCC_Digital.Controllers
         }
 
         [HttpGet]
-        public ActionResult RegistrarUsuario()
+        public ActionResult RegistrarAsociado()
         {
-            return View(new Usuario());
+            return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult RegistrarUsuario(Usuario usuario)
+        public ActionResult RegistrarAsociado(Usuario usuario)
         {
             if (!ModelState.IsValid)
             {
@@ -45,7 +45,7 @@ namespace ASECCC_Digital.Controllers
             if (respuesta)
             {
                 TempData["Mensaje"] = "Usuario registrado correctamente";
-                return RedirectToAction("RegistrarUsuario, Admin");
+                return RedirectToAction("RegistrarAsociado, Admin");
             }
             else
             {

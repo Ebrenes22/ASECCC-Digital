@@ -30,7 +30,7 @@ namespace ASECCC_Digital.Controllers
 
         public ActionResult RegistrarAsociado()
         {
-            usuarioC.RegistrarUsuario();
+            usuarioC.RegistrarAsociado();
             return View();
         }
 
@@ -95,10 +95,6 @@ namespace ASECCC_Digital.Controllers
             return View(usuario);
         }
 
-        public ActionResult BuscarAsociado()
-        {
-            return View();
-        }
 
         public ActionResult LiquidarAsociado()
         {
