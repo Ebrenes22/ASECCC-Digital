@@ -44,7 +44,7 @@ namespace ASECCC_Digital.Models
                         fechaIngreso = DateTime.Now
                     };
                     context.Usuario.Add(tabladb);
-                    rowsAffected = context.SaveChanges();  // Método síncrono
+                    rowsAffected = context.SaveChanges();
                     return rowsAffected > 0;
                 }
             }
