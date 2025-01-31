@@ -27,10 +27,17 @@ namespace ASECCC_Digital.Controllers
             return View();
         }
 
-
+        [HttpGet]
         public ActionResult RegistrarAsociado()
         {
-            usuarioC.RegistrarAsociado();
+            return View();
+        }
+
+
+        [HttpPost]
+        public ActionResult RegistrarAsociado(Usuario usuario)
+        {
+            usuarioC.RegistrarAsociado(usuario);
             return View();
         }
 

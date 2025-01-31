@@ -45,7 +45,7 @@ namespace ASECCC_Digital.Controllers
             if (respuesta)
             {
                 TempData["Mensaje"] = "Usuario registrado correctamente";
-                return RedirectToAction("RegistrarAsociado, Admin");
+                return RedirectToAction("RegistrarAsociado, Asociados");
             }
             else
             {
