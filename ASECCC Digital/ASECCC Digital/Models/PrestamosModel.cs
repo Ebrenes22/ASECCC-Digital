@@ -13,40 +13,36 @@ namespace ASECCC_Digital.Models
 
         public bool RegistrarSolicitudPrestamo(Entities.SolicitudesPrestamo solicitud)
         {
-            if (solicitud == null)
-            {
-                throw new ArgumentNullException(nameof(solicitud), "La solicitud no puede ser nula.");
-            }
-
+            int rowsAffected;
             try
             {
-                var tabladb = new Database.SolicitudesPrestamo
+                using (var context = new Database.ASECCC_DIGITALEntities())
                 {
-                    usuarioId = solicitud.UsuarioId,
-                    estadoCivil = solicitud.EstadoCivil,
-                    pagaAlquiler = solicitud.PagaAlquiler,
-                    montoAlquiler = solicitud.MontoAlquiler,
-                    nombreAcreedor = solicitud.NombreAcreedor,
-                    totalCredito = solicitud.TotalCredito,
-                    abonoSemanal = solicitud.AbonoSemanal,
-                    saldoCredito = solicitud.SaldoCredito,
-                    nombreDeudor = solicitud.NombreDeudor,
-                    totalPrestamo = solicitud.TotalPrestamo,
-                    saldoPrestamo = solicitud.SaldoPrestamo,
-                    tipoPrestamo = solicitud.TipoPrestamo,
-                    montoSolicitud = solicitud.MontoSolicitud,
-                    plazoMeses = solicitud.PlazoMeses,
-                    cuotaSemanalSolicitud = solicitud.CuotaSemanalSolicitud,
-                    propositoPrestamo = solicitud.PropositoPrestamo,
-                    estadoSolicitud = "pendiente",
-                    fechaSolicitud = DateTime.Now
-                };
-
-                using (var context = new ASECCC_DIGITALEntities())
-                {
-                    context.SolicitudesPrestamo.Add(tabladb);
-                    int rowsAffected = context.SaveChanges();  // Método síncrono
-                    return rowsAffected > 0;
+                    var tabladb = new Database.SolicitudesPrestamo
+                    {
+                        usuarioId = solicitud.UsuarioId,
+                        estadoCivil = solicitud.EstadoCivil,
+                        pagaAlquiler = solicitud.PagaAlquiler,
+                        montoAlquiler = solicitud.MontoAlquiler,
+                        nombreAcreedor = solicitud.NombreAcreedor,
+                        totalCredito = solicitud.TotalCredito,
+                        abonoSemanal = solicitud.AbonoSemanal,
+                        saldoCredito = solicitud.SaldoCredito,
+                        nombreDeudor = solicitud.NombreDeudor,
+                        totalPrestamo = solicitud.TotalPrestamo,
+                        saldoPrestamo = solicitud.SaldoPrestamo,
+                        tipoPrestamo = solicitud.TipoPrestamo,
+                        montoSolicitud = solicitud.MontoSolicitud,
+                        plazoMeses = solicitud.PlazoMeses,
+                        cuotaSemanalSolicitud = solicitud.CuotaSemanalSolicitud,
+                        propositoPrestamo = solicitud.PropositoPrestamo,
+                        estadoSolicitud = "pendiente",
+                        fechaSolicitud = DateTime.Now
+                    };  
+                        context.SolicitudesPrestamo.Add(tabladb);
+                        rowsAffected = context.SaveChanges();  
+                        return rowsAffected > 0;
+                    
                 }
             }
             catch (Exception)

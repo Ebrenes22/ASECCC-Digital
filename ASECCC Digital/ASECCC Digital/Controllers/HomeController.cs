@@ -13,7 +13,6 @@ namespace ASECCC_Digital.Controllers
         //[Authorize(Roles = "asociado")]
         public ActionResult Index()
         {
-            Session["usuarioId"] = 1;
             Session["Rol"] = "Admin";
             Session["FechaIngreso"] = "15-01-2012";
             return View();

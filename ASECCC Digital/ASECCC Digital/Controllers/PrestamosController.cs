@@ -63,12 +63,14 @@ namespace ASECCC_Digital.Controllers
         [HttpPost]
         public ActionResult SolicitudPrestamo(SolicitudesPrestamo solicitud)
         {
-            var respuesta = prestamoM.RegistrarSolicitudPrestamo(solicitud);
+            var usuarioId = Session["usuarioId"] = 1;
+            solicitud.UsuarioId = (int)usuarioId;
+            bool respuesta = prestamoM.RegistrarSolicitudPrestamo(solicitud);
 
             if (respuesta)
             {
                 TempData["SuccessMessage"] = "Solicitud enviada con éxito!";
-                return RedirectToAction("SolicitudExito");
+                return RedirectToAction("SolicitudPrestamo"); // Redirige después del POST
             }
             else
             {
@@ -78,11 +80,16 @@ namespace ASECCC_Digital.Controllers
         }
 
 
+
+
         public ActionResult ConsultaPrestamoAsociado()
         {
             // Obtener los detalles de la consulta del préstamo asociado desde el modelo
             //var consulta = prestamoM.ObtenerConsultaPrestamoAsociado();
             return View();
         }
+
+
+
     }
 }

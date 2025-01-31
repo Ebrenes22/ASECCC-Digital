@@ -4,13 +4,15 @@
 
 @if (successMessage != null)
 {
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: '¡Éxito!',
-            text: '@successMessage',
-            timer: 3000,
-            showConfirmButton: false
-        });
+    <script>    
+       Swal.fire({
+    icon: 'success',
+    title: '¡Éxito!',
+    text: '@successMessage',
+    timer: 3000,
+    showConfirmButton: false
+}).then(function() {
+    window.location.href = '@Url.Action("ConsultaPrestamoAsociado", "Prestamos")'; // Redirigir a otra acción después del mensaje
+});
     </script>
 }
