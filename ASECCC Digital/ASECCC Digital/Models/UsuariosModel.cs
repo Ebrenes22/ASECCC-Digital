@@ -58,7 +58,7 @@ namespace ASECCC_Digital.Models
 
         public Entities.Usuario Login(string identificacion, string contrasena)
         {
-            using (var context = new ASECCC_DIGITALEntities())
+            using (var context = new Database.ASECCC_DIGITALEntities())
             {
                 var usuarioDb = context.Usuario
                    .FirstOrDefault(u => u.identificacion == identificacion);
@@ -74,16 +74,14 @@ namespace ASECCC_Digital.Models
                     return null;
                 }
                 // Verificar la contraseña con BCrypt
-                //    Aquí suponemos que en "usuario.Contrasenna" guardamos el HASH bcrypt
+                //    
                 bool isValidPassword = BCrypt.Net.BCrypt.Verify(contrasena, usuarioDb.contrasena);
                 if (!isValidPassword)
                 {
                     // Contraseña inválida
                     return null;
                 }
-
-                //  Si todo está bien, retornamos el usuario para usarlo en el Controller
-                return new Entities.Usuario
+                var user = new Entities.Usuario
                 {
                     UsuarioId = usuarioDb.usuarioId,
                     NombreCompleto = usuarioDb.nombreCompleto,
@@ -96,6 +94,9 @@ namespace ASECCC_Digital.Models
                     EstadoAfiliacion = usuarioDb.estadoAfiliacion,
                     Rol = usuarioDb.rol
                 };
+
+                return user;
+
             }
         }
 

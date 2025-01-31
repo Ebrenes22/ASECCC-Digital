@@ -22,6 +22,15 @@ namespace ASECCC_Digital
 
         protected void Application_PostAuthenticateRequest(Object sender, EventArgs e)
         {
+            // Excluir la ruta de login del proceso de autenticación
+            var request = HttpContext.Current.Request;
+            if (request.Url.AbsolutePath.ToLower().Contains("/Usuarios/Login") ||
+                request.Url.AbsolutePath.ToLower().Contains("/Login"))
+            {
+                return; // No procesar autenticación para la ruta de login
+            }
+
+            // Procesar la autenticación para otras rutas
             HttpCookie authCookie = HttpContext.Current.Request.Cookies[FormsAuthentication.FormsCookieName];
             if (authCookie != null)
             {

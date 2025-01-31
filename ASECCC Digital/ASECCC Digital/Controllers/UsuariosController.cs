@@ -109,19 +109,21 @@ namespace ASECCC_Digital.Controllers
             // 5. Agregar la cookie al response
             Response.Cookies.Add(authCookie);
 
-            // 6. Redirigir según sea admin o asociado
+            // 6. Redirigir 
+            // IMPORTANTE CON AUTH
             if (userEntity.Rol == "admin")
             {
-                return RedirectToAction("Index", "Admin");
+                return RedirectToAction("Index", "Home");
             }
             else if (userEntity.Rol == "asociado")
             {
-                return RedirectToAction("Index", "Asociado");
+                return RedirectToAction("Index", "Home");
             }
             else
             {
-                // Rol desconocido => reenvía a Home
-                return RedirectToAction("Index", "Home");
+                // AVISAR DE QUE NO ENCONTRO ROL
+
+                return null;
             }
         }
 
