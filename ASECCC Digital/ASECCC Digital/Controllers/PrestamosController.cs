@@ -46,15 +46,42 @@ namespace ASECCC_Digital.Controllers
 
         public ActionResult RevisionPrestamos()
         {
-            // Llamar a un método de prestamoM para la revisión de préstamos
-            //var prestamosRevision = prestamoM.ObtenerPrestamosRevision();
-            return View();
+            // Obtener las solicitudes de cada estado
+            //(pendiente, revisión, aprobado, rechazado)
+            var solicitudesPendientes = prestamoM.ObtenerSolicitudesPorEstado("pendiente");
+            var solicitudesEnRevision = prestamoM.ObtenerSolicitudesPorEstado("revisión");
+            var solicitudesAprobadas = prestamoM.ObtenerSolicitudesPorEstado("aprobado");
+            var solicitudesRechazadas = prestamoM.ObtenerSolicitudesPorEstado("rechazado");
+
+            // Crear el modelo con las solicitudes filtradas
+            var model = new Entities.SolicitudPrestamoViewModel
+            {
+                Pendientes = solicitudesPendientes,
+                EnRevision = solicitudesEnRevision,
+                Aprobadas = solicitudesAprobadas,
+                Rechazadas = solicitudesRechazadas
+            };
+
+            return View(model);
+
+        }
+
+        public ActionResult ObtenerDetallesSolicitud(int id)
+        {
+            var solicitud = prestamoM.ObtenerSolicitudPorId(id);
+            if (solicitud == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Devolver el PartialView con los datos de la solicitud
+            return PartialView("_SolicitudDetalles", solicitud);
         }
 
         //----------VISTAS ASOCIADO-----------//
-        
 
-         [HttpGet]
+
+        [HttpGet]
         public ActionResult SolicitudPrestamo()
         {
             return View();

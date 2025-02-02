@@ -53,8 +53,38 @@ namespace ASECCC_Digital.Models
             }
         }
 
+        public List<Entities.SolicitudesPrestamo> ObtenerSolicitudesPorEstado(string estado)
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                // Filtramos las solicitudes y las convertimos a SolicitudPrestamoViewModel
+                var solicitudesFiltradas = context.SolicitudesPrestamo
+                                                  .Where(s => s.estadoSolicitud == estado)
+                                                  .Select(s => new Entities.SolicitudesPrestamo
+                                                  {
+                                                      SolicitudPrestamoId = s.solicitudPrestamoId,
+                                                      UsuarioId = s.usuarioId,
+                                                      MontoSolicitud = s.montoSolicitud,
+                                                      EstadoSolicitud = s.estadoSolicitud
+                                                  })
+                                                  .ToList();
+                return solicitudesFiltradas;
+            }
+        }
 
+        public Database.SolicitudesPrestamo ObtenerSolicitudPorId(int id)
+        {
+            // Contexto de base de datos para obtener la solicitud de préstamo
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                // Buscar la solicitud por su ID
+                var solicitud = context.SolicitudesPrestamo
+                                       .FirstOrDefault(s => s.solicitudPrestamoId == id);
 
+                // Si la solicitud es encontrada, se retorna
+                return solicitud;
+            }
+        }
 
 
 

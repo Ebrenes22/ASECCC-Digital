@@ -241,7 +241,8 @@
     <Content Include="assets\img\logos\ASECCC_LOGO_1.png" />
     <Content Include="assets\img\logos\ASECCC_LOGO_2.png" />
     <Content Include="assets\img\wallpaper\wp3404276.jpg" />
-    <Content Include="assets\js\prestamos.js" />
+    <Content Include="assets\js\revisionPrestamos.js" />
+    <Content Include="assets\js\solicitudPrestamo.js" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-grid.rtl.css" />
@@ -427,7 +428,7 @@
     <Content Include="Views\Asociados\Asociados.cshtml" />
     <Content Include="Views\Notificaciones\Notificaciones.cshtml" />
     <Content Include="Views\Asociados\BuscarDesactivarAsociado.cshtml" />
-    <Content Include="Views\Prestamos\SolicitudExito.cshtml" />
+    <Content Include="Views\Shared\_SolicitudDetalles.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
