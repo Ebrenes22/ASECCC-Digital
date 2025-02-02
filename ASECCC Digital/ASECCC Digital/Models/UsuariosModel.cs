@@ -21,7 +21,7 @@ namespace ASECCC_Digital.Models
 
         public bool RegistrarAsociado(Entities.Usuario usuario)
         {
-            int rowsAffected = 0;
+            int rowsAffected;
 
             var hashedContrasena = BCrypt.Net.BCrypt.HashPassword(usuario.Contrasena);
 

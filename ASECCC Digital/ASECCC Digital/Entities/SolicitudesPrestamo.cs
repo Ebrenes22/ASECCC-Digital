@@ -1,5 +1,7 @@
-﻿using ASECCC_Digital.Entities;
+﻿using ASECCC_Digital.Database;
+using ASECCC_Digital.Entities;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -90,5 +92,15 @@ namespace ASECCC_Digital.Entities
 
         // Propiedad de navegación para relacionar la solicitud con un usuario
         public virtual Usuario Usuario { get; set; }  // Relación con la entidad Usuario
+
+
+    }
+
+    public class SolicitudPrestamoViewModel
+    {
+        public List<SolicitudesPrestamo> Pendientes { get; set; }
+        public List<SolicitudesPrestamo> EnRevision { get; set; }
+        public List<SolicitudesPrestamo> Aprobadas { get; set; }
+        public List<SolicitudesPrestamo> Rechazadas { get; set; }
     }
 }

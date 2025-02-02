@@ -5,8 +5,6 @@
     ViewData["Title"] = "Solicitud de Préstamo";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
-
-
 }
 
 <div class="container-fluid mt-5">
@@ -234,7 +232,6 @@
                           @class = "form-control",
                           @placeholder = "Ingrese el monto a solicitar",
                           required = "required",
-                          oninput = "calcularCuota()",
                           step = "0.01",  // Permitir dos decimales
                           max = "99999999.99",  // Límite máximo de 10,2
                           maxlength = "10"  // Limita a 10 caracteres (incluyendo punto y decimales)
@@ -252,7 +249,6 @@
                            @max = "99",  // Establece el valor máximo en 99 para limitar a 2 dígitos
                            @placeholder = "Ingrese el plazo en meses",
                            required = "required",
-                           oninput = "calcularCuota()",
                            @maxlength = "2"  // Limita la longitud a 2 caracteres
                         })
                     </div>
@@ -260,12 +256,12 @@
                     <div class="form-group mb-3">
                         @Html.LabelFor(model => model.CuotaSemanalSolicitud, "Cuota Semanal Estimada")
                         @Html.TextBoxFor(model => model.CuotaSemanalSolicitud, new
-                        {
-                          @id = "cuotaSemanal",
-                          @class = "form-control",
-                          @placeholder = "Cuota estimada",
-                          @readonly = "readonly",
-                        })
+                   {
+                       @id = "cuotaSemanal",
+                       @class = "form-control",
+                       @placeholder = "Cuota estimada",
+                       @readonly = "readonly"
+                   })
                     </div>
 
                     <input type="hidden" id="cuotaSemanalHidden" name="CuotaSemanalSolicitud" />
@@ -311,11 +307,6 @@
 
             }
 
-
-
-
-
-
         </div>
     </div>
 </div>
@@ -341,23 +332,18 @@
     </div>
 </div>
 
-
-
-<script type="text/javascript">
-    window.fechaIngresoString = '@(Session["FechaIngreso"] ?? "")';
-</script>
-
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="~/Assets/js/prestamos.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="~/Assets/js/solicitudPrestamo.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <span id="SuccessMessage" style="display: none;">@TempData["SuccessMessage"]</span>
 
 @section Scripts {
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const successMessage = document.getElementById("SuccessMessage").innerText.trim();
@@ -373,5 +359,41 @@
 });
             }
         });
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const montoInput = document.getElementById("montoSolicitud");
+            const plazoInput = document.getElementById("plazoMeses");
+            const cuotaSemanalInput = document.getElementById("cuotaSemanal");
+            const form = document.querySelector("form");
+
+            function calcularCuotaSemanal() {
+                const monto = parseFloat(montoInput.value) || 0;
+                const plazo = parseInt(plazoInput.value) || 0;
+
+                if (monto > 0 && plazo > 0) {
+                    const interes = monto * 0.12;
+                    const montoTotal = monto + interes;
+                    const semanas = plazo * 4.34;
+                    const cuotaSemanal = montoTotal / semanas;
+
+                    cuotaSemanalInput.value = cuotaSemanal.toFixed(2);
+                } else {
+                    cuotaSemanalInput.value = "";
+                }
+            }
+
+            montoInput.addEventListener("input", calcularCuotaSemanal);
+            plazoInput.addEventListener("input", calcularCuotaSemanal);
+
+            form.addEventListener("submit", function () {
+                cuotaSemanalInput.removeAttribute("readonly"); // Asegurar que el dato se envíe
+            });
+        });
+
+
     </script>
+
+
 }

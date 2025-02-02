@@ -79,30 +79,6 @@ function ajustarPlazo() {
 }
 
 
-// Función para calcular cuota
-function calcularCuota() {
-    const montoInput = document.getElementById("montoSolicitud");
-    const plazoInput = document.getElementById("plazoMeses");
-    const cuotaOutput = document.getElementById("cuotaSemanal");
-    const cuotaHidden = document.getElementById("cuotaSemanalHidden");
-
-    const monto = parseFloat(montoInput.value.replace(/,/g, ''));
-    const plazo = parseInt(plazoInput.value);
-
-    if (!isNaN(monto) && !isNaN(plazo) && plazo > 0) {
-        const interes = monto * 0.12;
-        const montoTotal = monto + interes;
-        const semanas = plazo * 4.34;
-        const cuotaSemanal = montoTotal / semanas;
-
-        cuotaOutput.value = cuotaSemanal.toFixed(2);
-        cuotaHidden.value = cuotaSemanal.toFixed(2); // Asignar al campo oculto
-    } else {
-        cuotaOutput.value = "";
-        cuotaHidden.value = ""; // Limpiar el campo oculto si los valores no son válidos
-    }
-}
-
 // Función para validar aceptación de reglamento
 const formulario = document.getElementById("solicitudForm");
 const checkbox = document.getElementById("aceptoReglamento");

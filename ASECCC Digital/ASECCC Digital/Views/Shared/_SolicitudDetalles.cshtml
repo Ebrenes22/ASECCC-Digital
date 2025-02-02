@@ -1,0 +1,130 @@
+﻿@model ASECCC_Digital.Database.SolicitudesPrestamo
+
+
+!-- Modal Revision Prestamo -->
+<div class="modal fade" id="solicitudModal" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="solicitudModalLabel">Detalles de la Solicitud</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <!-- Sección Personal -->
+                    <h6 class="mb-2">Información Personal</h6>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label class="form-label">Usuario ID</label>
+                            <span id="usuarioId" class="d-block small">@Model.usuarioId</span>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Estado Civil</label>
+                            <span id="estadoCivil" class="d-block small">@Model.estadoCivil</span>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label class="form-label">¿Paga Alquiler?</label>
+                            <span id="pagaAlquiler" class="d-block small">@Model.pagaAlquiler</span>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Monto Alquiler</label>
+                            <span id="montoAlquiler" class="d-block small">@Model.montoAlquiler</span>
+                        </div>
+                    </div>
+
+                    <!-- Sección Deudas -->
+                    <h6 class="mb-2">Información de Deudas</h6>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label class="form-label">Nombre del Acreedor</label>
+                            <span id="nombreAcreedor" class="d-block small">@Model.nombreAcreedor</span>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Total Crédito</label>
+                            <span id="totalCredito" class="d-block small">@Model.totalCredito</span>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label class="form-label">Abono Semanal</label>
+                            <span id="abonoSemanal" class="d-block small">@Model.abonoSemanal</span>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Saldo Crédito</label>
+                            <span id="saldoCredito" class="d-block small">@Model.saldoCredito</span>
+                        </div>
+                    </div>
+
+                    <!-- Sección Fiador -->
+                    <h6 class="mb-2">Información del Fiador</h6>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label class="form-label">Nombre del Deudor</label>
+                            <span id="nombreDeudor" class="d-block small">@Model.nombreDeudor</span>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Total Préstamo</label>
+                            <span id="totalPrestamo" class="d-block small">@Model.totalPrestamo</span>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label class="form-label">Saldo Préstamo</label>
+                            <span id="saldoPrestamo" class="d-block small">@Model.saldoPrestamo</span>
+                        </div>
+                    </div>
+
+                    <!-- Sección Detalle Préstamo a Solicitar -->
+                    <h6 class="mb-2">Detalle del Préstamo a Solicitar</h6>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label class="form-label">Tipo de Préstamo</label>
+                            <span id="tipoPrestamo" class="d-block small">@Model.tipoPrestamo</span>
+                        </div>
+                        <div class="col-6">
+                            <label for="montoSolicitud" class="form-label">Monto de la Solicitud</label>
+                            <input type="text" class="form-control form-control-sm" id="montoSolicitud" value="@Model.montoSolicitud">
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label for="plazoMeses" class="form-label">Plazo en Meses</label>
+                            <input type="text" class="form-control form-control-sm" id="plazoMeses" value="@Model.plazoMeses">
+                        </div>
+                        <div class="col-6">
+                            <label for="cuotaSemanalSolicitud" class="form-label">Cuota Semanal</label>
+                            <input type="text" class="form-control form-control-sm" id="cuotaSemanalSolicitud" value="@Model.cuotaSemanalSolicitud">
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-12">
+                            <label class="form-label">Propósito del Préstamo</label>
+                            <span id="propositoPrestamo" class="d-block small">@Model.propositoPrestamo</span>
+                        </div>
+                    </div>
+
+                    <!-- Estado Actual -->
+                    <h6 class="mb-2">Estado Actual</h6>
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="estado" class="form-label">Estado</label>
+                            <select class="form-select form-select-sm" id="estado">
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="En Revisión">En Revisión</option>
+                                <option value="Aprobado">Aprobado</option>
+                                <option value="Rechazado">Rechazado</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary btn-sm" id="guardarEstado">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
