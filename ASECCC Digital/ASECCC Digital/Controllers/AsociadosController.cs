@@ -22,6 +22,7 @@ namespace ASECCC_Digital.Controllers
         //--------VISTAS ADMIN--------------//
 
         // GET: Asociados
+        [Authorize]
         public ActionResult Asociados()
         {
             return View();
@@ -80,12 +81,20 @@ namespace ASECCC_Digital.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ActualizarAsociado(Usuario usuario)
         {
+            ModelState.Remove("Contrasena");
+            ModelState.Remove("TipoIdentificacion");
+            ModelState.Remove("Rol");
+            ModelState.Remove("EstadoAfiliacion");
+            ModelState.Remove("FechaIngreso");
+
             if (ModelState.IsValid)
             {
+
                 // Llamar al método del modelo para actualizar el usuario
-                var resultado = usuarioM.ActualizarUsuario(usuario);
+                var resultado = usuarioM.ActualizarAsociado(usuario);
 
                 if (resultado)
                 {
@@ -97,7 +106,11 @@ namespace ASECCC_Digital.Controllers
                     ModelState.AddModelError("", "No se pudo actualizar el usuario.");
                 }
             }
-
+            // 
+            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                Console.WriteLine(error.ErrorMessage);
+            }
             // Si hay errores de validación, mostrar la vista nuevamente
             return View(usuario);
         }
@@ -107,7 +120,7 @@ namespace ASECCC_Digital.Controllers
         {
             return View();
         }
-
+        [Authorize]
         public ActionResult BuscarDesactivarAsociado()
         {
             return View();

@@ -10,20 +10,20 @@
 <section class="container mt-4 d-flex justify-content-center align-items-start" style="padding-top: 20px;">
     <div class="w-100" style="max-width: 800px;">
 
-        @using (Html.BeginForm("RegistrarAsociado", "Asociados", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+        @using (Html.BeginForm("RegistrarAsociado", "Asociados", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "formRegistrar" }))
         {
             @Html.AntiForgeryToken()
 
             <div class="row">
                 <div class="col-md-6 mb-3">
                     @Html.LabelFor(model => model.NombreCompleto, "Nombre Completo", htmlAttributes: new { @class = "form-label" })
-                    @Html.TextBoxFor(model => model.NombreCompleto, new { @class = "form-control" })
+                    @Html.TextBoxFor(model => model.NombreCompleto, new { @class = "form-control", id = "nombreCompleto" })
                     @Html.ValidationMessageFor(model => model.NombreCompleto, "", new { @class = "text-danger" })
                 </div>
 
                 <div class="col-md-6 mb-3">
                     @Html.LabelFor(model => model.CorreoElectronico, "Correo Electronico", new { @class = "form-label" })
-                    @Html.TextBoxFor(model => model.CorreoElectronico, new { @class = "form-control", type = "email" })
+                    @Html.TextBoxFor(model => model.CorreoElectronico, new { @class = "form-control", type = "email", id = "correoElectronico" })
                     @Html.ValidationMessageFor(model => model.CorreoElectronico, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -31,7 +31,7 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     @Html.LabelFor(model => model.Contrasena, "Contraseña", new { @class = "form-label" })
-                    @Html.PasswordFor(model => model.Contrasena, new { @class = "form-control" })
+                    @Html.TextBoxFor(model => model.Contrasena, new { @class = "form-control", id = "contrasena" })
                     @Html.ValidationMessageFor(model => model.Contrasena, "", new { @class = "text-danger" })
                 </div>
 
@@ -42,7 +42,7 @@
                             new { Value = "Nacional", Text = "Nacional" },
                             new { Value = "DIMEX", Text = "DIMEX" }
                         }, "Value", "Text"),
-                        new { @class = "form-select" })
+                        new { @class = "form-select", id = "tipoIdentificacion" })
                     @Html.ValidationMessageFor(model => model.TipoIdentificacion, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -50,13 +50,13 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     @Html.LabelFor(model => model.Identificacion, "Identificación", new { @class = "form-label" })
-                    @Html.TextBoxFor(model => model.Identificacion, new { @class = "form-control" })
+                    @Html.TextBoxFor(model => model.Identificacion, new { @class = "form-control", id = "identificacion" })
                     @Html.ValidationMessageFor(model => model.Identificacion, "", new { @class = "text-danger" })
                 </div>
 
                 <div class="col-md-6 mb-3">
                     @Html.LabelFor(model => model.FechaNacimiento, "Fecha de nacimiento", new { @class = "form-label" })
-                    @Html.TextBoxFor(model => model.FechaNacimiento, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    @Html.TextBoxFor(model => model.FechaNacimiento, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "fechaNacimiento" })
                     @Html.ValidationMessageFor(model => model.FechaNacimiento, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -64,25 +64,115 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     @Html.LabelFor(model => model.Telefono, "Teléfono", new { @class = "form-label" })
-                    @Html.TextBoxFor(model => model.Telefono, new { @class = "form-control", type = "tel" })
+                    @Html.TextBoxFor(model => model.Telefono, new { @class = "form-control", type = "tel", id = "telefono" })
                     @Html.ValidationMessageFor(model => model.Telefono, "", new { @class = "text-danger" })
                 </div>
 
                 <div class="col-md-6 mb-3">
                     @Html.LabelFor(model => model.Direccion, "Dirección", new { @class = "form-label" })
-                    @Html.TextBoxFor(model => model.Direccion, new { @class = "form-control" })
+                    @Html.TextBoxFor(model => model.Direccion, new { @class = "form-control", id = "direccion" })
                     @Html.ValidationMessageFor(model => model.Direccion, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <!-- Botón Registrar -->
             <div class="d-flex justify-content-center">
-                <input type="submit" value="Registrar Asociado" class="btn btn-primary" />
+                <input type="submit" value="Registrar Asociado" class="btn btn-primary" id="btnRegistrar" />
             </div>
         }
     </div>
 </section>
 
+<!-- Asegúrate de que jQuery y Bootstrap se carguen antes -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 @section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function () {
+            // Definimos las variables de los elementos de identificación
+            var $tipoIdentificacion = $('#tipoIdentificacion');
+            var $identificacion = $('#identificacion');
+            var $telefono = $('#telefono');
+            var $contrasena = $('#contrasena');
+            // Función para formatear el número de identificación mientras se escribe
+            $identificacion.on('input', function () {
+                var tipo = $tipoIdentificacion.val();
+                // Eliminar cualquier caracter que no sea dígito
+                var value = $identificacion.val().replace(/[^0-9]/g, '');
+
+                if (tipo === "Nacional") {
+                    // Limitar a 9 dígitos (1 dígito + 4 + 4) y formatear: 1-2345-6789
+                    if (value.length > 9) {
+                        value = value.slice(0, 9);
+                    }
+                    value = value.replace(/^(\d{1})(\d{4})(\d+)/, '$1-$2-$3');
+                } else if (tipo === "DIMEX") {
+                    // Limitar a 12 dígitos (sin formateo)
+                    if (value.length > 12) {
+                        value = value.slice(0, 12);
+                    }
+                }
+                $identificacion.val(value);
+            });
+
+            // Función para validar el formato de la identificación
+            function validarIdentificacion(value, tipo) {
+                if (tipo === "Nacional") {
+                    // Se espera el formato 1-2345-6789
+                    return /^\d{1}-\d{4}-\d{4}$/.test(value);
+                } else if (tipo === "DIMEX") {
+                    // Se esperan 12 dígitos sin guiones
+                    return /^\d{12}$/.test(value);
+                }
+                return false;
+            }
+
+            $telefono.on('input', function () {
+                // Permitir solo dígitos y limitar a 8 caracteres
+                var value = $telefono.val().replace(/[^0-9]/g, '');
+                if (value.length > 8) {
+                    value = value.slice(0, 8);
+                }
+                $telefono.val(value);
+            });
+
+            // Función para validar la contraseña: mínimo 6 caracteres
+            function validarContrasena(pass) {
+                return pass.length >= 6;
+            }
+
+            // Función para validar el teléfono: solo dígitos y máximo 8 caracteres
+            function validarTelefono(tel) {
+                // La expresión permite entre 0 y 8 dígitos y además se verifica la longitud
+                return /^\d{0,8}$/.test(tel) && tel.length <= 8;
+            }
+
+            // Un único controlador para el submit del formulario
+            $('#formRegistrar').on('submit', function (event) {
+                var tipo = $tipoIdentificacion.val();
+                var identValue = $identificacion.val();
+                var pass = $contrasena.val().trim();
+                var tel = $telefono.val().trim();
+                if (!validarIdentificacion(identValue, tipo)) {
+                    // Si el formato no es válido, marcar el campo y mostrar alerta
+                    $identificacion.addClass('is-invalid');
+                    alert('Por favor ingrese un número de identificación válido.');
+                    event.preventDefault();
+                    return;
+                } else {
+                    $identificacion.removeClass('is-invalid');
+                }
+                // Validación de Teléfono
+                if (!validarTelefono(tel)) {
+                    $telefono.addClass('is-invalid');
+                    alert('El teléfono debe contener solo números y tener máximo 8 dígitos.');
+                    event.preventDefault();
+                    return;
+                } else {
+                    $telefono.removeClass('is-invalid');
+                }
+            });
+        });
+    </script>
 }

@@ -1,4 +1,4 @@
-﻿@model ASECCC_Digital.Entities.Usuario
+﻿﻿@model ASECCC_Digital.Entities.Usuario
 @{
     ViewBag.Title = "Login";
     Layout = "~/Views/Shared/_Layout_Externo.cshtml";
@@ -6,7 +6,7 @@
 <div class="login-container d-flex justify-content-center align-items-center">
     <div class="card p-4" justify-content-center style="max-width: 400px; width: 100%; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
         <h2 class="text-center mb-4">Iniciar Sesión</h2>
-        @using (Html.BeginForm("Login", "Usuarios", FormMethod.Post, new { id = "loginForm" }))
+        @using (Html.BeginForm("Login", "Usuarios", FormMethod.Post, new { id = "loginForm", @class = "needs-validation", novalidate = "novalidate" }))
         {
             @Html.AntiForgeryToken()
 
@@ -16,19 +16,22 @@
                     new { Value = "", Text = "Seleccione tipo de identificación" },
                     new { Value = "Cedula", Text = "Cédula Nacional" },
                     new { Value = "DIMEX", Text = "Identificación DIMEX" }
-                }, "Value", "Text"), new { @class = "form-select", required = "required" })
+                }, "Value", "Text"), new { @class = "form-select", required = "required", id = "tipoIdentificacion" })
+                <div class="invalid-feedback">
+                    Por favor seleccione un tipo de identificación.
+                </div>
             </div>
             <div class="mb-3">
                 @Html.Label("Usuario", null, new { @class = "form-label" })
-                @Html.TextBox("identificacion", null, new { @class = "form-control", placeholder = "Ingrese su número de identificación", required = "required", maxlength = "12" })
-                <div class="invalid-feedback">
+                @Html.TextBox("identificacion", null, new { @class = "form-control", placeholder = "Ingrese su número de identificación", required = "required", maxlength = "12", id = "identificacion" })
+                <div class="invalid-feedback" id="identificacionError">
                     Por favor ingrese un número de identificación válido.
                 </div>
             </div>
             <div class="mb-3">
                 @Html.Label("Contraseña", null, new { @class = "form-label" })
                 <div class="input-group">
-                    @Html.Password("contrasena", null, new { @class = "form-control", required = "required" })
+                    @Html.Password("contrasena", null, new { @class = "form-control", required = "required", id = "contrasena" })
                     <button type="button" class="btn btn-outline-secondary" id="togglePassword">
                         <i class="bi bi-eye"></i>
                     </button>
@@ -41,7 +44,8 @@
                 <button type="submit" class="btn btn-primary text-center">
                     Iniciar Sesión
                 </button>
-            </div><div class="text-center">
+            </div>
+            <div class="text-center">
                 <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
                     ¿Olvidó su contraseña?
                 </a>
@@ -90,94 +94,76 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     $(document).ready(function () {
-        const cedulaInput = $('#cedula');
+        const identificacionInput = $('#identificacion');
         const tipoIdentificacionSelect = $('#tipoIdentificacion');
-        const resetCedulaInput = $('#resetCedula');
-        const resetTipoIdentificacionSelect = $('#resetTipoIdentificacion');
+        const identificacionError = $('#identificacionError');
 
-        // Función para formatear la cédula o DIMEX (misma que en el código original)
-        function formatCedula(value, tipoSelect) {
-            let formattedValue = value.replace(/[^0-9]/g, ''); // Eliminar caracteres no numéricos
-
-            if (tipoSelect.val() === 'cedula') {
-                // Formato de Cédula Nacional: 0-0000-0000 (máximo 9 dígitos)
-                if (formattedValue.length <= 9) {
-                    formattedValue = formattedValue.replace(/^(\d{1})(\d{4})(\d+)/, '$1-$2-$3');
-                }
-            } else if (tipoSelect.val() === 'dimex') {
-                // Formato de Identificación DIMEX: 000000000000 (máximo 12 dígitos)
-                if (formattedValue.length <= 12) {
-                    formattedValue = formattedValue.replace(/^(\d{12})$/, '$1');
-                }
+        // Función para validar el formato de la cédula o DIMEX
+        function validarIdentificacion(value, tipo) {
+            if (tipo === "Cedula") {
+                // Validar cédula nacional (9 dígitos)
+                return /^\d{1}-\d{4}-\d{4}$/.test(value);
+            } else if (tipo === "DIMEX") {
+                // Validar DIMEX (12 dígitos)
+                return /^\d{12}$/.test(value);
             }
-            return formattedValue;
+            return false;
         }
 
-        // Detecta el cambio de tipo de identificación (para ambos campos)
-        tipoIdentificacionSelect.on('change', function () {
-            cedulaInput.val(''); // Limpiar el campo al cambiar tipo de identificación
-        });
+        // Formatear y validar el número de identificación
+        identificacionInput.on('input', function () {
+            const tipo = tipoIdentificacionSelect.val();
+            let value = identificacionInput.val().replace(/[^0-9]/g, ''); // Solo números
 
-        resetTipoIdentificacionSelect.on('change', function () {
-            resetCedulaInput.val(''); // Limpiar el campo al cambiar tipo de identificación
-        });
-
-        // Evento para formatear el número de identificación y limitar la longitud (para ambos campos)
-        cedulaInput.on('input', function () {
-            let value = cedulaInput.val();
-            value = value.replace(/[^0-9]/g, ''); // Solo permitir números
-            if (tipoIdentificacionSelect.val() === 'cedula' && value.length > 9) {
-                value = value.slice(0, 9); // Limitar a 9 dígitos para cédula nacional
-            } else if (tipoIdentificacionSelect.val() === 'dimex' && value.length > 12) {
-                value = value.slice(0, 12); // Limitar a 12 dígitos para DIMEX
+            if (tipo === "Cedula") {
+                // Formato de cédula: 0-0000-0000
+                if (value.length > 9) value = value.slice(0, 9); // Limitar a 9 dígitos
+                value = value.replace(/^(\d{1})(\d{4})(\d+)/, '$1-$2-$3');
+            } else if (tipo === "DIMEX") {
+                // Formato de DIMEX: 000000000000
+                if (value.length > 12) value = value.slice(0, 12); // Limitar a 12 dígitos
             }
-            value = formatCedula(value, tipoIdentificacionSelect);
-            cedulaInput.val(value);
+
+            identificacionInput.val(value); // Actualizar el valor del campo
         });
 
-        resetCedulaInput.on('input', function () {
-            let value = resetCedulaInput.val();
-            value = value.replace(/[^0-9]/g, ''); // Solo permitir números
-            if (resetTipoIdentificacionSelect.val() === 'cedula' && value.length > 9) {
-                value = value.slice(0, 9); // Limitar a 9 dígitos para cédula nacional
-            } else if (resetTipoIdentificacionSelect.val() === 'dimex' && value.length > 12) {
-                value = value.slice(0, 12); // Limitar a 12 dígitos para DIMEX
-            }
-            value = formatCedula(value, resetTipoIdentificacionSelect);
-            resetCedulaInput.val(value);
-        });
-
-        // Validación del formulario de login
+        // Validación del formulario
         $('#loginForm').on('submit', function (event) {
-            const isValid = this.checkValidity();
-            if (!isValid) {
+            const form = this;
+            const tipo = tipoIdentificacionSelect.val();
+            const identificacion = identificacionInput.val();
+
+            // Validar el formato de la identificación
+            if (!validarIdentificacion(identificacion, tipo)) {
+                identificacionInput.addClass('is-invalid');
+                identificacionError.text('Por favor ingrese un número de identificación válido.');
+                event.preventDefault();
+                event.stopPropagation();
+            } else {
+                identificacionInput.removeClass('is-invalid');
+            }
+
+            // Validación general del formulario
+            if (!form.checkValidity()) {
                 event.preventDefault();
                 event.stopPropagation();
             }
-            this.classList.add('was-validated');
+
+            form.classList.add('was-validated');
         });
 
-        // Validación del formulario de restablecimiento de contraseña
-        $('#sendResetEmailBtn').on('click', function () {
-            const resetForm = $('#forgotPasswordForm')[0];
-            const isValid = resetForm.checkValidity();
+        // Toggle de visibilidad de contraseña
+        $('#togglePassword').on('click', function () {
+            const passwordField = $('#contrasena');
+            const icon = $(this).find('i');
 
-            if (!isValid) {
-                resetForm.classList.add('was-validated');
-                return;
+            if (passwordField.attr('type') === 'password') {
+                passwordField.attr('type', 'text');
+                icon.removeClass('bi-eye').addClass('bi-eye-slash');
+            } else {
+                passwordField.attr('type', 'password');
+                icon.removeClass('bi-eye-slash').addClass('bi-eye');
             }
-
-            // Simular envío de correo de restablecimiento
-            const tipoIdentificacion = $('#resetTipoIdentificacion').val();
-            const cedula = $('#resetCedula').val();
-
-            // Mostrar mensaje de éxito
-            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-            $('#successModalMessage').text(`Se ha enviado un correo de restablecimiento de contraseña al correo asociado a la ${tipoIdentificacion} ${cedula}`);
-            successModal.show();
-
-            // Cerrar el modal de restablecimiento
-            bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal')).hide();
         });
     });
 

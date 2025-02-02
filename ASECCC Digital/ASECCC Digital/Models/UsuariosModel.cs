@@ -128,7 +128,7 @@ namespace ASECCC_Digital.Models
             }
         }
 
-        public bool ActualizarUsuario(Entities.Usuario usuario)
+        public bool ActualizarAsociado(Entities.Usuario usuario)
         {
             using (var context = new Database.ASECCC_DIGITALEntities())
             {
@@ -140,8 +140,6 @@ namespace ASECCC_Digital.Models
                     usuarioDb.correoElectronico = usuario.CorreoElectronico;
                     usuarioDb.telefono = usuario.Telefono;
                     usuarioDb.direccion = usuario.Direccion;
-                    usuarioDb.estadoAfiliacion = usuario.EstadoAfiliacion;
-                    usuarioDb.rol = usuario.Rol;
 
                     context.SaveChanges();
                     return true;
