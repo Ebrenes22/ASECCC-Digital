@@ -28,30 +28,28 @@ namespace ASECCC_Digital.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult RegistrarAsociado(Usuario usuario)
         {
-            if (!ModelState.IsValid)
-            {
-                // Si el modelo no es válido, se retorna la vista con los errores
-                return View(usuario);
-            }
+            
             // Verificar si el usuario ya existe en la base de datos
             if (usuarioM.UsuarioExiste(usuario.Identificacion))
             {
-                // Agregar un mensaje de error si el usuario ya existe
-                ModelState.AddModelError("", "El usuario con esta identificación ya está registrado.");
-                return View(usuario);
+                TempData["Mensaje"] = "El usuario con esta identificación ya está registrado.";
+                TempData["MensajeTipo"] = "error";
+                return RedirectToAction("RegistrarAsociado");
             }
+
             var respuesta = usuarioM.RegistrarAsociado(usuario);
 
             if (respuesta)
             {
-                TempData["Mensaje"] = "Usuario registrado correctamente";
-                return RedirectToAction("RegistrarAsociado, Asociados");
+                TempData["Mensaje"] = "Usuario registrado correctamente.";
+                TempData["MensajeTipo"] = "success";
+                return RedirectToAction("RegistrarAsociado");
             }
             else
             {
-                // Si hubo problema, muestra un mensaje de error
-                ModelState.AddModelError("", "Ocurrió un error al registrar el usuario.");
-                return View(usuario);
+                TempData["Mensaje"] = "Ocurrió un error al registrar el usuario.";
+                TempData["MensajeTipo"] = "error";
+                return RedirectToAction("RegistrarAsociado");
             }
         }
 
@@ -83,8 +81,15 @@ namespace ASECCC_Digital.Controllers
 
             if (userEntity == null)
             {
-                // No se encontró el usuario o contraseña inválida/inactivo
-                ModelState.AddModelError("", "Identificación y/o contraseña inválidas, o usuario inactivo.");
+
+                TempData["LoginError"] = "Credenciales erroneas o Usuario Inactivo";
+                return View();
+            }
+
+            // verificar si el usuario se encuentra activo
+            if (userEntity.EstadoAfiliacion != "activo")
+            {
+                TempData["LoginError"] = "Usuario inactivo";
                 return View();
             }
 
@@ -127,6 +132,13 @@ namespace ASECCC_Digital.Controllers
             }
         }
 
+        [Authorize]
+        public ActionResult Logout()
+        {
+            FormsAuthentication.SignOut();
+            Session.Clear(); // Elimina todas las variables de sesión
+            return RedirectToAction("Login", "Usuarios");
+        }
 
         public ActionResult ActualizarAsociado()
         {

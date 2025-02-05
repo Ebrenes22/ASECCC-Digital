@@ -16,8 +16,11 @@
     <!-- CSS principal -->
     <link href="~/assets/css/main.css" rel="stylesheet">
     <!--SweetAlert2 -->
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.6/dist/sweetalert2.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.6/dist/sweetalert2.min.js"></script>
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
 
     <style>
         html, body {
@@ -81,7 +84,7 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                     <li><a class="dropdown-item" href="@Url.Action("PerfilAsociado", "Perfil")">Perfil</a></li>
-                    <li><a class="dropdown-item" href="@Url.Action("Login", "Usuarios")">Salir</a></li>
+                    <li><a class="dropdown-item" href="@Url.Action("Logout", "Usuarios")">Salir</a></li>
                 </ul>
             </div>
         </div>
@@ -189,3 +192,25 @@
 </body>
 
 </html>
+@section Scripts {
+
+    <script>
+    function logout() {
+        $.ajax({
+            url: '@Url.Action("Logout", "Usuarios")',
+            type: 'POST',
+            success: function () {
+                window.location.href = '@Url.Action("Login", "Usuarios")';
+            },
+            error: function () {
+                alert('Error al cerrar sesión.');
+            }
+        });
+    }
+    </script>
+
+    <a href="#" class="nav-link text-danger" onclick="logout()">
+        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+    </a>
+
+}

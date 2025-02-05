@@ -1,10 +1,6 @@
 ﻿using ASECCC_Digital.Database;
-using ASECCC_Digital.Entities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ASECCC_Digital.Models
 {
@@ -145,6 +141,21 @@ namespace ASECCC_Digital.Models
                     return true;
                 }
                 return false; // Si no se encuentra el usuario
+            }
+        }
+        public bool DesactivarAsociado(int usuarioId)
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                var usuario = context.Usuario.Find(usuarioId);
+
+                if (usuario != null)
+                {
+                    usuario.estadoAfiliacion = "inactivo";
+                    context.SaveChanges();
+                    return true;
+                }
+                return false;
             }
         }
     }

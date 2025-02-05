@@ -1,73 +1,46 @@
-﻿@model IEnumerable<ASECCC_Digital.Entities.Usuario>
+﻿@model ASECCC_Digital.Entities.Usuario
+
 @{
-    ViewBag.Title = "Liquidar";
+    ViewBag.Title = "Buscar y Desactivar Asociado";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
 
-
-<h1 class="text-center mb-4">Buscar Asociado</h1>
-
+<h1 class="text-center mb-4">Buscar y Desactivar Asociado</h1>
 <section class="container mt-4 d-flex justify-content-center align-items-start" style="padding-top: 20px;">
     <div class="w-100" style="max-width: 800px;">
 
-        <!-- Campo de búsqueda básica -->
-        <form>
+        <!-- Formulario de búsqueda -->
+        @using (Html.BeginForm("BuscarAsociado", "Asociados", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "formBuscar", onsubmit = "return false;" }))
+        {
+            @Html.AntiForgeryToken()
+
             <div class="row g-3 mb-4">
                 <div class="col-md-8">
-                    <label for="buscarAsociado" class="form-label">Buscar por Nombre o Identificación</label>
-                    <input type="text" class="form-control" id="buscarAsociado" placeholder="Ingrese el nombre o identificación del asociado" required>
+                    @Html.LabelFor(model => model.NombreCompleto, "Buscar por Nombre", new { @class = "form-label" })
+                    @Html.TextBox("buscarNombre", null, new { @class = "form-control", placeholder = "Ingrese el nombre del asociado", required = "required" })
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
                     <button type="button" class="btn btn-primary w-100" onclick="buscarAsociado()">Buscar</button>
                 </div>
             </div>
-        </form>
+        }
 
-        <!-- Opciones de búsqueda avanzada -->
-        <div class="mb-4">
-            <h5>Búsqueda Avanzada</h5>
-            <form id="busquedaAvanzada">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label for="filtroEstadoAfiliacion" class="form-label">Estado de Afiliación</label>
-                        <select class="form-select" id="filtroEstadoAfiliacion">
-                            <option value="">Seleccione</option>
-                            <option value="vigente">Vigente</option>
-                            <option value="suspendido">Suspendido</option>
-                            <option value="inactivo">Inactivo</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="filtroTipoUsuario" class="form-label">Tipo de Usuario</label>
-                        <select class="form-select" id="filtroTipoUsuario">
-                            <option value="">Seleccione</option>
-                            <option value="activo">Activo</option>
-                            <option value="inactivo">Inactivo</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button type="button" class="btn btn-secondary w-100" onclick="buscarAvanzado()">Buscar Avanzado</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- Resultados de la búsqueda -->
+        <!-- Tabla de resultados -->
         <div id="resultadosBusqueda" style="display: none;">
             <h5>Resultados de Búsqueda</h5>
             <table class="table table-striped mt-3">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
+                        <th>Nombre Completo</th>
                         <th>Identificación</th>
-                        <th>Correo</th>
+                        <th>Correo Electrónico</th>
                         <th>Teléfono</th>
                         <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody id="tablaResultados">
-                    <!-- Resultados simulados -->
+                    <!-- Resultados dinámicos aquí -->
                 </tbody>
             </table>
         </div>
@@ -76,80 +49,129 @@
         <div id="sinResultados" style="display: none;">
             <p class="text-danger">No se encontraron asociados que coincidan con los criterios de búsqueda.</p>
         </div>
+
     </div>
 </section>
 
-<script>
-    // Simulación de búsqueda básica
-    function buscarAsociado() {
-        const buscarInput = document.getElementById('buscarAsociado').value.trim();
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        // Simula resultados
-        if (buscarInput === "Juan Pérez" || buscarInput === "123456789") {
-            mostrarResultados([{
-                nombre: "Juan Pérez",
-                identificacion: "123456789",
-                correo: "juan.perez@example.com",
-                telefono: "+123456789",
-                estado: "vigente"
-            }]);
-        } else {
-            mostrarSinResultados();
+    <script>
+        // Función para buscar un asociado por nombre o identificación
+        function buscarAsociado() {
+            const buscarNombre = document.getElementById('buscarNombre').value.trim();
+
+            if (buscarNombre) {
+                fetch('/Asociados/BuscarAsociado', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ buscarNombre })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('resultadosBusqueda').style.display = 'block';
+                            document.getElementById('sinResultados').style.display = 'none';
+
+                            const tabla = document.getElementById('tablaResultados');
+                            tabla.innerHTML = ""; // Limpiar resultados previos
+
+                            const fila = `
+                        <tr>
+                            <td>${data.nombre}</td>
+                            <td>${data.identificacion}</td>
+                            <td>${data.correo}</td>
+                            <td>${data.telefono}</td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="desactivarAsociado(${data.id})">Desactivar</button>
+                            </td>
+                        </tr>
+                    `;
+                            tabla.innerHTML += fila;
+                        } else {
+                            document.getElementById('resultadosBusqueda').style.display = 'none';
+                            document.getElementById('sinResultados').style.display = 'block';
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            } else {
+                alert('Por favor, ingrese un nombre para buscar.');
+            }
         }
-    }
 
-    // Simulación de búsqueda avanzada
-    function buscarAvanzado() {
-        const estadoAfiliacion = document.getElementById('filtroEstadoAfiliacion').value;
-        const tipoUsuario = document.getElementById('filtroTipoUsuario').value;
 
-        if (estadoAfiliacion || tipoUsuario) {
-            mostrarResultados([
-                {
-                    nombre: "María Gómez",
-                    identificacion: "987654321",
-                    correo: "maria.gomez@example.com",
-                    telefono: "+987654321",
-                    estado: "inactivo"
+        function desactivarAsociado(usuarioId) {
+            console.log("Intentando desactivar usuario con ID:", usuarioId); // Depuración en consola
+
+            if (!usuarioId || usuarioId <= 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'ID de usuario inválido.'
+                });
+                return;
+            }
+
+            
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            Swal.fire({
+                title: "¿Estás segura?",
+                text: "Esta acción desactivará al asociado.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Sí, desactivar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/Asociados/BuscarDesactivarAsociado', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-Token': token 
+                        },
+                        body: JSON.stringify({ usuarioId })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Respuesta recibida:", data); // Depuración en consola
+
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Asociado Desactivado',
+                                    text: 'El asociado ha sido desactivado correctamente.',
+                                    confirmButtonColor: '#3085d6',
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    buscarAsociado(); // Refrescar la búsqueda
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: data.message
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error en desactivarAsociado:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un problema al desactivar el usuario.'
+                            });
+                        });
                 }
-            ]);
-        } else {
-            mostrarSinResultados();
+            });
         }
-    }
 
-    // Mostrar resultados
-    function mostrarResultados(resultados) {
-        const tabla = document.getElementById('tablaResultados');
-        tabla.innerHTML = ""; // Limpiar resultados previos
 
-        resultados.forEach(resultado => {
-            const fila = `
-                <tr>
-                    <td>${resultado.nombre}</td>
-                    <td>${resultado.identificacion}</td>
-                    <td>${resultado.correo}</td>
-                    <td>${resultado.telefono}</td>
-                    <td>
-                        <button type="button" class="btn btn-info btn-sm">Ver Detalles</button>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="desactivarCuenta('${resultado.nombre}')">Desactivar Cuenta</button>
-                    </td>
-                </tr>
-            `;
-            tabla.innerHTML += fila;
-        });
 
-        document.getElementById('resultadosBusqueda').style.display = 'block';
-        document.getElementById('sinResultados').style.display = 'none';
-    }
-
-    // Mostrar mensaje de sin resultados
-    function mostrarSinResultados() {
-        document.getElementById('resultadosBusqueda').style.display = 'none';
-        document.getElementById('sinResultados').style.display = 'block';
-    }
-
-    // Simular desactivación de cuenta
-    function desactivarCuenta(nombre) {
-        alert(`La cuenta del asociado "${nombre}" ha sido desactivada exitosamente.`);
-    }</script>
+    </script>
+}

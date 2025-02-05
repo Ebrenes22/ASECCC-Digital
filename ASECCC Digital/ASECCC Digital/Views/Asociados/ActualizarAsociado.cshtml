@@ -51,7 +51,7 @@
                 </div>
                 <div class="col-md-6">
                     <label for="telefono" class="form-label">Teléfono de Contacto</label>
-                    @Html.TextBoxFor(m => m.Telefono, new { @class = "form-control", type = "tel", id = "telefono" })
+                    @Html.TextBoxFor(m => m.Telefono, new { @class = "form-control", type = "tel", id = "telefono", maxlength = "8", pattern = "[0-9]{8}" })
                     @Html.ValidationMessageFor(m => m.Telefono, "", new { @class = "text-danger" })
                 </div>
                 <div class="col-md-6">
@@ -68,7 +68,62 @@
 </section>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+    $(document).ready(function () {
+        var mensaje = '@TempData["Mensaje"]';
+        var mensajeTipo = '@TempData["MensajeTipo"]';
+
+        // Si hay un mensaje de éxito o error
+        if (mensaje) {
+            Swal.fire({
+                icon: mensajeTipo === 'success' ? 'success' : 'error',
+                title: mensajeTipo === 'success' ? '¡Éxito!' : 'Error',
+                text: mensaje,
+                confirmButtonColor: mensajeTipo === 'success' ? '#28a745' : '#dc3545'
+            });
+        }
+
+        // Si hay errores de validación
+        var errores = @Html.Raw(Json.Encode(TempData["Errores"]));
+        if (errores && errores.length > 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Errores de validación',
+                html: '<ul style="text-align: left;">' + errores.map(e => `<li>${e}</li>`).join('') + '</ul>',
+                confirmButtonColor: '#dc3545'
+            });
+        }
+    });
+    </script>
+    <script>
+        $(document).ready(function () {
+            var $telefono = $('#telefono');
+
+            // Validación en tiempo real: solo permitir números y máximo 8 caracteres
+            $telefono.on('input', function () {
+                var value = $telefono.val().replace(/\D/g, ''); // Eliminar cualquier carácter que no sea número
+                if (value.length > 8) {
+                    value = value.substring(0, 8); // Limitar a 8 caracteres
+                }
+                $telefono.val(value);
+            });
+
+            // Validación antes de enviar el formulario
+            $('#formEditar').on('submit', function (event) {
+                var telefonoVal = $telefono.val().trim();
+
+                if (telefonoVal.length !== 8) {
+                    $telefono.addClass('is-invalid');
+                    alert('El teléfono debe contener exactamente 8 dígitos numéricos.');
+                    event.preventDefault(); // Detiene el envío del formulario
+                    return;
+                } else {
+                    $telefono.removeClass('is-invalid');
+                }
+            });
+        });
+
         // Función para buscar un asociado por nombre
         function buscarAsociado() {
             const buscarNombre = document.getElementById('buscarNombre').value.trim();
@@ -84,7 +139,6 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Mostrar el formulario y cargar los datos
                             document.getElementById('formEditar').style.display = 'block';
                             document.getElementById('usuarioId').value = data.id;
                             document.getElementById('nombreCompleto').value = data.nombre;
@@ -93,10 +147,8 @@
                             document.getElementById('correoElectronico').value = data.correo;
                             document.getElementById('telefono').value = data.telefono;
                             document.getElementById('direccion').value = data.direccion;
-                            document.getElementById('tipoIdentificacion').value = data.tipo;
-                            document.getElementById('estadoAfiliacion').value = data.estado;
                         } else {
-                            alert(data.message); // Mostrar mensaje de error
+                            alert(data.message);
                         }
                     })
                     .catch(error => console.error('Error:', error));

@@ -1,10 +1,9 @@
-﻿using ASECCC_Digital.Models;
-using ASECCC_Digital.Entities;
+﻿using ASECCC_Digital.Entities;
+using ASECCC_Digital.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
+
 namespace ASECCC_Digital.Controllers
 {
     public class AsociadosController : Controller
@@ -42,14 +41,10 @@ namespace ASECCC_Digital.Controllers
             return View();
         }
 
-        [HttpGet]
-        public ActionResult ActualizarAsociado()
-        {
 
-            return View();
-        }
 
         [HttpPost]
+        //[ValidateAntiForgeryToken]
         public JsonResult BuscarAsociado(string buscarNombre)
         {
             // Buscar el usuario por nombre usando el modelo
@@ -80,6 +75,13 @@ namespace ASECCC_Digital.Controllers
             }
         }
 
+        [HttpGet]
+        public ActionResult ActualizarAsociado()
+        {
+
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ActualizarAsociado(Usuario usuario)
@@ -92,42 +94,74 @@ namespace ASECCC_Digital.Controllers
 
             if (ModelState.IsValid)
             {
-
                 // Llamar al método del modelo para actualizar el usuario
                 var resultado = usuarioM.ActualizarAsociado(usuario);
 
                 if (resultado)
                 {
                     TempData["Mensaje"] = "Usuario actualizado correctamente";
-                    return RedirectToAction("ActualizarAsociado");
+                    TempData["MensajeTipo"] = "success"; // Tipo de alerta para SweetAlert
                 }
                 else
                 {
-                    ModelState.AddModelError("", "No se pudo actualizar el usuario.");
+                    TempData["Mensaje"] = "No se pudo actualizar el usuario.";
+                    TempData["MensajeTipo"] = "error"; // Tipo de alerta para SweetAlert
                 }
+
+                return RedirectToAction("ActualizarAsociado");
             }
-            // 
-            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-            {
-                Console.WriteLine(error.ErrorMessage);
-            }
-            // Si hay errores de validación, mostrar la vista nuevamente
+
+            // Capturar errores de validación y enviarlos a la vista
+            var errores = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+            TempData["Errores"] = errores;
+            TempData["MensajeTipo"] = "error"; // Tipo de alerta para SweetAlert
+
             return View(usuario);
         }
+
 
 
         public ActionResult LiquidarAsociado()
         {
             return View();
         }
-        [Authorize]
+
+        [HttpGet]
         public ActionResult BuscarDesactivarAsociado()
         {
             return View();
         }
 
-        //--------VISTAS USUARIO--------------//
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        public JsonResult BuscarDesactivarAsociado(int usuarioId)
+        {
 
+
+            Console.WriteLine($"Solicitud para desactivar usuario con ID: {usuarioId}"); // Depuración en consola del servidor
+
+            if (usuarioId <= 0)
+            {
+                return Json(new { success = false, message = "ID de usuario inválido." });
+            }
+
+            var resultado = usuarioM.DesactivarAsociado(usuarioId);
+
+            if (resultado)
+            {
+                return Json(new { success = true, message = "Usuario desactivado correctamente." });
+            }
+            else
+            {
+                return Json(new { success = false, message = "No se pudo desactivar el usuario." });
+            }
+        }
 
     }
+
+
+
+    //--------VISTAS USUARIO--------------//
+
+
 }
