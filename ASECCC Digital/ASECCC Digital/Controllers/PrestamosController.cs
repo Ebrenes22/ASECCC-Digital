@@ -47,44 +47,52 @@
                 return View();
             }
 
-            public ActionResult RevisionPrestamos()
+        public ActionResult RevisionPrestamos()
+        {
+            var viewModel = new SolicitudPrestamoViewModel();
+
+            // Aquí debes llenar las listas de solicitudes según el estado.
+            // Por ejemplo:
+            var model = new PrestamosModel();
+            viewModel.Solicitudes.Pendientes = model.ObtenerSolicitudesPorEstado("Pendiente");
+            viewModel.Solicitudes.EnRevision = model.ObtenerSolicitudesPorEstado("En Revisión");
+            viewModel.Solicitudes.Aprobadas = model.ObtenerSolicitudesPorEstado("Aprobado");
+            viewModel.Solicitudes.Rechazadas = model.ObtenerSolicitudesPorEstado("Rechazado");
+
+            return View(viewModel);
+        }
+
+        // Acción que devuelve los detalles de una solicitud en formato JSON
+        [HttpGet]
+        public ActionResult ObtenerSolicitudPorId(int id)
+        {
+            var model = new PrestamosModel();
+            var viewModel = model.ObtenerSolicitudPorId(id);
+            if (viewModel != null && viewModel.DetalleSolicitud != null)
             {
-                // Obtener las solicitudes de cada estado
-                //(pendiente, revisión, aprobado, rechazado)
-                var solicitudesPendientes = prestamoM.ObtenerSolicitudesPorEstado("pendiente");
-                var solicitudesEnRevision = prestamoM.ObtenerSolicitudesPorEstado("revisión");
-                var solicitudesAprobadas = prestamoM.ObtenerSolicitudesPorEstado("aprobado");
-                var solicitudesRechazadas = prestamoM.ObtenerSolicitudesPorEstado("rechazado");
-
-                // Crear el modelo con las solicitudes filtradas
-                var model = new ViewModels.SolicitudPrestamoViewModel
-                {
-                    Solicitudes = new Entities.SolicitudPrestamoLista { 
-                    Pendientes = solicitudesPendientes,
-                    EnRevision = solicitudesEnRevision,
-                    Aprobadas = solicitudesAprobadas,
-                    Rechazadas = solicitudesRechazadas
-                }
-                };
-
-                return View(model);
-
-            }
-            public JsonResult ObtenerDetallesSolicitud(int id)
-            {
-                var solicitud = prestamoM.ObtenerSolicitudPorId(id);
-
-                if (solicitud == null)
-                {
-                    return Json(new { success = false, message = "Solicitud no encontrada." });
-                }
-
                 return Json(new
                 {
-                    success = true,
-                    data = solicitud.DetalleSolicitud // Asegúrate de que la respuesta tenga los datos correctos
+                    viewModel.DetalleSolicitud.UsuarioId,
+                    viewModel.DetalleSolicitud.EstadoCivil,
+                    viewModel.DetalleSolicitud.PagaAlquiler,
+                    viewModel.DetalleSolicitud.MontoAlquiler,
+                    viewModel.DetalleSolicitud.NombreAcreedor,
+                    viewModel.DetalleSolicitud.TotalCredito,
+                    viewModel.DetalleSolicitud.AbonoSemanal,
+                    viewModel.DetalleSolicitud.SaldoCredito,
+                    viewModel.DetalleSolicitud.NombreDeudor,
+                    viewModel.DetalleSolicitud.TotalPrestamo,
+                    viewModel.DetalleSolicitud.SaldoPrestamo,
+                    viewModel.DetalleSolicitud.TipoPrestamo,
+                    viewModel.DetalleSolicitud.MontoSolicitud,
+                    viewModel.DetalleSolicitud.PlazoMeses,
+                    viewModel.DetalleSolicitud.CuotaSemanalSolicitud,
+                    viewModel.DetalleSolicitud.PropositoPrestamo,
+                    viewModel.DetalleSolicitud.EstadoSolicitud
                 }, JsonRequestBehavior.AllowGet);
             }
+            return Json(new { error = "Solicitud no encontrada" }, JsonRequestBehavior.AllowGet);
+        }
 
 
 

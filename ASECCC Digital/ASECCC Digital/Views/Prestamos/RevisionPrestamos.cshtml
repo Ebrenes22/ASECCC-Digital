@@ -1,8 +1,9 @@
-﻿@{
+﻿@model ASECCC_Digital.ViewModels.SolicitudPrestamoViewModel
+
+@{
     ViewBag.Title = "RevisionPrestamos";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
-    @Html.Partial("_SolicitudDetalles");
 }
 
 <div class="container my-4">
@@ -16,30 +17,15 @@
                 {
                     <div class="card mb-3 border-primary solicitud-card"
                          data-id="@solicitud.SolicitudPrestamoId"
-                         data-usuario="@solicitud.UsuarioId"
-                         data-monto="@solicitud.MontoSolicitud"
-                         data-estado="Pendiente"
-                         data-nombreacreedor="@solicitud.NombreAcreedor"
-                         data-totalcredito="@solicitud.TotalCredito"
-                         data-abonosemanal="@solicitud.AbonoSemanal"
-                         data-saldocredito="@solicitud.SaldoCredito"
-                         data-nombredeudor="@solicitud.NombreDeudor"
-                         data-totalprestamo="@solicitud.TotalPrestamo"
-                         data-saldoprestamo="@solicitud.SaldoPrestamo"
-                         data-tipoprestamo="@solicitud.TipoPrestamo"
-                         data-plazomeses="@solicitud.PlazoMeses"
-                         data-cuotasemanal="@solicitud.CuotaSemanalSolicitud"
-                         data-propositoprestamo="@solicitud.PropositoPrestamo"
                          data-bs-toggle="modal" data-bs-target="#solicitudDetallesModal">
                         <div class="card-body">
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
-                                <strong>Usuario ID:</strong> @solicitud.UsuarioId <br>
+                                <strong>Usuario ID:</strong> @solicitud.UsuarioId <br />
                                 <strong>Monto:</strong> @solicitud.MontoSolicitud
                             </p>
                         </div>
                     </div>
-
                 }
             </div>
         </div>
@@ -52,30 +38,15 @@
                 {
                     <div class="card mb-3 border-primary solicitud-card"
                          data-id="@solicitud.SolicitudPrestamoId"
-                         data-usuario="@solicitud.UsuarioId"
-                         data-monto="@solicitud.MontoSolicitud"
-                         data-estado="Pendiente"
-                         data-nombreacreedor="@solicitud.NombreAcreedor"
-                         data-totalcredito="@solicitud.TotalCredito"
-                         data-abonosemanal="@solicitud.AbonoSemanal"
-                         data-saldocredito="@solicitud.SaldoCredito"
-                         data-nombredeudor="@solicitud.NombreDeudor"
-                         data-totalprestamo="@solicitud.TotalPrestamo"
-                         data-saldoprestamo="@solicitud.SaldoPrestamo"
-                         data-tipoprestamo="@solicitud.TipoPrestamo"
-                         data-plazomeses="@solicitud.PlazoMeses"
-                         data-cuotasemanal="@solicitud.CuotaSemanalSolicitud"
-                         data-propositoprestamo="@solicitud.PropositoPrestamo"
                          data-bs-toggle="modal" data-bs-target="#solicitudDetallesModal">
                         <div class="card-body">
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
-                                <strong>Usuario ID:</strong> @solicitud.UsuarioId <br>
+                                <strong>Usuario ID:</strong> @solicitud.UsuarioId <br />
                                 <strong>Monto:</strong> @solicitud.MontoSolicitud
                             </p>
                         </div>
                     </div>
-
                 }
             </div>
         </div>
@@ -88,30 +59,15 @@
                 {
                     <div class="card mb-3 border-primary solicitud-card"
                          data-id="@solicitud.SolicitudPrestamoId"
-                         data-usuario="@solicitud.UsuarioId"
-                         data-monto="@solicitud.MontoSolicitud"
-                         data-estado="Pendiente"
-                         data-nombreacreedor="@solicitud.NombreAcreedor"
-                         data-totalcredito="@solicitud.TotalCredito"
-                         data-abonosemanal="@solicitud.AbonoSemanal"
-                         data-saldocredito="@solicitud.SaldoCredito"
-                         data-nombredeudor="@solicitud.NombreDeudor"
-                         data-totalprestamo="@solicitud.TotalPrestamo"
-                         data-saldoprestamo="@solicitud.SaldoPrestamo"
-                         data-tipoprestamo="@solicitud.TipoPrestamo"
-                         data-plazomeses="@solicitud.PlazoMeses"
-                         data-cuotasemanal="@solicitud.CuotaSemanalSolicitud"
-                         data-propositoprestamo="@solicitud.PropositoPrestamo"
                          data-bs-toggle="modal" data-bs-target="#solicitudDetallesModal">
                         <div class="card-body">
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
-                                <strong>Usuario ID:</strong> @solicitud.UsuarioId <br>
+                                <strong>Usuario ID:</strong> @solicitud.UsuarioId <br />
                                 <strong>Monto:</strong> @solicitud.MontoSolicitud
                             </p>
                         </div>
                     </div>
-
                 }
             </div>
         </div>
@@ -124,27 +80,12 @@
                 {
                     <div class="card mb-3 border-primary solicitud-card"
                          data-id="@solicitud.SolicitudPrestamoId"
-                         data-usuario="@solicitud.UsuarioId"
-                         data-monto="@solicitud.MontoSolicitud"
-                         data-estado="Pendiente"
-                         data-nombreacreedor="@solicitud.NombreAcreedor"
-                         data-totalcredito="@solicitud.TotalCredito"
-                         data-abonosemanal="@solicitud.AbonoSemanal"
-                         data-saldocredito="@solicitud.SaldoCredito"
-                         data-nombredeudor="@solicitud.NombreDeudor"
-                         data-totalprestamo="@solicitud.TotalPrestamo"
-                         data-saldoprestamo="@solicitud.SaldoPrestamo"
-                         data-tipoprestamo="@solicitud.TipoPrestamo"
-                         data-plazomeses="@solicitud.PlazoMeses"
-                         data-cuotasemanal="@solicitud.CuotaSemanalSolicitud"
-                         data-propositoprestamo="@solicitud.PropositoPrestamo"
-                         data-fecha="@solicitud.FechaSolicitud"
                          data-bs-toggle="modal" data-bs-target="#solicitudDetallesModal">
                         <div class="card-body">
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
-                                <strong>Usuario ID:</strong> @solicitud.UsuarioId <br>
-                                <strong>Monto:</strong> @solicitud.MontoSolicitud
+                                <strong>Usuario ID:</strong> @solicitud.UsuarioId <br />
+                                <strong>Monto:</strong> @solicitud.MontoSolicitud <br />
                                 <strong>Fecha:</strong> @solicitud.FechaSolicitud
                             </p>
                         </div>
@@ -155,91 +96,69 @@
     </div>
 </div>
 
+<!-- Incluir el partial del modal -->
+@Html.Partial("_SolicitudDetalles")
 
-<!-- Vincular el JS de Bootstrap y jQuery -->
+<!-- Scripts (asegúrate de que se carguen en este orden) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Script para manejar el modal y mover las tarjetas -->
 <script>
-
     $(document).ready(function () {
+        // Al hacer clic en una tarjeta, se obtiene el ID y se realiza la llamada AJAX
         $('.solicitud-card').click(function () {
-            var tarjeta = $(this);
+            var solicitudId = $(this).data('id');
+            console.log("Solicitud seleccionada:", solicitudId);
 
-            // Obtener los datos de la tarjeta
-            var usuarioId = tarjeta.data('usuario');
-            var estadoCivil = tarjeta.data('estadoCivil') || 'No disponible';
-            var pagaAlquiler = tarjeta.data('pagaAlquiler') || 'No especificado';
-            var montoAlquiler = tarjeta.data('montoAlquiler') || 'N/A';
-            var nombreAcreedor = tarjeta.data('nombreacreedor') || 'N/A';
-            var totalCredito = tarjeta.data('totalcredito') || 'N/A';
-            var abonoSemanal = tarjeta.data('abonosemanal') || 'N/A';
-            var saldoCredito = tarjeta.data('saldocredito') || 'N/A';
-            var nombreDeudor = tarjeta.data('nombredeudor') || 'N/A';
-            var totalPrestamo = tarjeta.data('totalprestamo') || 'N/A';
-            var saldoPrestamo = tarjeta.data('saldoprestamo') || 'N/A';
-            var tipoPrestamo = tarjeta.data('tipoprestamo') || 'No especificado';
-            var plazoMeses = tarjeta.data('plazomeses') || 'N/A';
-            var cuotaSemanal = tarjeta.data('cuotasemanal') || 'N/A';
-            var propositoPrestamo = tarjeta.data('propositoprestamo') || 'Sin especificar';
-            var estadoSolicitud = tarjeta.data('estado') || 'Pendiente';
-            var montoSolicitud = tarjeta.data('montoSolicitud') || 'N/A';
+            $.ajax({
+                url: '@Url.Action("ObtenerSolicitudPorId", "Prestamos")', // Asegúrate de que la ruta sea correcta
+                type: 'GET',
+                data: { id: solicitudId },
+                success: function (data) {
+                    if (data.error) {
+                        console.error("Error:", data.error);
+                        return;
+                    }
+                    // Rellenar los campos del modal con los datos recibidos
+                    $('#usuarioId').text(data.UsuarioId);
+                    $('#estadoCivil').text(data.EstadoCivil || 'No disponible');
+                    $('#pagaAlquiler').text(data.PagaAlquiler || 'No especificado');
+                    $('#montoAlquiler').text(data.MontoAlquiler || 'N/A');
+                    $('#nombreAcreedor').text(data.NombreAcreedor || 'N/A');
+                    $('#totalCredito').text(data.TotalCredito || 'N/A');
+                    $('#abonoSemanal').text(data.AbonoSemanal || 'N/A');
+                    $('#saldoCredito').text(data.SaldoCredito || 'N/A');
+                    $('#nombreDeudor').text(data.NombreDeudor || 'N/A');
+                    $('#totalPrestamo').text(data.TotalPrestamo || 'N/A');
+                    $('#saldoPrestamo').text(data.SaldoPrestamo || 'N/A');
+                    $('#tipoPrestamo').text(data.TipoPrestamo || 'No especificado');
+                    $('#plazoMeses').val(data.PlazoMeses || 'N/A');
+                    $('#cuotaSemanalSolicitud').val(data.CuotaSemanalSolicitud || 'N/A');
+                    $('#propositoPrestamo').text(data.PropositoPrestamo || 'Sin especificar');
+                    $('#estado').val(data.EstadoSolicitud || 'Pendiente');
+                    $('#montoSolicitud').val(data.MontoSolicitud || 'N/A');
 
-            // Llenar el modal con los datos
-            $('#usuarioId').text(usuarioId);
-            $('#estadoCivil').text(estadoCivil);
-            $('#pagaAlquiler').text(pagaAlquiler);
-            $('#montoAlquiler').text(montoAlquiler);
-            $('#nombreAcreedor').text(nombreAcreedor);
-            $('#totalCredito').text(totalCredito);
-            $('#abonoSemanal').text(abonoSemanal);
-            $('#saldoCredito').text(saldoCredito);
-            $('#nombreDeudor').text(nombreDeudor);
-            $('#totalPrestamo').text(totalPrestamo);
-            $('#saldoPrestamo').text(saldoPrestamo);
-            $('#tipoPrestamo').text(tipoPrestamo);
-            $('#plazoMeses').val(plazoMeses);
-            $('#cuotaSemanalSolicitud').val(cuotaSemanal);
-            $('#propositoPrestamo').text(propositoPrestamo);
-            $('#estado').val(estadoSolicitud);
-            $('#montoSolicitud').val(montoSolicitud); // Mostrar el monto de la solicitud
-
-            // Mostrar el modal
-            $('#solicitudDetallesModal').modal('show');
+                    // Mostrar el modal utilizando la API de Bootstrap 5
+                    var modalEl = document.getElementById('solicitudDetallesModal');
+                    var modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error en la llamada AJAX:", error);
+                }
+            });
         });
-    });
 
-
-    // Guardar el nuevo estado y mover la tarjeta
-    $('#guardarEstado').click(function () {
-        var nuevoEstado = $('#estado').val();  // Obtener el nuevo estado del campo
-        var columnaDestino;
-
-        // Determinar la columna destino según el estado
-        switch (nuevoEstado) {
-            case 'Pendiente':
-                columnaDestino = '#pendiente';
-                break;
-            case 'En Revisión':
-                columnaDestino = '#revision';
-                break;
-            case 'Aprobado':
-                columnaDestino = '#aprobado';
-                break;
-            case 'Rechazado':
-                columnaDestino = '#rechazado';
-                break;
-        }
-
-        // Mover la tarjeta a la columna correspondiente
-        $(columnaDestino).append(tarjeta);  // Mover la tarjeta
-
-        // También actualizar el estado en el atributo data-estado de la tarjeta
-        tarjeta.data('estado', nuevoEstado);
-
-        // Cerrar el modal
-        $('#solicitudDetallesModal').modal('hide');
+        // Ejemplo: Manejo del botón de guardar cambios (para actualizar el estado, si se requiere)
+        $('#guardarEstado').click(function () {
+            var nuevoEstado = $('#estado').val();
+            console.log("Nuevo estado seleccionado:", nuevoEstado);
+            // Aquí puedes implementar una llamada AJAX para actualizar el estado en el servidor.
+            // Por ahora, simplemente se cierra el modal.
+            var modalEl = document.getElementById('solicitudDetallesModal');
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+        });
     });
 </script>
 
