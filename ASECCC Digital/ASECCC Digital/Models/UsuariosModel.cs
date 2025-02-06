@@ -46,8 +46,10 @@ namespace ASECCC_Digital.Models
             }
             catch (Exception)
             {
-                // Manejo de excepciones, puede ser logueado o re-throw
-                //Logger.LogError(ex, "Error al registrar el asociado");
+                // Manejo de excepciones
+
+
+
                 return false;
             }
         }
@@ -69,8 +71,7 @@ namespace ASECCC_Digital.Models
                     //Usuario inactivo
                     return null;
                 }
-                // Verificar la contraseña con BCrypt
-                //    
+                // Verificar la contraseña con BCrypt   
                 bool isValidPassword = BCrypt.Net.BCrypt.Verify(contrasena, usuarioDb.contrasena);
                 if (!isValidPassword)
                 {
