@@ -96,11 +96,4 @@ namespace ASECCC_Digital.Entities
 
     }
 
-    public class SolicitudPrestamoViewModel
-    {
-        public List<SolicitudesPrestamo> Pendientes { get; set; }
-        public List<SolicitudesPrestamo> EnRevision { get; set; }
-        public List<SolicitudesPrestamo> Aprobadas { get; set; }
-        public List<SolicitudesPrestamo> Rechazadas { get; set; }
-    }
 }
