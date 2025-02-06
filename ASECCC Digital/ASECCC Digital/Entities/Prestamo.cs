@@ -50,6 +50,8 @@ namespace ASECCC_Digital.Entities
         [Column(TypeName = "decimal(10,2)")]
         public decimal? SaldoPendiente { get; set; }  // Saldo pendiente de pago del préstamo, puede ser nulo si no hay saldo.
 
+        public string Observaciones { get; set; }
+
         // Propiedad de navegación para la relación con la entidad Usuario
         public virtual Usuario Usuario { get; set; }  // Relación con el Usuario que solicita el préstamo
 

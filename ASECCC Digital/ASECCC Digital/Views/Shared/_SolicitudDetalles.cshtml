@@ -1,8 +1,7 @@
-﻿@model ASECCC_Digital.Database.SolicitudesPrestamo
+﻿@model ASECCC_Digital.ViewModels.SolicitudPrestamoViewModel
 
-
-!-- Modal Revision Prestamo -->
-<div class="modal fade" id="solicitudModal" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
+<!-- Modal Revision Prestamo -->
+<div class="modal fade" id="solicitudDetallesModal" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -16,21 +15,21 @@
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="form-label">Usuario ID</label>
-                            <span id="usuarioId" class="d-block small">@Model.usuarioId</span>
+                            <span id="usuarioId" class="d-block small"></span>
                         </div>
                         <div class="col-6">
                             <label class="form-label">Estado Civil</label>
-                            <span id="estadoCivil" class="d-block small">@Model.estadoCivil</span>
+                            <span id="estadoCivil" class="d-block small"></span>
                         </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="form-label">¿Paga Alquiler?</label>
-                            <span id="pagaAlquiler" class="d-block small">@Model.pagaAlquiler</span>
+                            <span id="pagaAlquiler" class="d-block small"></span>
                         </div>
                         <div class="col-6">
                             <label class="form-label">Monto Alquiler</label>
-                            <span id="montoAlquiler" class="d-block small">@Model.montoAlquiler</span>
+                            <span id="montoAlquiler" class="d-block small"></span>
                         </div>
                     </div>
 
@@ -39,21 +38,21 @@
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="form-label">Nombre del Acreedor</label>
-                            <span id="nombreAcreedor" class="d-block small">@Model.nombreAcreedor</span>
+                            <span id="nombreAcreedor" class="d-block small"></span>
                         </div>
                         <div class="col-6">
                             <label class="form-label">Total Crédito</label>
-                            <span id="totalCredito" class="d-block small">@Model.totalCredito</span>
+                            <span id="totalCredito" class="d-block small"></span>
                         </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="form-label">Abono Semanal</label>
-                            <span id="abonoSemanal" class="d-block small">@Model.abonoSemanal</span>
+                            <span id="abonoSemanal" class="d-block small"></span>
                         </div>
                         <div class="col-6">
                             <label class="form-label">Saldo Crédito</label>
-                            <span id="saldoCredito" class="d-block small">@Model.saldoCredito</span>
+                            <span id="saldoCredito" class="d-block small"></span>
                         </div>
                     </div>
 
@@ -62,17 +61,17 @@
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="form-label">Nombre del Deudor</label>
-                            <span id="nombreDeudor" class="d-block small">@Model.nombreDeudor</span>
+                            <span id="nombreDeudor" class="d-block small"></span>
                         </div>
                         <div class="col-6">
                             <label class="form-label">Total Préstamo</label>
-                            <span id="totalPrestamo" class="d-block small">@Model.totalPrestamo</span>
+                            <span id="totalPrestamo" class="d-block small"></span>
                         </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="form-label">Saldo Préstamo</label>
-                            <span id="saldoPrestamo" class="d-block small">@Model.saldoPrestamo</span>
+                            <span id="saldoPrestamo" class="d-block small"></span>
                         </div>
                     </div>
 
@@ -81,27 +80,27 @@
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="form-label">Tipo de Préstamo</label>
-                            <span id="tipoPrestamo" class="d-block small">@Model.tipoPrestamo</span>
+                            <span id="tipoPrestamo" class="d-block small"></span>
                         </div>
                         <div class="col-6">
                             <label for="montoSolicitud" class="form-label">Monto de la Solicitud</label>
-                            <input type="text" class="form-control form-control-sm" id="montoSolicitud" value="@Model.montoSolicitud">
+                            <input type="text" class="form-control form-control-sm" id="montoSolicitud" value="">
                         </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-6">
                             <label for="plazoMeses" class="form-label">Plazo en Meses</label>
-                            <input type="text" class="form-control form-control-sm" id="plazoMeses" value="@Model.plazoMeses">
+                            <input type="text" class="form-control form-control-sm" id="plazoMeses" value="">
                         </div>
                         <div class="col-6">
                             <label for="cuotaSemanalSolicitud" class="form-label">Cuota Semanal</label>
-                            <input type="text" class="form-control form-control-sm" id="cuotaSemanalSolicitud" value="@Model.cuotaSemanalSolicitud">
+                            <input type="text" class="form-control form-control-sm" id="cuotaSemanalSolicitud" value="">
                         </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-12">
                             <label class="form-label">Propósito del Préstamo</label>
-                            <span id="propositoPrestamo" class="d-block small">@Model.propositoPrestamo</span>
+                            <span id="propositoPrestamo" class="d-block small"></span>
                         </div>
                     </div>
 
@@ -127,4 +126,3 @@
         </div>
     </div>
 </div>
-

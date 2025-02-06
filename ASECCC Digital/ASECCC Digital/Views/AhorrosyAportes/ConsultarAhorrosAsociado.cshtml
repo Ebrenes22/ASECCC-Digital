@@ -1,22 +1,61 @@
-﻿@{
-    ViewBag.Title = "ConsultaAhorros";
+﻿@model IEnumerable<ASECCC_Digital.Models.AhorroModel>
+
+@{ ViewBag.Title = "ConsultaAhorros";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    @Html.Partial("_MenuModulos");
-}
+@Html.Partial("_MenuModulos"); }
 
 <div class="container my-5">
     <h1 class="text-center mb-4">Gestión de Ahorros</h1>
 
-    <!-- Crear Nuevo Ahorro -->
+    <!-- Filtro por Tipo de Ahorro -->
+    <div class="mb-4">
+        <label for="filtroTipoAhorro" class="form-label">Filtrar por Tipo de Ahorro:</label>
+        <select id="filtroTipoAhorro" class="form-select" onchange="filtrarAhorros()">
+            <option value="">Todos</option>
+            <option value="A la Vista">A la Vista</option>
+            <option value="Navideño">Navideño</option>
+            <option value="Marchamo">Marchamo</option>
+            <option value="Escolar">Escolar</option>
+        </select>
+    </div>
+
+    <!--para Crear Nuevo Ahorro -->
     <button class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#modalCrearAhorro">Crear Nuevo Ahorro</button>
 
     <!-- Cards de Ahorros -->
     <div class="row d-flex justify-content-center flex-wrap" id="cardsAhorros">
-        <!-- Cards dinámicas generadas por JavaScript -->
+        @foreach (var ahorro in Model)
+        {
+<div class="col-12 col-md-6 col-lg-4 mb-4 ahorro-card" data-tipo="@ahorro.TipoAhorro" data-id="@ahorro.AhorroId">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">@ahorro.TipoAhorro</h5>
+            <p class="card-text">
+                <strong>Fecha:</strong> @(ahorro.FechaInicio.HasValue ? ahorro.FechaInicio.Value.ToString("dd/MM/yyyy") : "N/A")<br>
+                <strong>Capital:</strong> ₡@ahorro.MontoActual<br>
+                <strong>Plazo:</strong> @(ahorro.Plazo.HasValue ? ahorro.Plazo + " meses" : "N/A")<br>
+                <strong>Estado:</strong> @ahorro.Estado
+            </p>
+            <button class="btn btn-info btn-sm" onclick="verDetalles(@ahorro.AhorroId)" data-bs-toggle="modal" data-bs-target="#modalDetallesAhorro">
+                Ver Detalles
+            </button>
+            <button class="btn btn-warning btn-sm" onclick="modificarMonto(@ahorro.AhorroId)" data-bs-toggle="modal" data-bs-target="#modalModificarMonto">
+                Modificar Monto
+            </button>
+            @if (ahorro.TipoAhorro == "A la Vista")
+            {
+<button class="btn btn-danger btn-sm" onclick="finalizarAhorro(@ahorro.AhorroId)" data-bs-toggle="modal" data-bs-target="#modalFinalizarAhorro">
+    Finalizar Ahorro
+    <div class="modal-body">
+    </div>
+</button>}
+        </div>
+    </div>
+</div>}
     </div>
 </div>
 
-<!-- Modal para Crear Nuevo Ahorro -->
+<!-- Modal de Crear Nuevo Ahorro -->
 <div class="modal fade" id="modalCrearAhorro" tabindex="-1" aria-labelledby="modalCrearAhorroLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -27,11 +66,11 @@
             <div class="modal-body">
                 <div class="mb-3">
                     <label for="tipoAhorro" class="form-label">Tipo de Ahorro</label>
-                    <select class="form-select" id="tipoAhorro">
-                        <option value="vista">A la Vista</option>
-                        <option value="marchamo">Marchamo</option>
-                        <option value="navideno">Navideño</option>
-                        <option value="escolar">Escolar</option>
+                    <select class="form-select" id="tipoAhorro" required>
+                        <option value="A la Vista">A la Vista</option>
+                        <option value="Navideño">Navideño</option>
+                        <option value="Marchamo">Marchamo</option>
+                        <option value="Escolar">Escolar</option>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -45,44 +84,14 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="crearAhorro()">Crear Ahorro</button>
+                <button type="button" class="btn btn-primary" onclick="crearAhorro()">Guardar Ahorro</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para Historial de Ahorro -->
-<div class="modal fade" id="modalHistorialAhorro" tabindex="-1" aria-labelledby="modalHistorialAhorroLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalHistorialAhorroLabel">Historial de Ahorro</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="tablaHistorialAhorro">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Monto</th>
-                                <th>Tipo de Movimiento</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Historial dinámico generado por JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Modal para Modificar Monto de Ahorro -->
+<!-- Modal par Modificar Monto -->
 <div class="modal fade" id="modalModificarMonto" tabindex="-1" aria-labelledby="modalModificarMontoLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -91,6 +100,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
+                <input type="hidden" id="modificarAhorroId">
                 <div class="mb-3">
                     <label for="nuevoMonto" class="form-label">Nuevo Monto</label>
                     <input type="number" class="form-control" id="nuevoMonto" min="1" required>
@@ -98,143 +108,165 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="modificarMontoAhorro()">Modificar</button>
+                <button type="button" class="btn btn-primary" onclick="modificarMontoAhorro()">Guardar Cambios</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para Finalizar Ahorro -->
-<div class="modal fade" id="modalFinalizarAhorro" tabindex="-1" aria-labelledby="modalFinalizarAhorroLabel" aria-hidden="true">
+<!-- Modal de Detalles del Ahorro -->
+<div class="modal fade" id="modalDetallesAhorro" tabindex="-1" aria-labelledby="modalDetallesAhorroLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalFinalizarAhorroLabel">Finalizar Ahorro</h5>
+                <h5 class="modal-title" id="modalDetallesAhorroLabel">Detalles del Ahorro</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="modal-body">
-                <p>¿Estás seguro de que deseas finalizar este ahorro?</p>
-                <p>Una vez finalizado, no podrás modificarlo.</p>
+            <div class="modal-body" id="detallesAhorroBody">
+                <h5 id="nombreAhorro"></h5>
+                <h6 class="mt-4">Historial de Transacciones</h6>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo Transacción</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historialTransacciones">
+                    </tbody>
+                </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" onclick="finalizarAhorro()">Finalizar Ahorro</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const ahorros = [
-        { id: 1, tipo: 'A la Vista', monto: 50000, fecha: '2024-01-15', plazo: 12, estado: 'Activo' },
-        { id: 2, tipo: 'Marchamo', monto: 15000, fecha: '2023-11-01', plazo: 6, estado: 'Activo' },
-        { id: 3, tipo: 'Navideño', monto: 200000, fecha: '2024-05-20', plazo: 8, estado: 'Finalizado' },
-        { id: 4, tipo: 'Escolar', monto: 100000, fecha: '2024-02-10', plazo: 10, estado: 'Activo' }
-    ];
 
-    const historialAhorros = {
-        1: [
-            { fecha: '2024-02-15', monto: 20000, tipo: 'Deposito' },
-            { fecha: '2024-03-10', monto: 15000, tipo: 'Retiro' }
-        ],
-        2: [
-            { fecha: '2023-12-01', monto: 5000, tipo: 'Deposito' }
-        ],
-        3: [
-            { fecha: '2023-11-15', monto: 50000, tipo: 'Deposito' }
-        ]
-    };
+    //Script para ver detalles y historial de transacciones
+    function verDetalles(ahorroId) {
+        const ahorro = document.querySelector(`[data-id='${ahorroId}']`);
+        const nombreAhorro = ahorro.querySelector('.card-title').innerText;
+        document.getElementById('nombreAhorro').innerText = nombreAhorro;
 
-    function mostrarAhorros() {
-        const cardsAhorros = document.getElementById('cardsAhorros');
-        cardsAhorros.innerHTML = '';
+        $.ajax({
+            url: '/AhorrosyAportes/ObtenerHistorialTransacciones',
+            type: 'GET',
+            data: { ahorroId: ahorroId },
+            success: function (response) {
+                const historialTransacciones = document.getElementById('historialTransacciones');
+                historialTransacciones.innerHTML = '';
 
-        ahorros.forEach(ahorro => {
-            const card = document.createElement('div');
-            card.classList.add('col-12', 'col-md-6', 'col-lg-4', 'mb-4');
-            card.innerHTML = `
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">${ahorro.tipo}</h5>
-                        <p class="card-text">
-                            <strong>Fecha:</strong> ${ahorro.fecha}<br>
-                            <strong>Monto:</strong> ${formatearMonto(ahorro.monto)}<br>
-                            <strong>Plazo:</strong> ${ahorro.plazo} meses<br>
-                            <strong>Estado:</strong> ${ahorro.estado}
-                        </p>
-                        <button class="btn btn-info btn-sm" onclick="verHistorial(${ahorro.id})" data-bs-toggle="modal" data-bs-target="#modalHistorialAhorro">
-                            <i class="bi bi-clock-history"></i> Ver Historial
-                        </button>
-                        <button class="btn btn-warning btn-sm" onclick="modificarMonto(${ahorro.id})" data-bs-toggle="modal" data-bs-target="#modalModificarMonto">
-                            <i class="bi bi-pencil"></i> Modificar Monto
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="finalizarAhorroModal(${ahorro.id})" data-bs-toggle="modal" data-bs-target="#modalFinalizarAhorro">
-                            <i class="bi bi-x-circle"></i> Finalizar Ahorro
-                        </button>
-                    </div>
-                </div>
-            `;
-            cardsAhorros.appendChild(card);
+                if (response.success && response.data.length > 0) {
+                    response.data.forEach(transaccion => {
+                        historialTransacciones.innerHTML += `
+                            <tr>
+                                <td>${new Date(transaccion.Fecha).toLocaleDateString()}</td>
+                                <td>${transaccion.TipoTransaccion}</td>
+                                <td>${transaccion.Monto.toLocaleString('es-CR', { style: 'currency', currency: 'CRC' })}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    historialTransacciones.innerHTML = '<tr><td colspan="3" class="text-center">No hay transacciones registradas.</td></tr>';
+                }
+            },
+            error: function () {
+                alert('Error al obtener el historial de transacciones.');
+            }
         });
     }
 
-    function formatearMonto(monto) {
-        return monto.toLocaleString('es-CR', { style: 'currency', currency: 'CRC' });
-    }
-
-    function verHistorial(ahorroId) {
-        const tablaHistorial = document.querySelector('#tablaHistorialAhorro tbody');
-        tablaHistorial.innerHTML = '';
-
-        if (!historialAhorros[ahorroId] || historialAhorros[ahorroId].length === 0) {
-            tablaHistorial.innerHTML = '<tr><td colspan="3" class="text-center">No hay historial de movimientos para este ahorro.</td></tr>';
-            return;
-        }
-
-        historialAhorros[ahorroId].forEach(movimiento => {
-            const fila = document.createElement('tr');
-            fila.innerHTML = `
-                <td>${movimiento.fecha}</td>
-                <td>${formatearMonto(movimiento.monto)}</td>
-                <td>${movimiento.tipo}</td>
-            `;
-            tablaHistorial.appendChild(fila);
-        });
-    }
-
-    function modificarMonto(ahorroId) {
-        // Lógica para obtener y modificar el monto
-        const ahorro = ahorros.find(a => a.id === ahorroId);
-        document.getElementById('nuevoMonto').value = ahorro.monto;
-    }
-
-    function modificarMontoAhorro() {
-        const nuevoMonto = document.getElementById('nuevoMonto').value;
-        alert('Nuevo monto: ' + nuevoMonto); // Lógica para actualizar el monto del ahorro
-    }
-
-    function finalizarAhorroModal(ahorroId) {
-        // Prepara el modal para confirmar la finalización del ahorro
-    }
-
-    function finalizarAhorro() {
-        alert('Ahorro finalizado.');
-    }
+    //Script con la creacion del Ahorro
 
     function crearAhorro() {
         const tipo = document.getElementById('tipoAhorro').value;
         const monto = document.getElementById('montoAhorro').value;
         const plazo = document.getElementById('plazoAhorro').value;
 
-        ahorros.push({ id: ahorros.length + 1, tipo, monto, fecha: new Date().toISOString().split('T')[0], plazo, estado: 'Activo' });
-        mostrarAhorros(); // Actualiza la lista de ahorros
-
-        // Cierra el modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalCrearAhorro'));
-        modal.hide();
+        if (tipo && monto && plazo) {
+            $.ajax({
+                url: '/AhorrosyAportes/CrearAhorro',
+                type: 'POST',
+                data: {
+                    TipoAhorro: tipo,
+                    Monto: monto,
+                    Plazo: plazo
+                },
+                success: function (response) {
+                    if (response.success) {
+                        alert('Ahorro creado exitosamente.');
+                        location.reload();
+                    } else {
+                        alert('Error al crear el ahorro: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert('Error al intentar crear el ahorro.');
+                }
+            });
+        } else {
+            alert('Por favor, completa todos los campos.');
+        }
     }
 
-    // Llamar a la función para mostrar los ahorros al cargar la página
-    mostrarAhorros();
+    //Script con modificacion de Monto
+
+    function modificarMonto(ahorroId) {
+        document.getElementById('modificarAhorroId').value = ahorroId;
+    }
+
+    function modificarMontoAhorro() {
+        const ahorroId = document.getElementById('modificarAhorroId').value;
+        const nuevoMonto = document.getElementById('nuevoMonto').value;
+
+        $.ajax({
+            url: '/AhorrosyAportes/ModificarMonto',
+            type: 'POST',
+            data: {
+                AhorroId: ahorroId,
+                NuevoMonto: nuevoMonto
+            },
+            success: function (response) {
+                if (response.success) {
+                    alert('Monto modificado exitosamente.');
+                    location.reload();
+                } else {
+                    alert('Error al modificar el monto: ' + response.message);
+                }
+            },
+            error: function () {
+                alert('Error al intentar modificar el monto.');
+            }
+        });
+    }
+
+    //Script para finalizar ahorro
+
+    function finalizarAhorro(ahorroId) {
+        if (confirm('¿Estás seguro de que deseas finalizar este ahorro?')) {
+            $.ajax({
+                url: '/AhorrosyAportes/FinalizarAhorro',
+                type: 'POST',
+                data: { ahorroId: ahorroId },
+                success: function (response) {
+                    if (response.success) {
+                        alert('Ahorro finalizado exitosamente.');
+                        location.reload();
+                    } else {
+                        alert('Error al finalizar el ahorro: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert('Error al intentar finalizar el ahorro.');
+                }
+            });
+        }
+    }
 </script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

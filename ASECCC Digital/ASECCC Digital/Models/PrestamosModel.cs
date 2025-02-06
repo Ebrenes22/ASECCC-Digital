@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Threading.Tasks;
+using ASECCC_Digital.ViewModels;
+
 
 namespace ASECCC_Digital.Models
 {
@@ -47,8 +49,7 @@ namespace ASECCC_Digital.Models
             }
             catch (Exception)
             {
-                // Manejo de excepciones, puede ser logueado o re-throw
-                //Logger.LogError(ex, "Error al registrar la solicitud de préstamo");
+
                 return false;
             }
         }
@@ -72,19 +73,58 @@ namespace ASECCC_Digital.Models
             }
         }
 
-        public Database.SolicitudesPrestamo ObtenerSolicitudPorId(int id)
+        public Entities.SolicitudesPrestamo MapearSolicitud(Database.SolicitudesPrestamo dbSolicitud)
         {
-            // Contexto de base de datos para obtener la solicitud de préstamo
+            return new Entities.SolicitudesPrestamo
+            {
+                SolicitudPrestamoId = dbSolicitud.solicitudPrestamoId,
+                UsuarioId = dbSolicitud.usuarioId,
+                EstadoCivil = dbSolicitud.estadoCivil,
+                PagaAlquiler = dbSolicitud.pagaAlquiler,
+                MontoAlquiler = dbSolicitud.montoAlquiler,
+                NombreAcreedor = dbSolicitud.nombreAcreedor,
+                TotalCredito = dbSolicitud.totalCredito,
+                AbonoSemanal = dbSolicitud.abonoSemanal,
+                SaldoCredito = dbSolicitud.saldoCredito,
+                NombreDeudor = dbSolicitud.nombreDeudor,
+                TotalPrestamo = dbSolicitud.totalPrestamo,
+                SaldoPrestamo = dbSolicitud.saldoPrestamo,
+                TipoPrestamo = dbSolicitud.tipoPrestamo,
+                MontoSolicitud = dbSolicitud.montoSolicitud,
+                PlazoMeses = dbSolicitud.plazoMeses,
+                CuotaSemanalSolicitud = dbSolicitud.cuotaSemanalSolicitud,
+                PropositoPrestamo = dbSolicitud.propositoPrestamo,
+                EstadoSolicitud = dbSolicitud.estadoSolicitud,
+                FechaSolicitud = (DateTime)dbSolicitud.fechaSolicitud
+            };
+        }
+
+
+        public SolicitudPrestamoViewModel ObtenerSolicitudPorId(int id)
+        {
             using (var context = new Database.ASECCC_DIGITALEntities())
             {
-                // Buscar la solicitud por su ID
                 var solicitud = context.SolicitudesPrestamo
                                        .FirstOrDefault(s => s.solicitudPrestamoId == id);
 
-                // Si la solicitud es encontrada, se retorna
-                return solicitud;
+                if (solicitud != null)
+                {
+                    // Mapear los datos de Database.SolicitudesPrestamo a Entities.SolicitudesPrestamo
+                    var entidadSolicitud = MapearSolicitud(solicitud);
+
+                    // Mapear la solicitud a un ViewModel
+                    var viewModel = new SolicitudPrestamoViewModel
+                    {
+                        DetalleSolicitud = entidadSolicitud
+                    };
+
+                    return viewModel;
+                }
+
+                return null; // Si no se encuentra la solicitud
             }
         }
+
 
 
 

@@ -30,6 +30,7 @@ namespace ASECCC_Digital.Database
         public Nullable<System.DateTime> fechaSolicitud { get; set; }
         public Nullable<System.DateTime> fechaEstado { get; set; }
         public Nullable<decimal> saldoPendiente { get; set; }
+        public string observaciones { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PrestamosTransacciones> PrestamosTransacciones { get; set; }
