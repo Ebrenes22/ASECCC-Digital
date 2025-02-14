@@ -9,7 +9,6 @@ namespace ASECCC_Digital.Controllers
     public class AsociadosController : Controller
     {
         //Llama metodo registro desde UsuariosController
-        UsuariosController usuarioC = new UsuariosController();
         UsuariosModel usuarioM = new UsuariosModel();
 
         // Acción que se ejecuta antes de cada acción del controlador
@@ -35,10 +34,32 @@ namespace ASECCC_Digital.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult RegistrarAsociado(Usuario usuario)
         {
-            usuarioC.RegistrarAsociado(usuario);
-            return View();
+
+            // Verificar si el usuario ya existe en la base de datos
+            if (usuarioM.UsuarioExiste(usuario.Identificacion))
+            {
+                TempData["Mensaje"] = "El usuario con esta identificación ya está registrado.";
+                TempData["MensajeTipo"] = "error";
+                return RedirectToAction("RegistrarAsociado");
+            }
+
+            var respuesta = usuarioM.RegistrarAsociado(usuario);
+
+            if (respuesta)
+            {
+                TempData["Mensaje"] = "Usuario registrado correctamente.";
+                TempData["MensajeTipo"] = "success";
+                return RedirectToAction("RegistrarAsociado");
+            }
+            else
+            {
+                TempData["Mensaje"] = "Ocurrió un error al registrar el usuario.";
+                TempData["MensajeTipo"] = "error";
+                return RedirectToAction("RegistrarAsociado");
+            }
         }
 
 
@@ -119,13 +140,6 @@ namespace ASECCC_Digital.Controllers
             return View(usuario);
         }
 
-
-
-        public ActionResult LiquidarAsociado()
-        {
-            return View();
-        }
-
         [HttpGet]
         public ActionResult BuscarDesactivarAsociado()
         {
@@ -157,7 +171,14 @@ namespace ASECCC_Digital.Controllers
             }
         }
 
+        public ActionResult LiquidarAsociado()
+        {
+            return View();
+        }
+
     }
+
+
 
 
 

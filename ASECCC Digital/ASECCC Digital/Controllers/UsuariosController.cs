@@ -18,40 +18,6 @@ namespace ASECCC_Digital.Controllers
             return View();
         }
 
-        [HttpGet]
-        public ActionResult RegistrarAsociado()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult RegistrarAsociado(Usuario usuario)
-        {
-            
-            // Verificar si el usuario ya existe en la base de datos
-            if (usuarioM.UsuarioExiste(usuario.Identificacion))
-            {
-                TempData["Mensaje"] = "El usuario con esta identificación ya está registrado.";
-                TempData["MensajeTipo"] = "error";
-                return RedirectToAction("RegistrarAsociado");
-            }
-
-            var respuesta = usuarioM.RegistrarAsociado(usuario);
-
-            if (respuesta)
-            {
-                TempData["Mensaje"] = "Usuario registrado correctamente.";
-                TempData["MensajeTipo"] = "success";
-                return RedirectToAction("RegistrarAsociado");
-            }
-            else
-            {
-                TempData["Mensaje"] = "Ocurrió un error al registrar el usuario.";
-                TempData["MensajeTipo"] = "error";
-                return RedirectToAction("RegistrarAsociado");
-            }
-        }
 
         [HttpGet]
         public ActionResult Login()
