@@ -59,6 +59,8 @@ namespace ASECCC_Digital.Controllers
                 return View();
             }
 
+            string rol = userEntity.Rol.ToLower();
+
             // 3. Crear el ticket de FormsAuthentication con userData = rol
             var authTicket = new FormsAuthenticationTicket(
                 version: 1,
@@ -66,7 +68,7 @@ namespace ASECCC_Digital.Controllers
                 issueDate: DateTime.Now,
                 expiration: DateTime.Now.AddMinutes(30), // Ajusta el tiempo de sesión
                 isPersistent: false,
-                userData: userEntity.Rol  // En userData guardamos el rol
+                rol  // En userData guardamos el rol
             );
 
             // 4. Encriptar el ticket y meterlo en una cookie
@@ -82,7 +84,7 @@ namespace ASECCC_Digital.Controllers
 
             // 6. Redirigir 
             // IMPORTANTE CON AUTH
-            if (userEntity.Rol == "admin")
+            if (userEntity.Rol == "administrador")
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -92,9 +94,8 @@ namespace ASECCC_Digital.Controllers
             }
             else
             {
-                // AVISAR DE QUE NO ENCONTRO ROL
-
-                return null;
+                TempData["LoginError"] = "Rol no reconocido. Contacte al administrador.";
+                return View();
             }
         }
 

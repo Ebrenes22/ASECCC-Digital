@@ -1,15 +1,22 @@
-﻿@{
-    var userRole = Session["Rol"] as string;
+﻿@using System.Web.Security;
+@{
+    string userRole = "";
+
+    if (User.Identity.IsAuthenticated && User.Identity is FormsIdentity identity)
+    {
+        userRole = identity.Ticket.UserData.ToLower(); // Asegurar minúsculas
+    }
+
     var currentModule = ViewData["CurrentModule"] as string;
 
     // Verificación de nulos para evitar errores en tiempo de ejecución
-    if (userRole == null || currentModule == null)
+    if (string.IsNullOrEmpty(userRole) || string.IsNullOrEmpty(currentModule))
     {
+        return;
     }
 }
 
-
-<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4" style="width: 100%;max-width: 1200px">
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4" style="width: 100%; max-width: 1200px;">
     <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#submenu" aria-controls="submenu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -19,173 +26,85 @@
                 <!-- Rutas Menu Asociado-->
                 @if (currentModule == "Asociados")
                 {
-                    if (userRole == "Admin")
+                    if (userRole == "administrador")
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("RegistrarAsociado", "Asociados")">Registrar Asociado</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("ActualizarAsociado", "Asociados")">Editar Asociado</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("BuscarDesactivarAsociado", "Asociados")">Buscar Asociado</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("LiquidarAsociado", "Asociados")">Liquidar Asociado</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("RegistrarAsociado", "Asociados")">Registrar Asociado</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("ActualizarAsociado", "Asociados")">Editar Asociado</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("BuscarDesactivarAsociado", "Asociados")">Buscar Asociado</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("LiquidarAsociado", "Asociados")">Liquidar Asociado</a></li>
                     }
-                    else if (userRole == "Asociado")
+                    else if (userRole == "asociado")
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("PerfilAsociado", "Perfil")">Mi Perfil</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("BeneficiariosAsociado", "Perfil")">Beneficiarios</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("PerfilAsociado", "Perfil")">Mi Perfil</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("BeneficiariosAsociado", "Perfil")">Beneficiarios</a></li>
                     }
-
-
                 }
-                <!-- Rutas Menu Prestamos-->
+
+                <!-- Rutas Menu Prestamos -->
                 @if (currentModule == "Prestamos")
                 {
-                    if (userRole == "Admin")
+                    if (userRole == "administrador")
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("RegistrarAbonos", "Prestamos")">Registrar Abonos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("ConsultaPrestamosAdmin", "Prestamos")">Consulta de Prestamos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("RevisionPrestamos", "Prestamos")">Revision de Prestamos</a>
-                        </li>
-
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("RegistrarAbonos", "Prestamos")">Registrar Abonos</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("ConsultaPrestamosAdmin", "Prestamos")">Consulta de Préstamos</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("RevisionPrestamos", "Prestamos")">Revisión de Préstamos</a></li>
                     }
-                    else if (userRole == "Asociado")
+                    else if (userRole == "asociado")
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("SolicitudPrestamo", "Prestamos")">Solicitud Prestamo</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("ConsultaPrestamoAsociado", "Prestamos")">Consulta Prestamos</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("SolicitudPrestamo", "Prestamos")">Solicitud Préstamo</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("ConsultaPrestamoAsociado", "Prestamos")">Consulta Préstamos</a></li>
                     }
                 }
-                <!-- Rutas Menu Ahorros y Aporte-->
 
+                <!-- Rutas Menu Ahorros y Aporte -->
                 @if (currentModule == "AhorroyAporte")
                 {
-                    if (userRole == "Admin")
+                    if (userRole == "administrador")
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("GestionarAportes", "AhorrosyAportes")">Gestion de Aportes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("GestionarAhorrosAdmin", "AhorrosyAportes")">Gestionar de Ahorros</a>
-                        </li>
-
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("GestionarAportes", "AhorrosyAportes")">Gestión de Aportes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("GestionarAhorrosAdmin", "AhorrosyAportes")">Gestión de Ahorros</a></li>
                     }
-                    else if (userRole == "Asociado")
+                    else if (userRole == "asociado")
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("ConsultarAportesAsociado", "AhorrosyAportes")">Consultar Aportes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("ConsultarAhorrosAsociado", "AhorrosyAportes")">Consultar Ahorros</a>
-                        </li>
-
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("ConsultarAportesAsociado", "AhorrosyAportes")">Consultar Aportes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("ConsultarAhorrosAsociado", "AhorrosyAportes")">Consultar Ahorros</a></li>
                     }
                 }
-                <!-- Rutas Menu BeneficiosyServicios-->
 
+                <!-- Rutas Menu Beneficios y Servicios -->
                 @if (currentModule == "BenefyServ")
                 {
-                    if (userRole == "Admin")
+                    if (userRole == "administrador")
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("GestionarBenefyServ", "BeneficiosyServicios")">Gestionar Beneficios o Servicios</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("ConsultarBenefyServAdmin", "BeneficiosyServicios")">Consultar Beneficios o Servicios</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("RegistrarCuentaxCobrar", "BeneficiosyServicios")">Registrar Cuenta por Cobrar</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("RegistrarAbonoBenefyServ", "BeneficiosyServicios")">Registrar Abono a Cuenta</a>
-                        </li>
-
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("GestionarBenefyServ", "BeneficiosyServicios")">Gestionar Beneficios o Servicios</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("ConsultarBenefyServAdmin", "BeneficiosyServicios")">Consultar Beneficios o Servicios</a></li>
                     }
-                    else if (userRole == "Asociado")
+                    else if (userRole == "asociado")
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("BenefyServDisponibles", "BeneficiosyServicios")">Beneficios y Servicios Disponibles</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("ConsultarBenefyServAsociado", "BeneficiosyServicios")">Consulta de Beneficios Activos</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("BenefyServDisponibles", "BeneficiosyServicios")">Beneficios y Servicios Disponibles</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("ConsultarBenefyServAsociado", "BeneficiosyServicios")">Consulta de Beneficios Activos</a></li>
                     }
                 }
 
-                <!-- Rutas Menu Reportes-->
-
+                <!-- Rutas Menu Reportes -->
                 @if (currentModule == "Reportes")
                 {
-                    if (userRole == "Admin")
+                    if (userRole == "administrador")
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("EstadodeCuentaAsociados", "Reportes")">Estado de cuenta por Asociado</a>
-                        </li>
-
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("EstadodeCuentaAsociados", "Reportes")">Estado de cuenta por Asociado</a></li>
                     }
-                    else if (userRole == "Asociado")
+                    else if (userRole == "asociado")
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("GenerarEstadoAsociado", "Reportes")">Estado de Cuenta</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("GenerarEstadoAsociado", "Reportes")">Estado de Cuenta</a></li>
                     }
                 }
-                <!-- Rutas Menu Notificaciones-->
 
-                @if (currentModule == "Notificaciones")
+                <!-- Rutas Menu Seguridad -->
+                @if (currentModule == "SeguridadyPermisos" && userRole == "administrador")
                 {
-                    if (userRole == "Admin")
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("CrearNotificacion", "Notificaciones")">Crear Notificación</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("NotificacionAdministrador", "Notificaciones")">Notificaciones Recibidas</a>
-                        </li>
-
-                    }
-                    else if (userRole == "Asociado")
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("NotificacionUsuario", "Notificaciones")">Notificaciones Recibidas</a>
-                        </li>
-                    }
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("RolesyPermisos", "SeguridadyPermisos")">Gestionar Roles</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("RegistroActividadAuditoria", "SeguridadyPermisos")">Registro de Actividad</a></li>
                 }
-
-                <!-- Rutas Menu Seguridad-->
-
-                @if (currentModule == "SeguridadyPermisos")
-                {
-                    if (userRole == "Admin")
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("RolesyPermisos", "SeguridadyPermisos")">Gestionar Roles</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("RegistroActividadAuditoria", "SeguridadyPermisos")">Registro de Actividad</a>
-                        </li>
-
-                    }
-                }
-
-                <!-- Fin Menu Modulos-->
             </ul>
         </div>
     </div>
@@ -193,12 +112,12 @@
 
 <style>
     .nav-link:hover {
-        background-color: #007bff; /* Cambiar el color de fondo */
-        color: white; /* Cambiar el color del texto */
-        border-radius: 5px; /* Agregar bordes redondeados */
+        background-color: #007bff;
+        color: white;
+        border-radius: 5px;
     }
 
     .nav-item {
-        margin-right: 20px; /* Agrega separación entre los items */
+        margin-right: 20px;
     }
 </style>

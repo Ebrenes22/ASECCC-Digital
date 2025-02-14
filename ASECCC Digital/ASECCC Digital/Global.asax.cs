@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using System.Web.Security;
-using System.Web.SessionState;
 
 namespace ASECCC_Digital
 {
@@ -24,26 +21,41 @@ namespace ASECCC_Digital
         {
             // Excluir la ruta de login del proceso de autenticación
             var request = HttpContext.Current.Request;
-            if (request.Url.AbsolutePath.ToLower().Contains("/Usuarios/Login") ||
-                request.Url.AbsolutePath.ToLower().Contains("/Login"))
+            string path = request.Url.AbsolutePath.ToLower();
+
+            if (path.Contains("/usuarios/login") || path.Contains("/login"))
             {
                 return; // No procesar autenticación para la ruta de login
             }
 
-            // Procesar la autenticación para otras rutas
+            // Obtener la cookie de autenticación
             HttpCookie authCookie = HttpContext.Current.Request.Cookies[FormsAuthentication.FormsCookieName];
+
             if (authCookie != null)
             {
-                FormsAuthenticationTicket authTicket = FormsAuthentication.Decrypt(authCookie.Value);
-                if (authTicket != null && !authTicket.Expired)
+                try
                 {
-                    // userData = rol
-                    string roles = authTicket.UserData;
-                    var identity = new System.Security.Principal.GenericIdentity(authTicket.Name);
-                    var principal = new System.Security.Principal.GenericPrincipal(identity, new[] { roles });
-                    HttpContext.Current.User = principal;
+                    // Desencriptar el ticket de autenticación
+                    FormsAuthenticationTicket authTicket = FormsAuthentication.Decrypt(authCookie.Value);
+
+                    if (authTicket != null && !authTicket.Expired)
+                    {
+                        // Crear FormsIdentity en lugar de GenericIdentity
+                        var identity = new FormsIdentity(authTicket);
+                        string roles = authTicket.UserData.ToLower(); // Mantener los roles en minúsculas
+
+                        var principal = new System.Security.Principal.GenericPrincipal(identity, new[] { roles });
+                        HttpContext.Current.User = principal;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Error en PostAuthenticateRequest: " + ex.Message);
                 }
             }
         }
+
+
     }
 }
+

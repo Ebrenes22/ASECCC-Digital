@@ -171,6 +171,8 @@ namespace ASECCC_Digital.Controllers
             }
         }
 
+        [HttpGet]
+        [Authorize (Roles = "administrador")]
         public ActionResult LiquidarAsociado()
         {
             return View();

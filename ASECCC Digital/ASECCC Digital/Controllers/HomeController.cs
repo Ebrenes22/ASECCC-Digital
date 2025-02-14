@@ -10,11 +10,10 @@ namespace ASECCC_Digital.Controllers
     {
 
         //--------VISTAS ADMIN--------------//
-        [Authorize(Roles = "asociado")]
+        [Authorize]
         public ActionResult Index()
         {
-            Session["Rol"] = "Admin";
-            Session["FechaIngreso"] = "15-01-2012";
+
             return View();
         }
 
