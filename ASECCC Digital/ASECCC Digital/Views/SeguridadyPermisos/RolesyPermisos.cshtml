@@ -1,70 +1,169 @@
-﻿
+﻿@model ASECCC_Digital.Entities.Usuario
+
 @{
-    ViewBag.Title = "RolesyPermisos";
+    ViewBag.Title = "Gestión de Roles";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    @Html.Partial("_MenuModulos")
+    @Html.Partial("_MenuModulos");
 }
 
-<h2 class="text-center mb-4">Gestión de Roles y Permisos</h2>
+<!-- Contenedor principal con espaciado -->
+<section class="container mt-5">
+    <div class="card shadow-lg p-4 mx-auto" style="max-width: 800px;">
+        <h1 class="text-center mb-4">Gestión de Roles</h1>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-6">
-            <h3 class="text-center">Asignación de Roles a Usuarios</h3>
-            <form method="post" action="@Url.Action("AsignarRol", "RolesyPermisos")">
-                <div class="mb-3">
-                    <label for="userSelect" class="form-label">Seleccionar un usuario</label>
-                    <select id="userSelect" name="userId" class="form-select">
-                        <option value="1">Usuario 1</option>
-                        <option value="2">Usuario 2</option>
-                        <option value="3">Usuario 3</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Roles Disponibles</label>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="role" id="adminRole" value="admin">
-                        <label class="form-check-label" for="adminRole">Administrador</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="role" id="associateRole" value="associate">
-                        <label class="form-check-label" for="associateRole">Asociado</label>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-            </form>
-        </div>
+        <!-- Formulario de búsqueda -->
+        @using (Html.BeginForm("RolesyPermisos", "Seguridad", FormMethod.Post, new { id = "formBuscar", onsubmit = "return false;" }))
+        {
+            @Html.AntiForgeryToken()
 
-        <div class="col-md-6">
-            <h3 class="text-center">Usuarios y Roles</h3>
-            <table class="table">
-                <thead>
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    @Html.LabelFor(model => model.NombreCompleto, "Buscar por Nombre", new { @class = "form-label fw-bold" })
+                    @Html.TextBox("buscarNombre", null, new { @class = "form-control", placeholder = "Ingrese el nombre del asociado", required = "required" })
+                </div>
+                <div class="col-12 d-flex justify-content-center">
+                    <button type="button" class="btn btn-primary w-50" onclick="buscarAsociado()">Buscar</button>
+                </div>
+            </div>
+        }
+
+        <!-- Tabla de resultados -->
+        <div id="resultadosBusqueda" class="table-responsive" style="display: none;">
+            <h5 class="text-center">Resultados de Búsqueda</h5>
+            <table class="table table-bordered mt-3">
+                <thead class="table-dark">
                     <tr>
-                        <th>Usuario</th>
-                        <th>Rol</th>
-                        <th>Acciones</th>
+                        <th>Identificación</th>
+                        <th>Nombre Completo</th>
+                        <th>Rol Actual</th>
+                        <th>Nuevo Rol</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>Usuario 1</td>
-                        <td>Administrador</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm">Modificar</button>
-                            <button class="btn btn-danger btn-sm">Eliminar</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Usuario 2</td>
-                        <td>Asociado</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm">Modificar</button>
-                            <button class="btn btn-danger btn-sm">Eliminar</button>
-                        </td>
-                    </tr>
+                <tbody id="tablaResultados">
+                    <!-- Aquí se insertarán los resultados dinámicamente -->
                 </tbody>
             </table>
         </div>
-    </div>
-</div>
 
+        <!-- Mensaje si no hay resultados -->
+        <div id="sinResultados" class="text-center mt-3" style="display: none;">
+            <p class="text-danger fw-bold">No se encontraron asociados con ese nombre.</p>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Función para buscar el usuario por nombre
+        function buscarAsociado() {
+            const buscarNombre = document.getElementById('buscarNombre').value.trim();
+
+            if (buscarNombre) {
+                fetch('/Asociados/BuscarAsociado', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ buscarNombre })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Datos recibidos:", data);
+
+                        if (data.success) {
+                            document.getElementById('resultadosBusqueda').style.display = 'block';
+                            document.getElementById('sinResultados').style.display = 'none';
+
+                            const tabla = document.getElementById('tablaResultados');
+                            tabla.innerHTML = ""; // Limpiar resultados previos
+
+                            const fila = `
+                                    <tr>
+                                        <td>${data.identificacion}</td>
+                                        <td>${data.nombre}</td>
+                                        <td id="rol_${data.id}">${data.rol}</td>
+                                        <td>
+                                            <input type="radio" name="rol_${data.nombre}" value="administrador" ${data.rol === "administrador" ? "checked" : ""}> Administrador
+                                            <input type="radio" name="rol_${data.nombre}" value="asociado" ${data.rol === "asociado" ? "checked" : ""}> Asociado
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-success btn-sm" onclick="cambiarRol('${data.nombre}')">Guardar</button>
+                                        </td>
+                                    </tr>
+                                `;
+                            tabla.innerHTML += fila;
+                        } else {
+                            document.getElementById('resultadosBusqueda').style.display = 'none';
+                            document.getElementById('sinResultados').style.display = 'block';
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campo vacío',
+                    text: 'Ingrese un nombre para buscar.'
+                });
+            }
+        }
+
+        // Función para cambiar el rol del usuario
+        function cambiarRol(nombre) {
+            const seleccionado = document.querySelector(`input[name="rol_${nombre}"]:checked`);
+
+            if (!seleccionado) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Seleccione un rol',
+                    text: 'Debe seleccionar un rol antes de guardar.'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: "¿Está segura?",
+                text: "¿Desea cambiar el rol de este usuario?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, cambiar rol",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/SeguridadyPermisos/RolesyPermisos', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: JSON.stringify({ nombre, nuevoRol: seleccionado.value })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Rol actualizado',
+                                    text: data.message
+                                }).then(() => {
+                                    document.getElementById(`rol_${data.id}`).innerText = data.nuevoRol;
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: data.message
+                                });
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                }
+            });
+        }
+    </script>
+}

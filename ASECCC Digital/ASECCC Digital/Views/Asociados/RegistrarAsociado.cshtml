@@ -6,83 +6,82 @@
     @Html.Partial("_MenuModulos");
 }
 
-<h1 class="text-center mb-4">Registrar Asociado</h1>
-<section class="container mt-4 d-flex justify-content-center align-items-start" style="padding-top: 20px;">
-    <div class="w-100" style="max-width: 800px;">
+<section class="container mt-5">
+    <div class="card shadow-lg p-4 mx-auto" style="max-width: 800px;">
+        <h1 class="text-center mb-4">Registrar Asociado</h1>
 
-        @using (Html.BeginForm("RegistrarAsociado", "Asociados", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "formRegistrar" }))
+        @using (Html.BeginForm("RegistrarAsociado", "Asociados", FormMethod.Post, new { @class = "needs-validation", role = "form", id = "formRegistrar", novalidate = "novalidate" }))
         {
             @Html.AntiForgeryToken()
 
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    @Html.LabelFor(model => model.NombreCompleto, "Nombre Completo", htmlAttributes: new { @class = "form-label" })
-                    @Html.TextBoxFor(model => model.NombreCompleto, new { @class = "form-control", id = "nombreCompleto" })
+                <div class="col-md-6 col-sm-12 mb-3">
+                    @Html.LabelFor(model => model.NombreCompleto, "Nombre Completo", new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.NombreCompleto, new { @class = "form-control", id = "nombreCompleto", required = "required" })
                     @Html.ValidationMessageFor(model => model.NombreCompleto, "", new { @class = "text-danger" })
                 </div>
 
-                <div class="col-md-6 mb-3">
-                    @Html.LabelFor(model => model.CorreoElectronico, "Correo Electronico", new { @class = "form-label" })
-                    @Html.TextBoxFor(model => model.CorreoElectronico, new { @class = "form-control", type = "email", id = "correoElectronico" })
+                <div class="col-md-6 col-sm-12 mb-3">
+                    @Html.LabelFor(model => model.CorreoElectronico, "Correo Electrónico", new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.CorreoElectronico, new { @class = "form-control", type = "email", id = "correoElectronico", required = "required" })
                     @Html.ValidationMessageFor(model => model.CorreoElectronico, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    @Html.LabelFor(model => model.Contrasena, "Contraseña", new { @class = "form-label" })
-                    @Html.TextBoxFor(model => model.Contrasena, new { @class = "form-control", id = "contrasena" })
+                <div class="col-md-6 col-sm-12 mb-3">
+                    @Html.LabelFor(model => model.Contrasena, "Contraseña", new { @class = "form-label fw-bold" })
+                    @Html.PasswordFor(model => model.Contrasena, new { @class = "form-control", id = "contrasena", required = "required" })
                     @Html.ValidationMessageFor(model => model.Contrasena, "", new { @class = "text-danger" })
                 </div>
 
-                <div class="col-md-6 mb-3">
-                    @Html.LabelFor(model => model.TipoIdentificacion, "Tipo de identificación", new { @class = "form-label" })
+                <div class="col-md-6 col-sm-12 mb-3">
+                    @Html.LabelFor(model => model.TipoIdentificacion, "Tipo de Identificación", new { @class = "form-label fw-bold" })
                     @Html.DropDownListFor(model => model.TipoIdentificacion,
                         new SelectList(new[] {
                             new { Value = "Nacional", Text = "Nacional" },
                             new { Value = "DIMEX", Text = "DIMEX" }
                         }, "Value", "Text"),
-                        new { @class = "form-select", id = "tipoIdentificacion" })
+                        new { @class = "form-select", id = "tipoIdentificacion", required = "required" })
                     @Html.ValidationMessageFor(model => model.TipoIdentificacion, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    @Html.LabelFor(model => model.Identificacion, "Identificación", new { @class = "form-label" })
-                    @Html.TextBoxFor(model => model.Identificacion, new { @class = "form-control", id = "identificacion" })
+                <div class="col-md-6 col-sm-12 mb-3">
+                    @Html.LabelFor(model => model.Identificacion, "Identificación", new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.Identificacion, new { @class = "form-control", id = "identificacion", required = "required" })
                     @Html.ValidationMessageFor(model => model.Identificacion, "", new { @class = "text-danger" })
                 </div>
 
-                <div class="col-md-6 mb-3">
-                    @Html.LabelFor(model => model.FechaNacimiento, "Fecha de nacimiento", new { @class = "form-label" })
-                    @Html.TextBoxFor(model => model.FechaNacimiento, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "fechaNacimiento" })
+                <div class="col-md-6 col-sm-12 mb-3">
+                    @Html.LabelFor(model => model.FechaNacimiento, "Fecha de Nacimiento", new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.FechaNacimiento, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "fechaNacimiento", required = "required" })
                     @Html.ValidationMessageFor(model => model.FechaNacimiento, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    @Html.LabelFor(model => model.Telefono, "Teléfono", new { @class = "form-label" })
-                    @Html.TextBoxFor(model => model.Telefono, new { @class = "form-control", type = "tel", id = "telefono" })
+                <div class="col-md-6 col-sm-12 mb-3">
+                    @Html.LabelFor(model => model.Telefono, "Teléfono", new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.Telefono, new { @class = "form-control", type = "tel", id = "telefono", required = "required" })
                     @Html.ValidationMessageFor(model => model.Telefono, "", new { @class = "text-danger" })
                 </div>
 
-                <div class="col-md-6 mb-3">
-                    @Html.LabelFor(model => model.Direccion, "Dirección", new { @class = "form-label" })
-                    @Html.TextBoxFor(model => model.Direccion, new { @class = "form-control", id = "direccion" })
+                <div class="col-md-6 col-sm-12 mb-3">
+                    @Html.LabelFor(model => model.Direccion, "Dirección", new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(model => model.Direccion, new { @class = "form-control", id = "direccion", required = "required" })
                     @Html.ValidationMessageFor(model => model.Direccion, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <!-- Botón Registrar -->
             <div class="d-flex justify-content-center">
-                <input type="submit" value="Registrar Asociado" class="btn btn-primary" id="btnRegistrar" />
+                <input type="submit" value="Registrar Asociado" class="btn btn-primary w-50" id="btnRegistrar" />
             </div>
         }
     </div>
 </section>
-
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

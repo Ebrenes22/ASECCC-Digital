@@ -6,9 +6,9 @@
     @Html.Partial("_MenuModulos");
 }
 
-<h1 class="text-center mb-4">Buscar y Desactivar Asociado</h1>
-<section class="container mt-4 d-flex justify-content-center align-items-start" style="padding-top: 20px;">
-    <div class="w-100" style="max-width: 800px;">
+<section class="container mt-5">
+    <div class="card shadow-lg p-4 mx-auto" style="max-width: 800px;">
+        <h1 class="text-center mb-4">Buscar y Desactivar Asociado</h1>
 
         <!-- Formulario de búsqueda -->
         @using (Html.BeginForm("BuscarAsociado", "Asociados", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "formBuscar", onsubmit = "return false;" }))
@@ -16,21 +16,21 @@
             @Html.AntiForgeryToken()
 
             <div class="row g-3 mb-4">
-                <div class="col-md-8">
-                    @Html.LabelFor(model => model.NombreCompleto, "Buscar por Nombre", new { @class = "form-label" })
+                <div class="col-12">
+                    @Html.LabelFor(model => model.NombreCompleto, "Buscar por Nombre", new { @class = "form-label fw-bold" })
                     @Html.TextBox("buscarNombre", null, new { @class = "form-control", placeholder = "Ingrese el nombre del asociado", required = "required" })
                 </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="button" class="btn btn-primary w-100" onclick="buscarAsociado()">Buscar</button>
+                <div class="col-12 d-flex justify-content-center">
+                    <button type="button" class="btn btn-primary w-50" onclick="buscarAsociado()">Buscar</button>
                 </div>
             </div>
         }
 
         <!-- Tabla de resultados -->
-        <div id="resultadosBusqueda" style="display: none;">
-            <h5>Resultados de Búsqueda</h5>
-            <table class="table table-striped mt-3">
-                <thead>
+        <div id="resultadosBusqueda" class="table-responsive" style="display: none;">
+            <h5 class="text-center">Resultados de Búsqueda</h5>
+            <table class="table table-bordered mt-3">
+                <thead class="table-dark">
                     <tr>
                         <th>Nombre Completo</th>
                         <th>Identificación</th>
@@ -46,10 +46,9 @@
         </div>
 
         <!-- Mensaje sin resultados -->
-        <div id="sinResultados" style="display: none;">
-            <p class="text-danger">No se encontraron asociados que coincidan con los criterios de búsqueda.</p>
+        <div id="sinResultados" class="text-center mt-3" style="display: none;">
+            <p class="text-danger fw-bold">No se encontraron asociados que coincidan con los criterios de búsqueda.</p>
         </div>
-
     </div>
 </section>
 

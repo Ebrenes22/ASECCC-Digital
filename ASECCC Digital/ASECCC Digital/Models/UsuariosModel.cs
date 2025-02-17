@@ -125,7 +125,7 @@ namespace ASECCC_Digital.Models
             }
         }
 
-        public bool ActualizarAsociado(Entities.Usuario usuario)
+        public bool ActualizarAsociado(Entities.Usuario usuario, bool actualizarRol = false)
         {
             using (var context = new Database.ASECCC_DIGITALEntities())
             {
@@ -133,10 +133,18 @@ namespace ASECCC_Digital.Models
 
                 if (usuarioDb != null)
                 {
-                    // Actualizar solo los campos editables
-                    usuarioDb.correoElectronico = usuario.CorreoElectronico;
-                    usuarioDb.telefono = usuario.Telefono;
-                    usuarioDb.direccion = usuario.Direccion;
+                    if (actualizarRol)
+                    {
+                        // Solo actualizar el rol si actualizarRol es true
+                        usuarioDb.rol = usuario.Rol;
+                    }
+                    else
+                    {
+                        // Actualizar solo la información personal
+                        usuarioDb.correoElectronico = usuario.CorreoElectronico;
+                        usuarioDb.telefono = usuario.Telefono;
+                        usuarioDb.direccion = usuario.Direccion;
+                    }
 
                     context.SaveChanges();
                     return true;
@@ -144,6 +152,8 @@ namespace ASECCC_Digital.Models
                 return false; // Si no se encuentra el usuario
             }
         }
+
+
         public bool DesactivarAsociado(int usuarioId)
         {
             using (var context = new Database.ASECCC_DIGITALEntities())

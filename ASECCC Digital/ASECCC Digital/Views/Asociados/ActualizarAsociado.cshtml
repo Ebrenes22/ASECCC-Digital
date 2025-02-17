@@ -6,66 +6,70 @@
     @Html.Partial("_MenuModulos");
 }
 
-<h1 class="text-center mb-4">Editar Asociado</h1>
-<section class="container mt-4 d-flex justify-content-center align-items-start" style="padding-top: 20px;">
-    <div class="w-100" style="max-width: 800px;">
+<section class="container mt-5">
+    <div class="card shadow-lg p-4 mx-auto" style="max-width: 800px;">
+        <h1 class="text-center mb-4">Editar Asociado</h1>
 
-        <!-- Sección para buscar por nombre -->
+        <!-- Formulario de búsqueda -->
         <form id="formBuscar">
             <div class="row g-3 mb-4">
-                <div class="col-md-8">
-                    <label for="buscarNombre" class="form-label">Buscar por Nombre</label>
+                <div class="col-12">
+                    <label for="buscarNombre" class="form-label fw-bold">Buscar por Nombre</label>
                     @Html.TextBox("buscarNombre", null, new { @class = "form-control", placeholder = "Ingrese el nombre del asociado", required = "required" })
                 </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="button" class="btn btn-primary w-100" onclick="buscarAsociado()">Buscar</button>
+                <div class="col-12 d-flex justify-content-center">
+                    <button type="button" class="btn btn-primary w-50" onclick="buscarAsociado()">Buscar</button>
                 </div>
             </div>
         </form>
 
         <!-- Formulario editable (inicialmente oculto) -->
-        @using (Html.BeginForm("ActualizarAsociado", "Asociados", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "formEditar", style = "display: none;" }))
+        @using (Html.BeginForm("ActualizarAsociado", "Asociados", FormMethod.Post, new { @class = "form-horizontal needs-validation", role = "form", id = "formEditar", style = "display: none;" }))
         {
             @Html.AntiForgeryToken()
             @Html.HiddenFor(m => m.UsuarioId, new { id = "usuarioId" })
+
             <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="nombreCompleto" class="form-label">Nombre Completo</label>
+                <div class="col-md-6 col-sm-12">
+                    <label for="nombreCompleto" class="form-label fw-bold">Nombre Completo</label>
                     @Html.TextBoxFor(m => m.NombreCompleto, new { @class = "form-control", @readonly = "readonly", id = "nombreCompleto" })
                     @Html.ValidationMessageFor(m => m.NombreCompleto, "", new { @class = "text-danger" })
                 </div>
-                <div class="col-md-6">
-                    <label for="identificacion" class="form-label">Número de Identificación</label>
+                <div class="col-md-6 col-sm-12">
+                    <label for="identificacion" class="form-label fw-bold">Número de Identificación</label>
                     @Html.TextBoxFor(m => m.Identificacion, new { @class = "form-control", @readonly = "readonly", id = "identificacion" })
                     @Html.ValidationMessageFor(m => m.Identificacion, "", new { @class = "text-danger" })
                 </div>
-                <div class="col-md-6">
-                    <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+                <div class="col-md-6 col-sm-12">
+                    <label for="fechaNacimiento" class="form-label fw-bold">Fecha de Nacimiento</label>
                     @Html.TextBoxFor(m => m.FechaNacimiento, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", @readonly = "readonly", id = "fechaNacimiento" })
                     @Html.ValidationMessageFor(m => m.FechaNacimiento, "", new { @class = "text-danger" })
                 </div>
-                <div class="col-md-6">
-                    <label for="correoElectronico" class="form-label">Correo Electrónico</label>
+                <div class="col-md-6 col-sm-12">
+                    <label for="correoElectronico" class="form-label fw-bold">Correo Electrónico</label>
                     @Html.TextBoxFor(m => m.CorreoElectronico, new { @class = "form-control", type = "email", id = "correoElectronico" })
                     @Html.ValidationMessageFor(m => m.CorreoElectronico, "", new { @class = "text-danger" })
                 </div>
-                <div class="col-md-6">
-                    <label for="telefono" class="form-label">Teléfono de Contacto</label>
+                <div class="col-md-6 col-sm-12">
+                    <label for="telefono" class="form-label fw-bold">Teléfono</label>
                     @Html.TextBoxFor(m => m.Telefono, new { @class = "form-control", type = "tel", id = "telefono", maxlength = "8", pattern = "[0-9]{8}" })
                     @Html.ValidationMessageFor(m => m.Telefono, "", new { @class = "text-danger" })
                 </div>
-                <div class="col-md-6">
-                    <label for="direccion" class="form-label">Dirección Completa</label>
+                <div class="col-md-6 col-sm-12">
+                    <label for="direccion" class="form-label fw-bold">Dirección</label>
                     @Html.TextBoxFor(m => m.Direccion, new { @class = "form-control", id = "direccion" })
                     @Html.ValidationMessageFor(m => m.Direccion, "", new { @class = "text-danger" })
                 </div>
             </div>
-            <div class="text-end mt-3">
-                <button type="submit" class="btn btn-success">Guardar Cambios</button>
+
+            <!-- Botón de Guardar -->
+            <div class="d-flex justify-content-center mt-3">
+                <button type="submit" class="btn btn-success w-50">Guardar Cambios</button>
             </div>
         }
     </div>
 </section>
+
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
