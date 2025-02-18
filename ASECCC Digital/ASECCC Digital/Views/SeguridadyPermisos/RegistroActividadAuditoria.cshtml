@@ -4,40 +4,111 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos")
 }
+<div class="container d-flex flex-column align-items-center mt-4">
+    <h2 class="text-center">Historial de Inicios de Sesión</h2>
 
-<h2 class="text-center mb-4">Registro de Actividad y Auditoría</h2>
+    <div class="card p-3 shadow-sm w-100" style="max-width: 800px;">
+        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "filtroForm", @class = "row g-2" }))
+        {
+            <div class="col-12 col-md-5">
+                @Html.Label("Fecha Inicio:", new { @class = "form-label fw-bold" })
+                @Html.TextBox("fechaInicio", null, new { @class = "form-control", type = "date", id = "fechaInicio" })
+            </div>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h3 class="text-center">Historial de Acceso al Sistema</h3>
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Usuario</th>
-                        <th>Rol</th>
-                        <th>Fecha de Acceso</th>
-                        <th>Hora de Acceso</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var actividad in Model)
-                    {
-                        <tr>
-                            <td>@actividad.Usuario</td>
-                            <td>@actividad.Rol</td>
-                            <td>@actividad.FechaAcceso.ToString("dd/MM/yyyy")</td>
-                            <td>@actividad.HoraAcceso.ToString("HH:mm:ss")</td>
-                            <td>
-                                <button class="btn btn-sm btn-info">Detalles</button>
-                                <button class="btn btn-sm btn-danger">Eliminar</button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+            <div class="col-12 col-md-5">
+                @Html.Label("Fecha Fin:", new { @class = "form-label fw-bold" })
+                @Html.TextBox("fechaFin", null, new { @class = "form-control", type = "date", id = "fechaFin" })
+            </div>
+
+            <div class="col-12 col-md-2 d-flex align-items-end">
+                <button type="button" id="filtrarBtn" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        }
     </div>
 </div>
 
+<div class="container mt-4">
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Usuario</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody id="historialTableBody">
+                <tr>
+                    <td colspan="3" class="text-center">Seleccione un rango de fechas y presione "Filtrar".</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Contenedor de Paginación -->
+    <nav id="pagination" class="mt-3">
+        <ul class="pagination justify-content-center flex-wrap"></ul>
+    </nav>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        function cargarHistorial(pagina = 1) {
+            var fechaInicio = $("#fechaInicio").val();
+            var fechaFin = $("#fechaFin").val();
+
+            $.ajax({
+                url: '@Url.Action("ObtenerDatosActividadAuditoria", "SeguridadyPermisos")',
+                type: 'GET',
+                data: { fechaInicio: fechaInicio, fechaFin: fechaFin, pagina: pagina },
+                dataType: 'json',
+                beforeSend: function () {
+                    $("#historialTableBody").html('<tr><td colspan="3" class="text-center">Cargando...</td></tr>');
+                },
+                success: function (response) {
+                    $("#historialTableBody").empty();
+
+                    if (response.registros.length > 0) {
+                        $.each(response.registros, function (index, item) {
+                            $("#historialTableBody").append(`
+                                <tr>
+                                    <td>${item.Usuario}</td>
+                                    <td>${item.Fecha}</td>
+                                </tr>
+                            `);
+                        });
+                    } else {
+                        $("#historialTableBody").html('<tr><td colspan="3" class="text-center">No se encontraron registros.</td></tr>');
+                    }
+
+                    generarPaginacion(response.totalPaginas, response.paginaActual);
+                },
+                error: function () {
+                    $("#historialTableBody").html('<tr><td colspan="3" class="text-center text-danger">Error al obtener los datos.</td></tr>');
+                }
+            });
+        }
+
+        function generarPaginacion(totalPaginas, paginaActual) {
+            $("#pagination ul").empty();
+
+            if (totalPaginas > 1) {
+                for (let i = 1; i <= totalPaginas; i++) {
+                    $("#pagination ul").append(`
+                        <li class="page-item ${i === paginaActual ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="cargarHistorial(${i}); return false;">${i}</a>
+                        </li>
+                    `);
+                }
+            }
+        }
+
+        // Cargar datos iniciales
+        cargarHistorial();
+
+        // Filtrar datos cuando se presiona el botón
+        $("#filtrarBtn").click(function () {
+            cargarHistorial();
+        });
+    });
+</script>

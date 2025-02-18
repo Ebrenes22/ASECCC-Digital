@@ -1,8 +1,6 @@
 ﻿using ASECCC_Digital.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace ASECCC_Digital.Controllers
@@ -10,7 +8,7 @@ namespace ASECCC_Digital.Controllers
     public class SeguridadyPermisosController : Controller
     {
         UsuariosModel usuarioM = new UsuariosModel();
-        
+
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
@@ -48,11 +46,11 @@ namespace ASECCC_Digital.Controllers
 
                 var usuario = new ASECCC_Digital.Entities.Usuario
                 {
-                    UsuarioId = usuarioDb.usuarioId,  
+                    UsuarioId = usuarioDb.usuarioId,
                     NombreCompleto = usuarioDb.nombreCompleto,
                     Rol = nuevoRol
                 };
-                
+
                 var resultado = usuarioM.ActualizarAsociado(usuario, true);
 
                 if (resultado)
@@ -78,55 +76,59 @@ namespace ASECCC_Digital.Controllers
             }
         }
 
-
-
-
+        [HttpGet]
         public ActionResult RegistroActividadAuditoria()
         {
-            var actividades = ObtenerRegistroDeActividad();
-            return View(actividades);
-      
+            return View(); 
         }
 
-        private List<Actividad> ObtenerRegistroDeActividad()
+        [HttpGet]
+        public JsonResult ObtenerDatosActividadAuditoria(DateTime? fechaInicio, DateTime? fechaFin, int pagina = 1)
         {
-            // Simulación de datos para la tabla de auditoría
-            return new List<Actividad>
+            int registrosPorPagina = 10;
+
+            using (var db = new ASECCC_Digital.Database.ASECCC_DIGITALEntities())
             {
-                new Actividad
+                var query = db.SeguridadAuditoria
+                    .Include("Usuario")
+                    .Where(a => a.accion == "Inicio de sesión")
+                    .AsQueryable();
+
+                if (fechaInicio.HasValue)
                 {
-                    Usuario = "Admin1",
-                    Rol = "Administrador",
-                    FechaAcceso = DateTime.Now.Date,
-                    HoraAcceso = DateTime.Now.AddHours(-2)
-                },
-                new Actividad
-                {
-                    Usuario = "User2",
-                    Rol = "Asociado",
-                    FechaAcceso = DateTime.Now.Date,
-                    HoraAcceso = DateTime.Now.AddHours(-1)
-                },
-                new Actividad
-                {
-                    Usuario = "Admin2",
-                    Rol = "Administrador",
-                    FechaAcceso = DateTime.Now.Date,
-                    HoraAcceso = DateTime.Now.AddHours(-3)
+                    query = query.Where(a => a.fechaAccion >= fechaInicio.Value);
                 }
-            };
+
+                if (fechaFin.HasValue)
+                {
+                    fechaFin = fechaFin.Value.AddDays(1).AddTicks(-1);
+                    query = query.Where(a => a.fechaAccion <= fechaFin.Value);
+                }
+
+                int totalRegistros = query.Count();
+
+                var registros = query
+                    .OrderByDescending(a => a.fechaAccion)
+                    .Skip((pagina - 1) * registrosPorPagina)
+                    .Take(registrosPorPagina)
+                    .ToList() // Execute the query first
+                    .Select(a => new
+                    {
+                        a.auditoriaId,
+                        Usuario = a.Usuario != null ? a.Usuario.identificacion + " - " + a.Usuario.nombreCompleto : "Desconocido",
+                        Fecha = a.fechaAccion.HasValue ? a.fechaAccion.Value.ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
+                        a.direccionIp
+                    })
+                    .ToList();
+
+                return Json(new
+                {
+                    registros = registros,
+                    totalPaginas = Math.Ceiling((double)totalRegistros / registrosPorPagina),
+                    paginaActual = pagina
+                }, JsonRequestBehavior.AllowGet);
+            }
         }
-
-
-
-
-        //--------VISTAS USUARIO-------------//
     }
-    public class Actividad
-    {
-        public string Usuario { get; set; }
-        public string Rol { get; set; }
-        public DateTime FechaAcceso { get; set; }
-        public DateTime HoraAcceso { get; set; }
+
     }
-}

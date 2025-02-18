@@ -11,6 +11,7 @@ namespace ASECCC_Digital.Controllers
     {
         // Instancia del modelo para la lógica de negocio
         UsuariosModel usuarioM = new UsuariosModel();
+        SeguridadAuditoriaModel auditoriaM = new SeguridadAuditoriaModel();
         //--------VISTAS ADMIN--------------//
         // GET: Usuario
         public ActionResult Usuario()
@@ -82,6 +83,8 @@ namespace ASECCC_Digital.Controllers
             // 5. Agregar la cookie al response
             Response.Cookies.Add(authCookie);
 
+            auditoriaM.RegistrarAuditoria(userEntity.UsuarioId, "Inicio de sesión", Request.UserHostAddress); // Registrar actividad de auditoría
+
             // 6. Redirigir 
             // IMPORTANTE CON AUTH
             if (userEntity.Rol == "administrador")
@@ -106,6 +109,8 @@ namespace ASECCC_Digital.Controllers
             Session.Clear(); // Elimina todas las variables de sesión
             return RedirectToAction("Login", "Usuarios");
         }
+
+        
 
         public ActionResult ActualizarAsociado()
         {

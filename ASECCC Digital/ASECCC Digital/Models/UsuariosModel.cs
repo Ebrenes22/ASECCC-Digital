@@ -169,7 +169,7 @@ namespace ASECCC_Digital.Models
                 return false;
             }
         }
-    }
+}
 }
 
 

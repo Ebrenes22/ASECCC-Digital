@@ -26,10 +26,10 @@ namespace ASECCC_Digital.Entities
         [StringLength(50, ErrorMessage = "La dirección IP no puede superar los 50 caracteres")]
         public string DireccionIp { get; set; }  // Dirección IP del usuario que realizó la acción
 
-        [Required(ErrorMessage = "El tipo de acción es requerido")]
-        [RegularExpression("^(login|logout|modificación|consulta)$", ErrorMessage = "Tipo de acción inválido")]
-        [StringLength(50)]
-        public string TipoAccion { get; set; }  // Tipo de acción (login, logout, modificación, consulta)
+        //[Required(ErrorMessage = "El tipo de acción es requerido")]
+        //[RegularExpression("^(login|logout|modificación|consulta)$", ErrorMessage = "Tipo de acción inválido")]
+        //[StringLength(50)]
+        //public string TipoAccion { get; set; }  // Tipo de acción (login, logout, modificación, consulta)
 
         // Relación con la entidad Usuario (opcional, ya que puede ser null)
         public Usuario Usuario { get; set; }  // Relación con la entidad Usuario (si el usuario está presente)
