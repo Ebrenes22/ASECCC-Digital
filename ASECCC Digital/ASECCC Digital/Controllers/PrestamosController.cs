@@ -97,38 +97,47 @@
 
 
 
-            //----------VISTAS ASOCIADO-----------//
+        //----------VISTAS ASOCIADO-----------//
 
 
-            [HttpGet]
-            public ActionResult SolicitudPrestamo()
+        [HttpGet]
+        public ActionResult SolicitudPrestamo()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult SolicitudPrestamo(Entities.SolicitudesPrestamo solicitud)
+        {
+            // Verificamos si existe el usuario en sesión
+            if (Session["usuarioId"] == null)
             {
+                // Opcional: redirige al login o muestra un mensaje
+                return RedirectToAction("Login", "Account");
+            }
+
+            int usuarioId = Convert.ToInt32(Session["usuarioId"]);
+            solicitud.UsuarioId = usuarioId;
+
+            bool respuesta = prestamoM.RegistrarSolicitudPrestamo(solicitud);
+
+            if (respuesta)
+            {
+                TempData["SuccessMessage"] = "Solicitud enviada con éxito!";
+                return RedirectToAction("SolicitudPrestamo"); // Redirige después del POST
+            }
+            else
+            {
+                ModelState.AddModelError("", "Ocurrió un error al registrar la solicitud.");
                 return View();
             }
-
-            [HttpPost]
-            public ActionResult SolicitudPrestamo(Entities.SolicitudesPrestamo solicitud)
-            {
-                var usuarioId = Session["usuarioId"] = 1;
-                solicitud.UsuarioId = (int)usuarioId;
-                bool respuesta = prestamoM.RegistrarSolicitudPrestamo(solicitud);
-
-                if (respuesta)
-                {
-                    TempData["SuccessMessage"] = "Solicitud enviada con éxito!";
-                    return RedirectToAction("SolicitudPrestamo"); // Redirige después del POST
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Ocurrió un error al registrar la solicitud.");
-                    return View();
-                }
-            }
+        }
 
 
 
 
-            public ActionResult ConsultaPrestamoAsociado()
+
+        public ActionResult ConsultaPrestamoAsociado()
             {
                 // Obtener los detalles de la consulta del préstamo asociado desde el modelo
                 //var consulta = prestamoM.ObtenerConsultaPrestamoAsociado();

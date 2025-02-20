@@ -42,6 +42,7 @@ namespace ASECCC_Digital.Controllers
                 return View();
             }
 
+
             // 2. Llamar a la capa de modelo para verificar credenciales
             var usuarioModel = new UsuariosModel();
             var userEntity = usuarioModel.Login(identificacion, contrasena);
@@ -59,6 +60,12 @@ namespace ASECCC_Digital.Controllers
                 TempData["LoginError"] = "Usuario inactivo";
                 return View();
             }
+
+            //VARIABLES DE SESION
+            Session["usuarioId"] = userEntity.UsuarioId;
+            Session["usuarioNombre"] = userEntity.NombreCompleto;
+
+
 
             string rol = userEntity.Rol.ToLower();
 

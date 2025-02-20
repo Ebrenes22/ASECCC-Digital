@@ -1,4 +1,4 @@
-﻿// Sección de las validaciones y campos
+﻿    // Sección de las validaciones y campos
 function mostrarCampoAlquiler() {
     document.getElementById("campoMontoAlquiler").style.display = "block";
 }
