@@ -31,7 +31,7 @@
             <div class="row">
                 <div class="col-md-6 col-sm-12 mb-3">
                     @Html.LabelFor(model => model.Contrasena, "Contraseña", new { @class = "form-label fw-bold" })
-                    @Html.PasswordFor(model => model.Contrasena, new { @class = "form-control", id = "contrasena", required = "required" })
+                    @Html.TextBoxFor(model => model.Contrasena, new { @class = "form-control", id = "contrasena", required = "required" })
                     @Html.ValidationMessageFor(model => model.Contrasena, "", new { @class = "text-danger" })
                 </div>
 

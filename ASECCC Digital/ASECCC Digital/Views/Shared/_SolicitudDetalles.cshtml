@@ -1,4 +1,4 @@
-﻿@model ASECCC_Digital.ViewModels.SolicitudPrestamoViewModel 
+﻿@model ASECCC_Digital.ViewModels.SolicitudPrestamoViewModel
 
 <!-- Modal Revision Prestamo -->
 <div class="modal fade" id="solicitudDetallesModal" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
@@ -10,12 +10,15 @@
             </div>
             <div class="modal-body">
                 <form>
+                    <input type="hidden" id="solicitud-id" value="" />
+                    <input type="hidden" id="usuario-id" value="" />
+
                     <!-- Sección Personal -->
-                    <h6 class="mb-2">Información Personal</h6>
+                    <h6 class="mb-2 fw-bold">Información Personal</h6>
                     <div class="row mb-2">
                         <div class="col-6">
-                            <label class="form-label">Usuario ID</label>
-                            <span id="usuarioId" class="d-block small"></span>
+                            <label class="form-label ">Nombre Completo:</label>
+                            <span id="nombreCompleto" class="d-block small"></span>
                         </div>
                         <div class="col-6">
                             <label class="form-label">Estado Civil</label>
@@ -32,9 +35,11 @@
                             <span id="montoAlquiler" class="d-block small"></span>
                         </div>
                     </div>
+                    <!-- Línea divisoria -->
+                    <hr class="my-3" />
 
                     <!-- Sección Deudas -->
-                    <h6 class="mb-2">Información de Deudas</h6>
+                    <h6 class="mb-2 fw-bold">Información de Deudas</h6>
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="form-label">Nombre del Acreedor</label>
@@ -55,9 +60,11 @@
                             <span id="saldoCredito" class="d-block small"></span>
                         </div>
                     </div>
+                    <!-- Línea divisoria -->
+                    <hr class="my-3" />
 
                     <!-- Sección Fiador -->
-                    <h6 class="mb-2">Información del Fiador</h6>
+                    <h6 class="mb-2 fw-bold">Información del Fiador</h6>
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="form-label">Nombre del Deudor</label>
@@ -74,13 +81,20 @@
                             <span id="saldoPrestamo" class="d-block small"></span>
                         </div>
                     </div>
+                    <!-- Línea divisoria -->
+                    <hr class="my-3" />
 
                     <!-- Sección Detalle Préstamo a Solicitar -->
-                    <h6 class="mb-2">Detalle del Préstamo a Solicitar</h6>
+                    <h6 class="mb-2 fw-bold">Detalle del Préstamo a Solicitar</h6>
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="form-label">Tipo de Préstamo</label>
-                            <span id="tipoPrestamo" class="d-block small"></span>
+                            <span id="tipoPrestamoTexto" class="d-none small"></span>
+                            <select class="form-select form-select-sm" id="tipoPrestamoSelect">
+                                <option value="personal">Personal</option>
+                                <option value="urgente">Urgente</option>
+                                <option value="150%">150%</option>
+                            </select>
                         </div>
                         <div class="col-6">
                             <label for="montoSolicitud" class="form-label">Monto de la Solicitud</label>
@@ -103,26 +117,91 @@
                             <span id="propositoPrestamo" class="d-block small"></span>
                         </div>
                     </div>
+                    <!-- Línea divisoria -->
+                    <hr class="my-3" />
 
                     <!-- Estado Actual -->
-                    <h6 class="mb-2">Estado Actual</h6>
                     <div class="row">
                         <div class="col-12">
-                            <label for="estado" class="form-label">Estado</label>
-                            <select class="form-select form-select-sm" id="estado">
-                                <option value="Pendiente">Pendiente</option>
-                                <option value="En Revisión">En Revisión</option>
-                                <option value="Aprobado">Aprobado</option>
-                                <option value="Rechazado">Rechazado</option>
+                            <span id="estadoTexto" class="d-block small"></span>
+                            <select class="form-select form-select-sm" id="estadoSelect">
+                                <option value="pendiente">Pendiente</option>
+                                <option value="revision">En Revisión</option>
+                                <option value="aprobada">Aprobada</option>
+                                <option value="rechazada">Rechazada</option>
                             </select>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="cerrarModal">Cerrar</button>
                 <button type="button" class="btn btn-primary btn-sm" id="guardarEstado">Guardar Cambios</button>
             </div>
         </div>
     </div>
 </div>
+
+
+<script>
+    // Captura datos modificados y los pasa a base de datos
+
+    $('#cerrarModal').click(function () {
+    window.location.href = '@Url.Action("RevisionPrestamos", "Prestamos")';
+    });
+        
+      $('#guardarEstado').click(function () {
+        // Captura los valores actualizados
+        var solicitudId = $('#solicitud-id').val();
+        var tipoPrestamo = $('#tipoPrestamoSelect').val();
+        var montoSolicitud = $('#montoSolicitud').val();
+        var plazoMeses = $('#plazoMeses').val();
+        var cuotaSemanalSolicitud = $('#cuotaSemanalSolicitud').val();
+        var estadoSolicitud = $('#estadoSelect').val();
+
+        // Construir el objeto con los datos a enviar
+        var datos = {
+            id: solicitudId,
+            tipoPrestamo: tipoPrestamo,
+            montoSolicitud: montoSolicitud,
+            plazoMeses: plazoMeses,
+            cuotaSemanalSolicitud: cuotaSemanalSolicitud,
+            estadoSolicitud: estadoSolicitud
+        };
+
+        $.ajax({
+            url: '@Url.Action("ActualizarSolicitud", "Prestamos")',
+            type: 'POST',
+            data: datos,
+            success: function (response) {
+                if (response.success) {
+                   
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Actualización exitosa',
+                        text: 'La solicitud se actualizó correctamente.'
+                    }).then(function () {
+                        // Redirigir a la vista RevisionPrestamos para actualizar la información
+                        window.location.href = '@Url.Action("RevisionPrestamos", "Prestamos")';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.error
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Ocurrió un error en la comunicación con el servidor.'
+                });
+            }
+        });
+    });
+
+
+
+</script>

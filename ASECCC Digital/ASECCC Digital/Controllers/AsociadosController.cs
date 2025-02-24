@@ -109,7 +109,7 @@ namespace ASECCC_Digital.Controllers
         {
             ModelState.Remove("Contrasena");
             ModelState.Remove("TipoIdentificacion");
-            //ModelState.Remove("Rol");
+            ModelState.Remove("Rol");
             ModelState.Remove("EstadoAfiliacion");
             ModelState.Remove("FechaIngreso");
 
@@ -147,7 +147,7 @@ namespace ASECCC_Digital.Controllers
         }
 
         [HttpPost]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public JsonResult BuscarDesactivarAsociado(int usuarioId)
         {
 

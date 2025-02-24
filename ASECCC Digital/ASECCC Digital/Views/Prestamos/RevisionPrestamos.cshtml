@@ -21,8 +21,9 @@
                         <div class="card-body">
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
-                                <strong>Usuario ID:</strong> @solicitud.UsuarioId <br />
-                                <strong>Monto:</strong> @solicitud.MontoSolicitud
+                                <strong>Solicitante:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
+                                <strong>Monto:</strong> @solicitud.MontoSolicitud<br />
+                                <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
                     </div>
@@ -36,14 +37,15 @@
             <div class="bg-light p-3 rounded shadow-sm" style="min-height: 300px;" id="revision">
                 @foreach (var solicitud in Model.Solicitudes.EnRevision)
                 {
-                    <div class="card mb-3 border-primary solicitud-card"
+                    <div class="card mb-3 border-warning  solicitud-card"
                          data-id="@solicitud.SolicitudPrestamoId"
                          data-bs-toggle="modal" data-bs-target="#solicitudDetallesModal">
                         <div class="card-body">
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
-                                <strong>Usuario ID:</strong> @solicitud.UsuarioId <br />
-                                <strong>Monto:</strong> @solicitud.MontoSolicitud
+                                <strong>Solicitante:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
+                                <strong>Monto:</strong> @solicitud.MontoSolicitud<br />
+                                <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
                     </div>
@@ -57,14 +59,15 @@
             <div class="bg-light p-3 rounded shadow-sm" style="min-height: 300px;" id="aprobado">
                 @foreach (var solicitud in Model.Solicitudes.Aprobadas)
                 {
-                    <div class="card mb-3 border-primary solicitud-card"
+                    <div class="card mb-3 border-success solicitud-card"
                          data-id="@solicitud.SolicitudPrestamoId"
                          data-bs-toggle="modal" data-bs-target="#solicitudDetallesModal">
                         <div class="card-body">
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
-                                <strong>Usuario ID:</strong> @solicitud.UsuarioId <br />
-                                <strong>Monto:</strong> @solicitud.MontoSolicitud
+                                <strong>Nombre Completo:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
+                                <strong>Monto:</strong> @solicitud.MontoSolicitud<br />
+                                <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
                     </div>
@@ -78,15 +81,15 @@
             <div class="bg-light p-3 rounded shadow-sm" style="min-height: 300px;" id="rechazado">
                 @foreach (var solicitud in Model.Solicitudes.Rechazadas)
                 {
-                    <div class="card mb-3 border-primary solicitud-card"
+                    <div class="card mb-3 border-danger solicitud-card"
                          data-id="@solicitud.SolicitudPrestamoId"
                          data-bs-toggle="modal" data-bs-target="#solicitudDetallesModal">
                         <div class="card-body">
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
-                                <strong>Usuario ID:</strong> @solicitud.UsuarioId <br />
+                                <strong>Nombre Completo:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
                                 <strong>Monto:</strong> @solicitud.MontoSolicitud <br />
-                                <strong>Fecha:</strong> @solicitud.FechaSolicitud
+                                <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
                     </div>
@@ -111,7 +114,7 @@
             console.log("Solicitud seleccionada:", solicitudId);
 
             $.ajax({
-                url: '@Url.Action("ObtenerSolicitudPorId", "Prestamos")', // Asegúrate de que la ruta sea correcta
+                url: '@Url.Action("ObtenerSolicitudPorId", "Prestamos")',
                 type: 'GET',
                 data: { id: solicitudId },
                 success: function (data) {
@@ -120,23 +123,27 @@
                         return;
                     }
                     // Rellenar los campos del modal con los datos recibidos
-                    $('#usuarioId').text(data.UsuarioId);
+                    $('#solicitud-id').val(data.SolicitudPrestamoId);
+                    $('usuario-id').val(data.UsuarioId);
+                    $('#nombreCompleto').text(data.NombreCompleto || 'No disponible');
                     $('#estadoCivil').text(data.EstadoCivil || 'No disponible');
-                    $('#pagaAlquiler').text(data.PagaAlquiler || 'No especificado');
-                    $('#montoAlquiler').text(data.MontoAlquiler || 'N/A');
-                    $('#nombreAcreedor').text(data.NombreAcreedor || 'N/A');
-                    $('#totalCredito').text(data.TotalCredito || 'N/A');
-                    $('#abonoSemanal').text(data.AbonoSemanal || 'N/A');
-                    $('#saldoCredito').text(data.SaldoCredito || 'N/A');
-                    $('#nombreDeudor').text(data.NombreDeudor || 'N/A');
-                    $('#totalPrestamo').text(data.TotalPrestamo || 'N/A');
-                    $('#saldoPrestamo').text(data.SaldoPrestamo || 'N/A');
-                    $('#tipoPrestamo').text(data.TipoPrestamo || 'No especificado');
+                    $('#pagaAlquiler').text(data.PagaAlquiler || 'No aplica');
+                    $('#montoAlquiler').text(data.MontoAlquiler || 'No aplica');
+                    $('#nombreAcreedor').text(data.NombreAcreedor || 'No aplica');
+                    $('#totalCredito').text(data.TotalCredito || 'No aplica');
+                    $('#abonoSemanal').text(data.AbonoSemanal || 'No aplica');
+                    $('#saldoCredito').text(data.SaldoCredito || 'No aplica');
+                    $('#nombreDeudor').text(data.NombreDeudor || 'No aplica');
+                    $('#totalPrestamo').text(data.TotalPrestamo || 'No aplica');
+                    $('#saldoPrestamo').text(data.SaldoPrestamo || 'No aplica');
+                    $('#tipoPrestamoTexto').text(data.TipoPrestamo || 'No especificado');
                     $('#plazoMeses').val(data.PlazoMeses || 'N/A');
                     $('#cuotaSemanalSolicitud').val(data.CuotaSemanalSolicitud || 'N/A');
                     $('#propositoPrestamo').text(data.PropositoPrestamo || 'Sin especificar');
-                    $('#estado').val(data.EstadoSolicitud || 'Pendiente');
+                    $('#estadoTexto').val(data.EstadoSolicitud || 'Pendiente');
                     $('#montoSolicitud').val(data.MontoSolicitud || 'N/A');
+
+
 
                     // Mostrar el modal utilizando la API de Bootstrap 5
                     var modalEl = document.getElementById('solicitudDetallesModal');
