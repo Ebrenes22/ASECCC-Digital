@@ -13,48 +13,8 @@ namespace ASECCC_Digital.Models
 {
     public class PrestamosModel
     {
+        #region Metodos para Vistas de Administrador
 
-        //Para registro de nuevas solicitudes
-        public bool RegistrarSolicitudPrestamo(Entities.SolicitudesPrestamo solicitud)
-        {
-            int rowsAffected;
-            try
-            {
-                using (var context = new Database.ASECCC_DIGITALEntities())
-                {
-                    var tabladb = new Database.SolicitudesPrestamo
-                    {
-                        usuarioId = solicitud.UsuarioId,
-                        estadoCivil = solicitud.EstadoCivil,
-                        pagaAlquiler = solicitud.PagaAlquiler,
-                        montoAlquiler = solicitud.MontoAlquiler ?? 0m,
-                        nombreAcreedor = solicitud.NombreAcreedor ?? "No Aplica",
-                        totalCredito = solicitud.TotalCredito ?? 0m,
-                        abonoSemanal = solicitud.AbonoSemanal ?? 0m,
-                        saldoCredito = solicitud.SaldoCredito ?? 0m,
-                        nombreDeudor = solicitud.NombreDeudor ?? "No Aplica",
-                        totalPrestamo = solicitud.TotalPrestamo ?? 0m,
-                        saldoPrestamo = solicitud.SaldoPrestamo ?? 0m,
-                        tipoPrestamo = solicitud.TipoPrestamo,
-                        montoSolicitud = solicitud.MontoSolicitud,
-                        plazoMeses = solicitud.PlazoMeses,
-                        cuotaSemanalSolicitud = solicitud.CuotaSemanalSolicitud,
-                        propositoPrestamo = solicitud.PropositoPrestamo,
-                        estadoSolicitud = "Pendiente",
-                        fechaSolicitud = DateTime.Now
-                    };
-                    context.SolicitudesPrestamo.Add(tabladb);
-                    rowsAffected = context.SaveChanges();
-                    return rowsAffected > 0;
-
-                }
-            }
-            catch (Exception)
-            {
-
-                return false;
-            }
-        }
 
         // Método para registrar el préstamo aprobado
         public bool RegistrarPrestamoAprobado(Database.SolicitudesPrestamo solicitud,
@@ -93,8 +53,6 @@ namespace ASECCC_Digital.Models
                 return false;
             }
         }
-
-
 
         public List<Entities.SolicitudesPrestamo> ObtenerSolicitudesPorEstado(string estado)
         {
@@ -181,6 +139,103 @@ namespace ASECCC_Digital.Models
                 return null; // Si no se encuentra la solicitud
             }
         }
+
+
+
+
+        #endregion
+
+
+
+        #region Metodos para Vista de Usuario
+
+        //Para registro de nuevas solicitudes
+        public bool RegistrarSolicitudPrestamo(Entities.SolicitudesPrestamo solicitud)
+        {
+            int rowsAffected;
+            try
+            {
+                using (var context = new Database.ASECCC_DIGITALEntities())
+                {
+                    var tabladb = new Database.SolicitudesPrestamo
+                    {
+                        usuarioId = solicitud.UsuarioId,
+                        estadoCivil = solicitud.EstadoCivil,
+                        pagaAlquiler = solicitud.PagaAlquiler,
+                        montoAlquiler = solicitud.MontoAlquiler ?? 0m,
+                        nombreAcreedor = solicitud.NombreAcreedor ?? "No Aplica",
+                        totalCredito = solicitud.TotalCredito ?? 0m,
+                        abonoSemanal = solicitud.AbonoSemanal ?? 0m,
+                        saldoCredito = solicitud.SaldoCredito ?? 0m,
+                        nombreDeudor = solicitud.NombreDeudor ?? "No Aplica",
+                        totalPrestamo = solicitud.TotalPrestamo ?? 0m,
+                        saldoPrestamo = solicitud.SaldoPrestamo ?? 0m,
+                        tipoPrestamo = solicitud.TipoPrestamo,
+                        montoSolicitud = solicitud.MontoSolicitud,
+                        plazoMeses = solicitud.PlazoMeses,
+                        cuotaSemanalSolicitud = solicitud.CuotaSemanalSolicitud,
+                        propositoPrestamo = solicitud.PropositoPrestamo,
+                        estadoSolicitud = "Pendiente",
+                        fechaSolicitud = DateTime.Now
+                    };
+                    context.SolicitudesPrestamo.Add(tabladb);
+                    rowsAffected = context.SaveChanges();
+                    return rowsAffected > 0;
+
+                }
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+        }
+
+        public bool NotificacionSolicitudPrestamo(Entities.SolicitudesPrestamo solicitud)
+        {
+            try
+            {
+                using (var context = new Database.ASECCC_DIGITALEntities())
+                {
+                    // Buscar el usuario por su ID
+                    var usuario = context.Usuario.FirstOrDefault(u => u.usuarioId == solicitud.UsuarioId);
+
+                    // Verificar si el usuario existe
+                    string nombreUsuario = usuario != null ? usuario.nombreCompleto : "Usuario desconocido";
+
+                    // Crear la notificación
+                    var notificacion = new Database.Notificaciones
+                    {
+                        usuarioId = solicitud.UsuarioId, // Usuario que trae la solicitud
+                        titulo = "Nueva Solicitud de Préstamo",
+                        contenido = $"Se ha recibido una nueva solicitud de préstamo de {nombreUsuario} por un monto de ¢{solicitud.MontoSolicitud}",
+                        tipo = "General",
+                        fechaEnvio = DateTime.Now,
+                        estado = "enviada"
+                    };
+
+                    context.Notificaciones.Add(notificacion);
+                    int rowsAffected = context.SaveChanges();
+
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al registrar la notificación: {ex.Message}");
+                return false;
+            }
+        }
+
+
+
+
+
+
+
+        #endregion
+
+
 
 
 

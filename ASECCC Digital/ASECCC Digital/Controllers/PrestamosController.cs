@@ -121,6 +121,7 @@ using System.Linq;
                     solicitud.estadoSolicitud = estadoSolicitud;
 
                     // Guardar los cambios en la base de datos
+                    context.Entry(solicitud).State = System.Data.Entity.EntityState.Modified;
                     context.SaveChanges();
 
                     if (estadoSolicitud.ToLower() == "aprobada")
@@ -183,6 +184,7 @@ using System.Linq;
 
             if (respuesta)
             {
+                prestamoM.NotificacionSolicitudPrestamo(solicitud);
                 TempData["SuccessMessage"] = "Solicitud enviada con éxito!";
                 return RedirectToAction("SolicitudPrestamo"); // Redirige después del POST
             }
