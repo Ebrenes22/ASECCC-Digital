@@ -228,17 +228,39 @@ namespace ASECCC_Digital.Models
         }
 
 
+                public List<object> ObtenerPrestamosParaAdmin()
+        {
+            using (var context = new ASECCC_DIGITALEntities()) // Conexión a la base de datos
+            {
+                return context.Prestamos
+                              .Join(context.Usuario,
+                                    prestamo => prestamo.usuarioId,
+                                    usuario => usuario.usuarioId,
+                                    (prestamo, usuario) => new
+                                    {
+                                        PrestamoId = prestamo.prestamoId,
+                                        NombreAsociado = usuario.nombreCompleto,
+                                        TipoPrestamo = prestamo.tipoPrestamo,
+                                        MontoAprobado = prestamo.montoAprobado,
+                                        EstadoPrestamo = prestamo.estadoPrestamo
+                                    })
+                              .ToList<object>(); 
+            }
+        }
 
-
+        public List<Prestamos> ObtenerPrestamosAsociado(int usuarioId)
+        {
+            using (var context = new ASECCC_DIGITALEntities()) // Conexión a la base de datos
+            {
+                return context.Prestamos
+                              .Where(p => p.usuarioId == usuarioId)
+                              .ToList(); // Retorna préstamos del usuario específico
+            }
+        }
 
 
 
         #endregion
-
-
-
-
-
 
 
 
