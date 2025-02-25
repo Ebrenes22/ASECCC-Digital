@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static ASECCC_Digital.Controllers.AsociadosController;
 
 namespace ASECCC_Digital.Models
 {
@@ -171,51 +172,112 @@ namespace ASECCC_Digital.Models
             }
         }
 
-        public (bool esCuentaLiquidada, List<object> cuentas, int usuarioId) BuscarCuentasAsociado(string nombre)
+        public (List<object> cuentas, int usuarioId) BuscarCuentasAsociado(string nombre)
         {
             using (var context = new Database.ASECCC_DIGITALEntities())
             {
                 var usuarioDb = context.Usuario.FirstOrDefault(u => u.nombreCompleto == nombre);
-
                 if (usuarioDb == null)
-                {
-                    return (false, new List<object>(), 0);
-                }
+                    return (new List<object>(), 0);
 
                 int usuarioId = usuarioDb.usuarioId;
 
-                // Obtener datos de la base de datos 
+                // Obtener todas las cuentas en memoria
                 var ahorros = context.Ahorros
                     .Where(a => a.usuarioId == usuarioId)
-                    .Select(a => new { a.tipoAhorroId, a.montoActual })
-                    .ToList(); 
+                    .ToList()
+                    .Select(a => new
+                    {
+                        id = a.ahorroId,
+                        tipo = "Ahorro",
+                        descripcion = $"Ahorro ID: {a.ahorroId}",
+                        saldo = a.montoActual
+                    }).ToList<object>();
 
                 var aportes = context.Aportes
                     .Where(a => a.usuarioId == usuarioId)
-                    .Select(a => new { a.tipoAporte, a.monto })
-                    .ToList();
+                    .ToList()
+                    .Select(a => new
+                    {
+                        id = a.aporteId,
+                        tipo = "Aporte",
+                        descripcion = $"Aporte {a.tipoAporte}",
+                        saldo = a.monto
+                    }).ToList<object>();
 
                 var prestamos = context.Prestamos
                     .Where(p => p.usuarioId == usuarioId)
-                    .Select(p => new { p.tipoPrestamo, p.saldoPendiente })
-                    .ToList();
+                    .ToList()
+                    .Select(p => new
+                    {
+                        id = p.prestamoId,
+                        tipo = "Préstamo",
+                        descripcion = $"Préstamo {p.tipoPrestamo}",
+                        saldo = p.saldoPendiente ?? 0
+                    }).ToList<object>();
 
-                // Transformación en memoria 
-                var cuentas = new List<object>();
+                // Combinar todas las cuentas en una sola lista
+                var cuentas = ahorros.Concat(aportes).Concat(prestamos).ToList();
 
-                cuentas.AddRange(ahorros.Select(a => new { tipo = "Ahorro", descripcion = $"Tipo de Ahorro: {a.tipoAhorroId}", saldo = a.montoActual }));
-                cuentas.AddRange(aportes.Select(a => new { tipo = "Aporte", descripcion = $"Tipo de Aporte: {a.tipoAporte}", saldo = a.monto }));
-                cuentas.AddRange(prestamos.Select(p => new { tipo = "Préstamo", descripcion = $"Tipo de Préstamo: {p.tipoPrestamo}", saldo = p.saldoPendiente ?? 0 }));
-
-                // Verificar si todas las cuentas están en 0 y el usuario está desactivado
-                bool esCuentaLiquidada = cuentas.All(c => ((dynamic)c).saldo == 0) && usuarioDb.estadoAfiliacion == "inactivo";
-
-                return (esCuentaLiquidada, cuentas, usuarioId);
+                return (cuentas, usuarioId);
             }
         }
 
+
+
+
+        public bool LiquidarCuenta(List<LiquidacionRequest> cuentas)
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                try
+                {
+                    foreach (var cuenta in cuentas)
+                    {
+                        if (cuenta.Tipo == "Ahorro")
+                        {
+                            var ahorro = context.Ahorros.FirstOrDefault(a => a.ahorroId == cuenta.CuentaId);
+                            if (ahorro != null)
+                            {
+                                ahorro.montoActual = 0;
+                            }
+                        }
+                        else if (cuenta.Tipo == "Aporte")
+                        {
+                            var aporte = context.Aportes.FirstOrDefault(a => a.aporteId == cuenta.CuentaId);
+                            if (aporte != null)
+                            {
+                                aporte.monto = 0;
+                            }
+                        }
+                        else if (cuenta.Tipo == "Préstamo")
+                        {
+                            var prestamo = context.Prestamos.FirstOrDefault(p => p.prestamoId == cuenta.CuentaId);
+                            if (prestamo != null)
+                            {
+                                prestamo.saldoPendiente = 0;
+                            }
+                        }
+                    }
+                    context.SaveChanges();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+
+            }
+
+        }
+        public class LiquidacionRequest
+        {
+            public int CuentaId { get; set; }
+            public string Tipo { get; set; }
+        }
     }
 }
+
 
 
 

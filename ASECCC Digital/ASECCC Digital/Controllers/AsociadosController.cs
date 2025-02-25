@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using static ASECCC_Digital.Models.UsuariosModel;
 
 namespace ASECCC_Digital.Controllers
 {
@@ -179,27 +180,24 @@ namespace ASECCC_Digital.Controllers
             return View();
         }
 
+
         [HttpPost]
-        public JsonResult LiquidarAsociado(int usuarioId)
+        public JsonResult BuscarCuentasAsociado(string buscarNombre)
         {
             try
             {
-                using (var context = new Database.ASECCC_DIGITALEntities())
+                UsuariosModel usuarioM = new UsuariosModel();
+                var (cuentas, usuarioId) = usuarioM.BuscarCuentasAsociado(buscarNombre);
+
+                if (usuarioId == 0)
+                    return Json(new { success = false, message = "No se encontró el usuario." });
+
+                return Json(new
                 {
-                    var usuarioDb = context.Usuario.Find(usuarioId);
-                    if (usuarioDb == null) return Json(new { success = false, message = "No se encontró el usuario." });
-
-                    // Liquidar todas las cuentas
-                    context.Ahorros.Where(a => a.usuarioId == usuarioId).ToList().ForEach(a => a.montoActual = 0);
-                    context.Aportes.Where(a => a.usuarioId == usuarioId).ToList().ForEach(a => a.monto = 0);
-                    context.Prestamos.Where(p => p.usuarioId == usuarioId).ToList().ForEach(p => p.saldoPendiente = 0);
-
-                    // Desactivar usuario
-                    usuarioDb.estadoAfiliacion = "inactivo";
-                    context.SaveChanges();
-
-                    return Json(new { success = true });
-                }
+                    success = true,
+                    usuarioId,
+                    cuentas
+                });
             }
             catch (Exception ex)
             {
@@ -207,24 +205,19 @@ namespace ASECCC_Digital.Controllers
             }
         }
 
+
         [HttpPost]
-        public JsonResult BuscarCuentasAsociado(string buscarNombre)
+        public JsonResult LiquidarCuentas(List<LiquidacionRequest> cuentas)
         {
             try
             {
-                var (esCuentaLiquidada, cuentas, usuarioId) = usuarioM.BuscarCuentasAsociado(buscarNombre);
+                
+                bool resultado = usuarioM.LiquidarCuenta(cuentas);
 
-                if (usuarioId == 0)
-                {
-                    return Json(new { success = false, message = "No se encontró el usuario." });
-                }
-
-                return Json(new
-                {
-                    success = true,
-                    cuentas = esCuentaLiquidada ? new List<object>() : cuentas,
-                    usuarioId = usuarioId
-                });
+                if (resultado)
+                    return Json(new { success = true });
+                else
+                    return Json(new { success = false, message = "No se pudieron liquidar todas las cuentas." });
             }
             catch (Exception ex)
             {

@@ -8,6 +8,7 @@ namespace ASECCC_Digital.Controllers
     public class SeguridadyPermisosController : Controller
     {
         UsuariosModel usuarioM = new UsuariosModel();
+        SeguridadAuditoriaModel seguridadM = new SeguridadAuditoriaModel();
 
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
@@ -79,56 +80,23 @@ namespace ASECCC_Digital.Controllers
         [HttpGet]
         public ActionResult RegistroActividadAuditoria()
         {
-            return View(); 
+            return View();
         }
 
         [HttpGet]
-        public JsonResult ObtenerDatosActividadAuditoria(DateTime? fechaInicio, DateTime? fechaFin, int pagina = 1)
+        public JsonResult ObtenerDatosActividadAuditoria(DateTime? fechaInicio, DateTime? fechaFin)
         {
-            int registrosPorPagina = 10;
+            var registros = seguridadM.ObtenerRegistrosActividad(fechaInicio, fechaFin);
 
-            using (var db = new ASECCC_Digital.Database.ASECCC_DIGITALEntities())
+            var datos = registros.Select(a => new
             {
-                var query = db.SeguridadAuditoria
-                    .Include("Usuario")
-                    .Where(a => a.accion == "Inicio de sesión")
-                    .AsQueryable();
+                a.auditoriaId,
+                Usuario = a.Usuario != null ? a.Usuario.identificacion + " - " + a.Usuario.nombreCompleto : "Desconocido",
+                Fecha = a.fechaAccion.HasValue ? a.fechaAccion.Value.ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
+            });
 
-                if (fechaInicio.HasValue)
-                {
-                    query = query.Where(a => a.fechaAccion >= fechaInicio.Value);
-                }
-
-                if (fechaFin.HasValue)
-                {
-                    fechaFin = fechaFin.Value.AddDays(1).AddTicks(-1);
-                    query = query.Where(a => a.fechaAccion <= fechaFin.Value);
-                }
-
-                int totalRegistros = query.Count();
-
-                var registros = query
-                    .OrderByDescending(a => a.fechaAccion)
-                    .Skip((pagina - 1) * registrosPorPagina)
-                    .Take(registrosPorPagina)
-                    .ToList() // Execute the query first
-                    .Select(a => new
-                    {
-                        a.auditoriaId,
-                        Usuario = a.Usuario != null ? a.Usuario.identificacion + " - " + a.Usuario.nombreCompleto : "Desconocido",
-                        Fecha = a.fechaAccion.HasValue ? a.fechaAccion.Value.ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
-                        a.direccionIp
-                    })
-                    .ToList();
-
-                return Json(new
-                {
-                    registros = registros,
-                    totalPaginas = Math.Ceiling((double)totalRegistros / registrosPorPagina),
-                    paginaActual = pagina
-                }, JsonRequestBehavior.AllowGet);
-            }
+            return Json(new { registros = datos }, JsonRequestBehavior.AllowGet);
         }
     }
+}
 
-    }

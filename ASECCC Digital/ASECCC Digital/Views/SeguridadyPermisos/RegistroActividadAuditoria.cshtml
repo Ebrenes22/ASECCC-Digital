@@ -1,9 +1,11 @@
-﻿
-@{
-    ViewBag.Title = "Registro de Actividad y Auditoria";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    @Html.Partial("_MenuModulos")
+﻿@{
+    ViewBag.Title = "Historial de Inicios de Sesión";
 }
+
+<!-- Cargar Estilos de DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
+
 <div class="container d-flex flex-column align-items-center mt-4">
     <h2 class="text-center">Historial de Inicios de Sesión</h2>
 
@@ -29,86 +31,89 @@
 
 <div class="container mt-4">
     <div class="table-responsive">
-        <table class="table table-bordered table-striped">
+        <table id="tablaHistorial" class="table table-bordered table-striped display nowrap" style="width:100%">
             <thead class="table-dark">
                 <tr>
+                    <th>#</th>
                     <th>Usuario</th>
                     <th>Fecha</th>
                 </tr>
             </thead>
             <tbody id="historialTableBody">
-                <tr>
-                    <td colspan="3" class="text-center">Seleccione un rango de fechas y presione "Filtrar".</td>
-                </tr>
             </tbody>
         </table>
     </div>
-
-    <!-- Contenedor de Paginación -->
-    <nav id="pagination" class="mt-3">
-        <ul class="pagination justify-content-center flex-wrap"></ul>
-    </nav>
 </div>
 
+<!-- Cargar Scripts de jQuery y DataTables -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+
 <script>
     $(document).ready(function () {
-        function cargarHistorial(pagina = 1) {
-            var fechaInicio = $("#fechaInicio").val();
-            var fechaFin = $("#fechaFin").val();
-
-            $.ajax({
-                url: '@Url.Action("ObtenerDatosActividadAuditoria", "SeguridadyPermisos")',
-                type: 'GET',
-                data: { fechaInicio: fechaInicio, fechaFin: fechaFin, pagina: pagina },
-                dataType: 'json',
-                beforeSend: function () {
-                    $("#historialTableBody").html('<tr><td colspan="3" class="text-center">Cargando...</td></tr>');
-                },
-                success: function (response) {
-                    $("#historialTableBody").empty();
-
-                    if (response.registros.length > 0) {
-                        $.each(response.registros, function (index, item) {
-                            $("#historialTableBody").append(`
-                                <tr>
-                                    <td>${item.Usuario}</td>
-                                    <td>${item.Fecha}</td>
-                                </tr>
-                            `);
-                        });
-                    } else {
-                        $("#historialTableBody").html('<tr><td colspan="3" class="text-center">No se encontraron registros.</td></tr>');
-                    }
-
-                    generarPaginacion(response.totalPaginas, response.paginaActual);
-                },
-                error: function () {
-                    $("#historialTableBody").html('<tr><td colspan="3" class="text-center text-danger">Error al obtener los datos.</td></tr>');
-                }
-            });
-        }
-
-        function generarPaginacion(totalPaginas, paginaActual) {
-            $("#pagination ul").empty();
-
-            if (totalPaginas > 1) {
-                for (let i = 1; i <= totalPaginas; i++) {
-                    $("#pagination ul").append(`
-                        <li class="page-item ${i === paginaActual ? 'active' : ''}">
-                            <a class="page-link" href="#" onclick="cargarHistorial(${i}); return false;">${i}</a>
-                        </li>
-                    `);
-                }
-            }
-        }
-
-        // Cargar datos iniciales
-        cargarHistorial();
-
-        // Filtrar datos cuando se presiona el botón
-        $("#filtrarBtn").click(function () {
-            cargarHistorial();
-        });
+    var tabla = $('#tablaHistorial').DataTable({
+        "paging": true,
+        "searching": true,
+        "ordering": true,
+        "info": true, // Mostrar "Mostrando X de Y registros"
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/Spanish.json",
+            "paginate": {
+                "previous": "Anterior",
+                "next": "Siguiente"
+            },
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "search": "Buscar:",
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "zeroRecords": "No se encontraron registros",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros en total)"
+        },
+        "columns": [
+            { "data": "auditoriaId" },
+            { "data": "Usuario" },
+            { "data": "Fecha" }
+        ],
+        "dom": 'Bfrtip',
+        "buttons": [
+            { extend: 'excelHtml5', text: 'Exportar a Excel', title: 'Historial de Inicios de Sesión' },
+            { extend: 'csvHtml5', text: 'Exportar a CSV', title: 'Historial de Inicios de Sesión' }
+        ]
     });
+
+    function cargarHistorial() {
+        var fechaInicio = $("#fechaInicio").val();
+        var fechaFin = $("#fechaFin").val();
+
+        $.ajax({
+            url: '@Url.Action("ObtenerDatosActividadAuditoria", "SeguridadyPermisos")',
+            type: 'GET',
+            data: { fechaInicio: fechaInicio, fechaFin: fechaFin },
+            dataType: 'json',
+            beforeSend: function () {
+                tabla.clear().draw();
+            },
+            success: function (response) {
+                if (response.registros.length > 0) {
+                    tabla.rows.add(response.registros).draw();
+                } else {
+                    tabla.clear().draw();
+                }
+            },
+            error: function () {
+                console.log("Error al obtener los datos.");
+            }
+        });
+    }
+
+    // Cargar datos iniciales
+    cargarHistorial();
+
+    $("#filtrarBtn").click(function () {
+        cargarHistorial();
+    });
+});
 </script>

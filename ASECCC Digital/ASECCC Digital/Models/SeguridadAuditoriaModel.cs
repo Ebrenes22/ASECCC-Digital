@@ -25,5 +25,31 @@ namespace ASECCC_Digital.Models
                 db.SaveChanges();
             }
         }
+
+        public List<SeguridadAuditoria> ObtenerRegistrosActividad(DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            using (var db = new Database.ASECCC_DIGITALEntities())
+            {
+                var query = db.SeguridadAuditoria
+                    .Include("Usuario")
+                    .Where(a => a.accion == "Inicio de sesión")
+                    .AsQueryable();
+
+                if (fechaInicio.HasValue)
+                {
+                    query = query.Where(a => a.fechaAccion >= fechaInicio.Value);
+                }
+
+                if (fechaFin.HasValue)
+                {
+                    fechaFin = fechaFin.Value.AddDays(1).AddTicks(-1);
+                    query = query.Where(a => a.fechaAccion <= fechaFin.Value);
+                }
+
+                return query
+                    .OrderByDescending(a => a.fechaAccion)
+                    .ToList();
+            }
+        }
     }
 }
