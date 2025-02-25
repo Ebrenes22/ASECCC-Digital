@@ -1,5 +1,6 @@
 ﻿using ASECCC_Digital.Database;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ASECCC_Digital.Models
@@ -169,7 +170,51 @@ namespace ASECCC_Digital.Models
                 return false;
             }
         }
-}
+
+        public (bool esCuentaLiquidada, List<object> cuentas, int usuarioId) BuscarCuentasAsociado(string nombre)
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                var usuarioDb = context.Usuario.FirstOrDefault(u => u.nombreCompleto == nombre);
+
+                if (usuarioDb == null)
+                {
+                    return (false, new List<object>(), 0);
+                }
+
+                int usuarioId = usuarioDb.usuarioId;
+
+                // Obtener datos de la base de datos 
+                var ahorros = context.Ahorros
+                    .Where(a => a.usuarioId == usuarioId)
+                    .Select(a => new { a.tipoAhorroId, a.montoActual })
+                    .ToList(); 
+
+                var aportes = context.Aportes
+                    .Where(a => a.usuarioId == usuarioId)
+                    .Select(a => new { a.tipoAporte, a.monto })
+                    .ToList();
+
+                var prestamos = context.Prestamos
+                    .Where(p => p.usuarioId == usuarioId)
+                    .Select(p => new { p.tipoPrestamo, p.saldoPendiente })
+                    .ToList();
+
+                // Transformación en memoria 
+                var cuentas = new List<object>();
+
+                cuentas.AddRange(ahorros.Select(a => new { tipo = "Ahorro", descripcion = $"Tipo de Ahorro: {a.tipoAhorroId}", saldo = a.montoActual }));
+                cuentas.AddRange(aportes.Select(a => new { tipo = "Aporte", descripcion = $"Tipo de Aporte: {a.tipoAporte}", saldo = a.monto }));
+                cuentas.AddRange(prestamos.Select(p => new { tipo = "Préstamo", descripcion = $"Tipo de Préstamo: {p.tipoPrestamo}", saldo = p.saldoPendiente ?? 0 }));
+
+                // Verificar si todas las cuentas están en 0 y el usuario está desactivado
+                bool esCuentaLiquidada = cuentas.All(c => ((dynamic)c).saldo == 0) && usuarioDb.estadoAfiliacion == "inactivo";
+
+                return (esCuentaLiquidada, cuentas, usuarioId);
+            }
+        }
+
+    }
 }
 
 

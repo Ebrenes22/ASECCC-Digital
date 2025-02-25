@@ -1,6 +1,7 @@
 ﻿using ASECCC_Digital.Entities;
 using ASECCC_Digital.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -172,19 +173,65 @@ namespace ASECCC_Digital.Controllers
         }
 
         [HttpGet]
-        [Authorize (Roles = "administrador")]
+        [Authorize(Roles = "administrador")]
         public ActionResult LiquidarAsociado()
         {
             return View();
         }
 
+        [HttpPost]
+        public JsonResult LiquidarAsociado(int usuarioId)
+        {
+            try
+            {
+                using (var context = new Database.ASECCC_DIGITALEntities())
+                {
+                    var usuarioDb = context.Usuario.Find(usuarioId);
+                    if (usuarioDb == null) return Json(new { success = false, message = "No se encontró el usuario." });
+
+                    // Liquidar todas las cuentas
+                    context.Ahorros.Where(a => a.usuarioId == usuarioId).ToList().ForEach(a => a.montoActual = 0);
+                    context.Aportes.Where(a => a.usuarioId == usuarioId).ToList().ForEach(a => a.monto = 0);
+                    context.Prestamos.Where(p => p.usuarioId == usuarioId).ToList().ForEach(p => p.saldoPendiente = 0);
+
+                    // Desactivar usuario
+                    usuarioDb.estadoAfiliacion = "inactivo";
+                    context.SaveChanges();
+
+                    return Json(new { success = true });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error inesperado: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult BuscarCuentasAsociado(string buscarNombre)
+        {
+            try
+            {
+                var (esCuentaLiquidada, cuentas, usuarioId) = usuarioM.BuscarCuentasAsociado(buscarNombre);
+
+                if (usuarioId == 0)
+                {
+                    return Json(new { success = false, message = "No se encontró el usuario." });
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    cuentas = esCuentaLiquidada ? new List<object>() : cuentas,
+                    usuarioId = usuarioId
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error inesperado: " + ex.Message });
+            }
+        }
+
     }
-
-
-
-
-
-    //--------VISTAS USUARIO--------------//
-
 
 }

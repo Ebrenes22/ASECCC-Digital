@@ -1,94 +1,156 @@
-﻿
+﻿@model ASECCC_Digital.Entities.Usuario
+
 @{
-    ViewBag.Title = "Liquidar";
+    ViewBag.Title = "Liquidar Asociado";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
 
-<h1 class="text-center mb-4">Liquidar Asociado</h1>
+<section class="container mt-5">
+    <div class="card shadow-lg p-4 mx-auto" style="max-width: 800px;">
+        <h1 class="text-center mb-4">Liquidar Asociado</h1>
 
-<section class="container mt-4 d-flex justify-content-center align-items-start" style="padding-top: 20px;">
-    <div class="w-100" style="max-width: 800px;">
+        <!-- Formulario de búsqueda -->
+        @using (Html.BeginForm("BuscarAsociado", "Asociados", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "formBuscar", onsubmit = "return false;" }))
+        {
+            @Html.AntiForgeryToken()
 
-        <!-- Campo de búsqueda del asociado -->
-        <form>
             <div class="row g-3 mb-4">
-                <div class="col-md-8">
-                    <label for="buscarAsociado" class="form-label">Buscar Asociado</label>
-                    <input type="text" class="form-control" id="buscarAsociado" placeholder="Ingrese el nombre del asociado" required>
+                <div class="col-12">
+                    @Html.LabelFor(model => model.NombreCompleto, "Buscar por Nombre", new { @class = "form-label fw-bold" })
+                    @Html.TextBox("buscarNombre", null, new { @class = "form-control", placeholder = "Ingrese el nombre del asociado", required = "required" })
                 </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="button" class="btn btn-primary w-100" onclick="simularBusqueda()">Buscar</button>
+                <div class="col-12 d-flex justify-content-center">
+                    <button type="button" class="btn btn-primary w-50" onclick="buscarAsociado()">Buscar</button>
                 </div>
             </div>
-        </form>
+        }
 
-        <!-- Tabla de detalles de la cuenta -->
-        <div id="detalleCuenta" style="display: none;">
-            <h5>Rubros Activos del Asociado</h5>
+        <!-- Tabla de resultados -->
+        <div id="resultadosBusqueda" class="table-responsive" style="display: none;">
+            <h5 class="text-center">Detalles de Cuentas</h5>
             <table class="table table-bordered mt-3">
-                <thead>
+                <thead class="table-dark">
                     <tr>
                         <th>Tipo</th>
                         <th>Descripción</th>
                         <th>Saldo</th>
-                        <th>Acción</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>Préstamo</td>
-                        <td>Préstamo personal</td>
-                        <td>$5,000</td>
-                        <td>
-                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Préstamo', '¢5,000')">Liquidar</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Ahorros</td>
-                        <td>Ahorros acumulados</td>
-                        <td>$3,000</td>
-                        <td>
-                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Ahorros', '¢3,000')">Liquidar</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Aporte Personal</td>
-                        <td>Contribuciones personales</td>
-                        <td>$1,500</td>
-                        <td>
-                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Aporte Personal', '¢1,500')">Liquidar</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Beneficios y Servicios</td>
-                        <td>Servicio XYZ</td>
-                        <td>$500</td>
-                        <td>
-                            <button type="button" class="btn btn-success btn-sm" onclick="liquidar('Beneficios y Servicios', '¢500')">Liquidar</button>
-                        </td>
-                    </tr>
+                <tbody id="tablaResultados">
+                    <!-- Resultados dinámicos aquí -->
                 </tbody>
             </table>
+
+            <!-- Botón de Liquidación -->
+            <div class="d-flex justify-content-center mt-3">
+                <button type="button" class="btn btn-danger w-50" id="btnLiquidar" style="display: none;" onclick="liquidarAsociado()">Liquidar</button>
+            </div>
         </div>
+
+        <!-- Mensaje si la cuenta ya está liquidada -->
+        <div id="mensajeLiquidada" class="text-center mt-3 text-success fw-bold" style="display: none;">
+            <p>Cuenta liquidada</p>
+        </div>
+
     </div>
 </section>
 
-<script>
-    // Simular búsqueda de asociado
-    function simularBusqueda() {
-        const buscarInput = document.getElementById('buscarAsociado').value.trim();
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        if (buscarInput) {
-            alert(`Asociado "${buscarInput}" encontrado. Mostrando rubros.`);
-            document.getElementById('detalleCuenta').style.display = 'block'; // Mostrar la tabla
-        } else {
-            alert('Por favor, ingrese el nombre del asociado.');
+    <script>
+        let usuarioId = null;
+
+        function buscarAsociado() {
+            const buscarNombre = document.getElementById('buscarNombre').value.trim();
+
+            if (buscarNombre) {
+                fetch('/Asociados/BuscarCuentasAsociado', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ buscarNombre })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('resultadosBusqueda').style.display = 'block';
+                            document.getElementById('mensajeLiquidada').style.display = 'none';
+
+                            const tabla = document.getElementById('tablaResultados');
+                            tabla.innerHTML = "";
+
+                            if (data.cuentas.length === 0) {
+                                document.getElementById('resultadosBusqueda').style.display = 'none';
+                                document.getElementById('mensajeLiquidada').style.display = 'block';
+                                document.getElementById('btnLiquidar').style.display = 'none';
+                            } else {
+                                usuarioId = data.usuarioId;
+                                data.cuentas.forEach(cuenta => {
+                                    const fila = `
+                                        <tr>
+                                            <td>${cuenta.tipo}</td>
+                                            <td>${cuenta.descripcion}</td>
+                                            <td>${cuenta.saldo}</td>
+                                        </tr>
+                                    `;
+                                    tabla.innerHTML += fila;
+                                });
+
+                                document.getElementById('btnLiquidar').style.display = 'block';
+                            }
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'No encontrado', text: data.message });
+                            document.getElementById('resultadosBusqueda').style.display = 'none';
+                            document.getElementById('mensajeLiquidada').style.display = 'none';
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            } else {
+                Swal.fire({ icon: 'warning', title: 'Campo vacío', text: 'Ingrese un nombre para buscar.' });
+            }
         }
-    }
 
-    // Simular liquidación de rubro
-    function liquidar(tipo, saldo) {
-        alert(`El rubro "${tipo}" con saldo ${saldo} ha sido liquidado exitosamente.`);
-    }
-</script>
+        function liquidarAsociado() {
+            if (!usuarioId) {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Debe buscar un usuario antes de liquidarlo.' });
+                return;
+            }
+
+            Swal.fire({
+                title: "¿Está seguro?",
+                text: "Esta acción liquidará todas las cuentas del asociado y lo desactivará.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Sí, liquidar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/Asociados/LiquidarAsociado', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: JSON.stringify({ usuarioId })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({ icon: 'success', title: 'Cuenta Liquidada', text: 'Todas las cuentas han sido liquidadas y el usuario ha sido desactivado.' })
+                                    .then(() => buscarAsociado());
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                }
+            });
+        }
+    </script>
+}
