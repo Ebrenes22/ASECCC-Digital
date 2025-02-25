@@ -42,12 +42,12 @@ using System.Linq;
                 return View();
             }
 
-            public ActionResult ConsultaPrestamosAdmin()
-            {
-                // Llamar a un método en prestamoM para obtener los préstamos para consulta admin
-                //var prestamos = prestamoM.ObtenerPrestamosParaConsultaAdmin();
-                return View();
-            }
+        public ActionResult ConsultaPrestamosAdmin()
+        {
+            // Llamar a un método en prestamoM para obtener los préstamos para consulta admin
+            //var prestamos = prestamoM.ObtenerPrestamosParaConsultaAdmin();
+            return View();
+        }
 
         public ActionResult RevisionPrestamos()
         {
@@ -152,11 +152,32 @@ using System.Linq;
             }
         }
 
-
-
+    
         #endregion
 
         #region   Vistas USUARIO
+
+        public ActionResult ObtenerPrestamosAdmin()
+        {
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                var prestamos = context.Prestamos
+                                       .Join(context.Usuario,
+                                             prestamo => prestamo.usuarioId,
+                                             usuario => usuario.usuarioId,
+                                             (prestamo, usuario) => new
+                                             {
+                                                 PrestamoId = prestamo.prestamoId,
+                                                 NombreAsociado = usuario.nombreCompleto,
+                                                 TipoPrestamo = prestamo.tipoPrestamo,
+                                                 MontoAprobado = prestamo.montoAprobado,
+                                                 EstadoPrestamo = prestamo.estadoPrestamo
+                                             })
+                                       .ToList();
+
+                return Json(prestamos, JsonRequestBehavior.AllowGet);
+            }
+        }
 
         //----------VISTAS ASOCIADO-----------//
 
@@ -196,15 +217,39 @@ using System.Linq;
         }
 
 
+                public ActionResult ObtenerPrestamosAsociado()
+        {
+            // Si la sesión es nula, usa el usuarioId 1 por problemas de conexion
+            int usuarioId = Session["usuarioId"] != null ? (int)Session["usuarioId"] : 1;
 
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                var prestamos = context.Prestamos
+                                       .Where(p => p.usuarioId == usuarioId)
+                                       .ToList();
+
+                var prestamosViewModel = prestamos.Select(p => new
+                {
+                    PrestamoId = p.prestamoId,
+                    TipoPrestamo = p.tipoPrestamo,
+                    MontoAprobado = p.montoAprobado,
+                    FechaSolicitud = p.fechaSolicitud.HasValue ? p.fechaSolicitud.Value.ToString("yyyy-MM-dd") : "",
+                    EstadoPrestamo = p.estadoPrestamo,
+                    SaldoPendiente = p.saldoPendiente,
+                    CuotaSemanal = p.cuotaSemanal,
+                    Plazo = p.plazo + " meses"
+                }).ToList();
+
+                return Json(prestamosViewModel, JsonRequestBehavior.AllowGet);
+            }
+        }
 
 
         public ActionResult ConsultaPrestamoAsociado()
-            {
-                // Obtener los detalles de la consulta del préstamo asociado desde el modelo
-                //var consulta = prestamoM.ObtenerConsultaPrestamoAsociado();
-                return View();
-            }
+        //  Lógica específica para la vista ConsultaPrestamoAsociado
+        {
+            return View();
+        }
 
 
 
