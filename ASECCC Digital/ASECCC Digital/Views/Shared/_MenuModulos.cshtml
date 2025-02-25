@@ -105,6 +105,23 @@
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("RolesyPermisos", "SeguridadyPermisos")">Gestionar Roles</a></li>
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("RegistroActividadAuditoria", "SeguridadyPermisos")">Registro de Actividad</a></li>
                 }
+
+                <!-- Rutas Menu Notificaciones-->
+                @if (currentModule == "Notificaciones")
+                {
+                    if (userRole == "administrador")
+                    {
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("NotificacionAdministrador", "Notificaciones")">Notificaciones</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("CrearNotificacion", "Notificaciones")">Crear Notificacion</a></li>
+                    }
+                    else if (userRole == "asociado")
+                    {
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("NotificacionUsuario", "Notificaciones")">Notificaciones</a></li>
+                    }
+                }
+
+
+
             </ul>
         </div>
     </div>

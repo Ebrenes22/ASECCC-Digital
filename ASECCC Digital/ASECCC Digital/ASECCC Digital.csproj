@@ -234,6 +234,7 @@
     </Compile>
     <Compile Include="Models\AhorroModel.cs" />
     <Compile Include="Models\FiltroSeguridad.cs" />
+    <Compile Include="Models\NotificacionModel.cs" />
     <Compile Include="Models\PrestamosModel.cs" />
     <Compile Include="Models\SeguridadAuditoriaModel.cs" />
     <Compile Include="Models\UsuariosModel.cs" />

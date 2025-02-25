@@ -13,7 +13,6 @@
             <div class="mb-3">
                 @Html.Label("Tipo de Identificación", null, new { @class = "form-label" })
                 @Html.DropDownList("TipoIdentificacion", new SelectList(new[] {
-                    new { Value = "", Text = "Seleccione tipo de identificación" },
                     new { Value = "Cedula", Text = "Cédula Nacional" },
                     new { Value = "DIMEX", Text = "Identificación DIMEX" }
                 }, "Value", "Text"), new { @class = "form-control", required = "required", id = "tipoIdentificacion" })

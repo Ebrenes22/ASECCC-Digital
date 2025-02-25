@@ -55,7 +55,7 @@ namespace ASECCC_Digital.ViewModels
                 CuotaSemanalSolicitud = dbSolicitud.cuotaSemanalSolicitud,
                 PropositoPrestamo = dbSolicitud.propositoPrestamo,
                 EstadoSolicitud = dbSolicitud.estadoSolicitud,
-                FechaSolicitud = DateTime.Now
+                FechaSolicitud = (DateTime)dbSolicitud.fechaSolicitud,
             };
         }
     }

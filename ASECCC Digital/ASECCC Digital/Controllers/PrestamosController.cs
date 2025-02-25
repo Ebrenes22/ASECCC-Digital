@@ -6,6 +6,7 @@
     using System.Web.Mvc;
     using System.Threading.Tasks;
     using ASECCC_Digital.Database;
+using System.Linq;
 
     namespace ASECCC_Digital.Controllers
     {
@@ -23,10 +24,11 @@
                 ViewBag.CurrentModule = "Prestamos"; // Asigno el CurrentModule para validarlo en el _MenuModulos
             }
 
-            //--------VISTAS ADMIN--------------//
+        #region Vistas ADMIN
+        //--------VISTAS ADMIN--------------//
 
-            // GET: Prestamos
-            public ActionResult Prestamo()
+        // GET: Prestamos
+        public ActionResult Prestamo()
             {
                 // Llamar a un método de prestamoM para obtener los datos necesarios
                 //var prestamos = prestamoM.ObtenerListaPrestamosAdmin();
@@ -40,12 +42,12 @@
                 return View();
             }
 
-            public ActionResult ConsultaPrestamosAdmin()
-            {
-                // Llamar a un método en prestamoM para obtener los préstamos para consulta admin
-                //var prestamos = prestamoM.ObtenerPrestamosParaConsultaAdmin();
-                return View();
-            }
+        public ActionResult ConsultaPrestamosAdmin()
+        {
+            // Llamar a un método en prestamoM para obtener los préstamos para consulta admin
+            //var prestamos = prestamoM.ObtenerPrestamosParaConsultaAdmin();
+            return View();
+        }
 
         public ActionResult RevisionPrestamos()
         {
@@ -55,9 +57,9 @@
             // Por ejemplo:
             var model = new PrestamosModel();
             viewModel.Solicitudes.Pendientes = model.ObtenerSolicitudesPorEstado("Pendiente");
-            viewModel.Solicitudes.EnRevision = model.ObtenerSolicitudesPorEstado("En Revisión");
-            viewModel.Solicitudes.Aprobadas = model.ObtenerSolicitudesPorEstado("Aprobado");
-            viewModel.Solicitudes.Rechazadas = model.ObtenerSolicitudesPorEstado("Rechazado");
+            viewModel.Solicitudes.EnRevision = model.ObtenerSolicitudesPorEstado("Revision");
+            viewModel.Solicitudes.Aprobadas = model.ObtenerSolicitudesPorEstado("Aprobada");
+            viewModel.Solicitudes.Rechazadas = model.ObtenerSolicitudesPorEstado("Rechazada");
 
             return View(viewModel);
         }
@@ -72,7 +74,9 @@
             {
                 return Json(new
                 {
+                    viewModel.DetalleSolicitud.SolicitudPrestamoId,
                     viewModel.DetalleSolicitud.UsuarioId,
+                    viewModel.DetalleSolicitud.Usuario?.NombreCompleto,
                     viewModel.DetalleSolicitud.EstadoCivil,
                     viewModel.DetalleSolicitud.PagaAlquiler,
                     viewModel.DetalleSolicitud.MontoAlquiler,
@@ -94,8 +98,86 @@
             return Json(new { error = "Solicitud no encontrada" }, JsonRequestBehavior.AllowGet);
         }
 
+        //Actualiza las solicitudes de préstamo
+        [HttpPost]
+        public ActionResult ActualizarSolicitud(int id, string tipoPrestamo, decimal montoSolicitud, int plazoMeses, decimal cuotaSemanalSolicitud, string estadoSolicitud)
+        {
+            try
+            {
+                using (var context = new Database.ASECCC_DIGITALEntities())
+                {
+                    // Buscar la solicitud por su ID
+                    var solicitud = context.SolicitudesPrestamo.FirstOrDefault(s => s.solicitudPrestamoId == id);
+                    if (solicitud == null)
+                    {
+                        return Json(new { success = false, error = "Solicitud no encontrada." });
+                    }
+
+                    // Actualizar las propiedades con los nuevos valores
+                    solicitud.tipoPrestamo = tipoPrestamo;
+                    solicitud.montoSolicitud = montoSolicitud;
+                    solicitud.plazoMeses = plazoMeses;
+                    solicitud.cuotaSemanalSolicitud = cuotaSemanalSolicitud;
+                    solicitud.estadoSolicitud = estadoSolicitud;
+
+                    // Guardar los cambios en la base de datos
+                    context.Entry(solicitud).State = System.Data.Entity.EntityState.Modified;
+                    context.SaveChanges();
+
+                    if (estadoSolicitud.ToLower() == "aprobada")
+                    {
+                        // Se pasa la solicitud y los parámetros necesarios para crear el préstamo.
+                        bool respuesta = prestamoM.RegistrarPrestamoAprobado(solicitud, tipoPrestamo, montoSolicitud, plazoMeses, cuotaSemanalSolicitud);
+
+                        if (!respuesta)  // Si no se registró correctamente, retornamos el error
+                        {
+                            return Json(new { success = false, error = "Error al registrar el préstamo aprobado." });
+                        }
+                        else
+                        {
+                            //Pendiente de revisar
+                            return Json(new { success = "El prestamo fue aprobado" });
+                        }
+                    }
 
 
+                    }
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                // Manejar errores (podrías registrar el error, etc.)
+                return Json(new { success = false, error = ex.Message });
+            }
+        }
+
+    
+        #endregion
+
+        #region   Vistas USUARIO
+
+        public ActionResult ObtenerPrestamosAdmin()
+        {
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                var prestamos = context.Prestamos
+                                       .Join(context.Usuario,
+                                             prestamo => prestamo.usuarioId,
+                                             usuario => usuario.usuarioId,
+                                             (prestamo, usuario) => new
+                                             {
+                                                 PrestamoId = prestamo.prestamoId,
+                                                 NombreAsociado = usuario.nombreCompleto,
+                                                 TipoPrestamo = prestamo.tipoPrestamo,
+                                                 MontoAprobado = prestamo.montoAprobado,
+                                                 EstadoPrestamo = prestamo.estadoPrestamo
+                                             })
+                                       .ToList();
+
+                return Json(prestamos, JsonRequestBehavior.AllowGet);
+            }
+        }
 
         //----------VISTAS ASOCIADO-----------//
 
@@ -123,6 +205,7 @@
 
             if (respuesta)
             {
+                prestamoM.NotificacionSolicitudPrestamo(solicitud);
                 TempData["SuccessMessage"] = "Solicitud enviada con éxito!";
                 return RedirectToAction("SolicitudPrestamo"); // Redirige después del POST
             }
@@ -134,17 +217,43 @@
         }
 
 
+                public ActionResult ObtenerPrestamosAsociado()
+        {
+            // Si la sesión es nula, usa el usuarioId 1 por problemas de conexion
+            int usuarioId = Session["usuarioId"] != null ? (int)Session["usuarioId"] : 1;
 
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                var prestamos = context.Prestamos
+                                       .Where(p => p.usuarioId == usuarioId)
+                                       .ToList();
+
+                var prestamosViewModel = prestamos.Select(p => new
+                {
+                    PrestamoId = p.prestamoId,
+                    TipoPrestamo = p.tipoPrestamo,
+                    MontoAprobado = p.montoAprobado,
+                    FechaSolicitud = p.fechaSolicitud.HasValue ? p.fechaSolicitud.Value.ToString("yyyy-MM-dd") : "",
+                    EstadoPrestamo = p.estadoPrestamo,
+                    SaldoPendiente = p.saldoPendiente,
+                    CuotaSemanal = p.cuotaSemanal,
+                    Plazo = p.plazo + " meses"
+                }).ToList();
+
+                return Json(prestamosViewModel, JsonRequestBehavior.AllowGet);
+            }
+        }
 
 
         public ActionResult ConsultaPrestamoAsociado()
-            {
-                // Obtener los detalles de la consulta del préstamo asociado desde el modelo
-                //var consulta = prestamoM.ObtenerConsultaPrestamoAsociado();
-                return View();
-            }
+        //  Lógica específica para la vista ConsultaPrestamoAsociado
+        {
+            return View();
+        }
 
 
 
         }
-    }
+    #endregion
+
+}

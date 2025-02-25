@@ -64,6 +64,7 @@ namespace ASECCC_Digital.Controllers
             //VARIABLES DE SESION
             Session["usuarioId"] = userEntity.UsuarioId;
             Session["usuarioNombre"] = userEntity.NombreCompleto;
+            Session["usuarioIdentificacion"] = userEntity.Identificacion;
 
 
 
