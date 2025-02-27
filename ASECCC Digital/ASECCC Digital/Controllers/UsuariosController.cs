@@ -10,7 +10,6 @@ namespace ASECCC_Digital.Controllers
     public class UsuariosController : Controller
     {
         // Instancia del modelo para la lógica de negocio
-        UsuariosModel usuarioM = new UsuariosModel();
         SeguridadAuditoriaModel auditoriaM = new SeguridadAuditoriaModel();
         //--------VISTAS ADMIN--------------//
         // GET: Usuario
@@ -73,11 +72,11 @@ namespace ASECCC_Digital.Controllers
             // 3. Crear el ticket de FormsAuthentication con userData = rol
             var authTicket = new FormsAuthenticationTicket(
                 version: 1,
-                name: userEntity.Identificacion,          // User.Identity.Name
+                name: userEntity.Identificacion,          
                 issueDate: DateTime.Now,
-                expiration: DateTime.Now.AddMinutes(30), // Ajusta el tiempo de sesión
+                expiration: DateTime.Now.AddMinutes(30),
                 isPersistent: false,
-                rol  // En userData guardamos el rol
+                rol  
             );
 
             // 4. Encriptar el ticket y meterlo en una cookie
@@ -85,7 +84,7 @@ namespace ASECCC_Digital.Controllers
             var authCookie = new HttpCookie(FormsAuthentication.FormsCookieName, encryptedTicket)
             {
                 HttpOnly = true,
-                // Puedes configurar más opciones, como tiempo de expiración, secure, etc.
+                
             };
 
             // 5. Agregar la cookie al response

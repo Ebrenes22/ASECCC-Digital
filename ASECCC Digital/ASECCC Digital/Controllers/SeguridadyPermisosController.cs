@@ -32,12 +32,10 @@ namespace ASECCC_Digital.Controllers
         }
 
         [HttpPost]
-        // [ValidateAntiForgeryToken]
         public JsonResult RolesyPermisos(string nombre, string nuevoRol)
         {
             try
             {
-                // Buscar el usuario en la base de datos por nombre
                 var usuarioDb = usuarioM.BuscarUsuarioPorNombre(nombre);
 
                 if (usuarioDb == null)

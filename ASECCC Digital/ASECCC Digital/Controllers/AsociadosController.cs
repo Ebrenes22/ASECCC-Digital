@@ -75,7 +75,6 @@ namespace ASECCC_Digital.Controllers
 
             if (usuario != null)
             {
-                // Devolver los datos del usuario en formato JSON
                 return Json(new
                 {
                     success = true,
@@ -106,7 +105,6 @@ namespace ASECCC_Digital.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public ActionResult ActualizarAsociado(Usuario usuario)
         {
             ModelState.Remove("Contrasena");
@@ -123,12 +121,12 @@ namespace ASECCC_Digital.Controllers
                 if (resultado)
                 {
                     TempData["Mensaje"] = "Usuario actualizado correctamente";
-                    TempData["MensajeTipo"] = "success"; // Tipo de alerta para SweetAlert
+                    TempData["MensajeTipo"] = "success"; 
                 }
                 else
                 {
                     TempData["Mensaje"] = "No se pudo actualizar el usuario.";
-                    TempData["MensajeTipo"] = "error"; // Tipo de alerta para SweetAlert
+                    TempData["MensajeTipo"] = "error"; 
                 }
 
                 return RedirectToAction("ActualizarAsociado");
@@ -137,7 +135,7 @@ namespace ASECCC_Digital.Controllers
             // Capturar errores de validación y enviarlos a la vista
             var errores = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
             TempData["Errores"] = errores;
-            TempData["MensajeTipo"] = "error"; // Tipo de alerta para SweetAlert
+            TempData["MensajeTipo"] = "error"; 
 
             return View(usuario);
         }
@@ -154,7 +152,7 @@ namespace ASECCC_Digital.Controllers
         {
 
 
-            Console.WriteLine($"Solicitud para desactivar usuario con ID: {usuarioId}"); // Depuración en consola del servidor
+            Console.WriteLine($"Solicitud para desactivar usuario con ID: {usuarioId}"); 
 
             if (usuarioId <= 0)
             {
