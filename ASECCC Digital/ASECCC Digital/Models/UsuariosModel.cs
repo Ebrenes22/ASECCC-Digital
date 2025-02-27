@@ -190,7 +190,7 @@ namespace ASECCC_Digital.Models
                     {
                         id = a.ahorroId,
                         tipo = "Ahorro",
-                        descripcion = $"Ahorro ID: {a.ahorroId}",
+                        descripcion = $"Identificación del ahorro: {a.ahorroId}",
                         saldo = a.montoActual
                     }).ToList<object>();
 
