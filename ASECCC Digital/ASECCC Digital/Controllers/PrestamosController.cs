@@ -6,15 +6,16 @@
     using System.Web.Mvc;
     using System.Threading.Tasks;
     using ASECCC_Digital.Database;
-using System.Linq;
+    using System.Linq;
+using System.Web.Util;
 
     namespace ASECCC_Digital.Controllers
     {
         public class PrestamosController : Controller
         {
             // Instancia del modelo para la logica de negocio
-            PrestamosModel prestamoM = new PrestamosModel();
-           
+            private readonly PrestamosModel prestamoM = new PrestamosModel();
+        
 
 
         // Acción que se ejecuta antes de cada acción del controlador
@@ -35,12 +36,53 @@ using System.Linq;
                 return View();  // Pasar el modelo a la vista
             }
 
-            public ActionResult RegistrarAbonos()
+
+        [HttpGet]
+        public ActionResult RegistrarAbonos(string NombreCompleto)
+        {
+            List<string> sugerencias;
+            var prestamos = prestamoM.ObtenerPrestamosPorUsuario(NombreCompleto, out sugerencias);
+
+            if (prestamos.Count == 0 && sugerencias.Count > 0)
             {
-                // Lógica específica para la vista RegistrarAbonos
-                //var abonos = prestamoM.ObtenerAbonosPendientes();
-                return View();
+                TempData["Sugerencias"] = sugerencias; // Pasar sugerencias a la vista
             }
+
+            var viewModel = new PrestamoUsuarioTransaccionesViewModel
+            {
+                NombreCompleto = NombreCompleto,
+                ListaPrestamos = prestamos
+            };
+
+            return View(viewModel);
+        }
+
+
+        [HttpPost]
+        public ActionResult RegistrarAbonos(PrestamoTransaccionViewModel model)
+        {
+            if (model == null || model.MontoAbonado <= 0)
+            {
+                TempData["MensajeError"] = "El monto abonado debe ser mayor a 0.";
+                return RedirectToAction("RegistrarAbonos");
+            }
+
+            bool resultado = prestamoM.RegistrarAbono(model);
+            if (resultado)
+            {
+                TempData["Mensaje"] = "Abono registrado correctamente.";
+            }
+            else
+            {
+                TempData["MensajeError"] = "Error al registrar el abono.";
+            }
+
+            return RedirectToAction("RegistrarAbonos" );
+        }
+
+
+
+
 
         public ActionResult ConsultaPrestamosAdmin()
         {
@@ -178,6 +220,8 @@ using System.Linq;
                 return Json(prestamos, JsonRequestBehavior.AllowGet);
             }
         }
+
+
 
         //----------VISTAS ASOCIADO-----------//
 

@@ -5,7 +5,7 @@
 }
 
 <div class="container my-5">
-    <h1 class="text-center mb-4">Consulta de Préstamos</h1>
+    <h1 class="text-center mb-4">Consulta de Prestamos</h1>
 
     <!-- Filtros de búsqueda -->
     <div class="row mb-4">
@@ -14,16 +14,16 @@
             <input type="text" id="nombreAsociado" class="form-control" placeholder="Ingrese el nombre del asociado">
         </div>
         <div class="col-md-3">
-            <label for="tipoPrestamo" class="form-label">Tipo de Préstamo</label>
+            <label for="tipoPrestamo" class="form-label">Tipo de Prestamo</label>
             <select id="tipoPrestamo" class="form-select">
-                <option value="">Seleccione un tipo de préstamo</option>
+                <option value="">Seleccione un tipo de prestamo</option>
                 <option value="Personal">Personal</option>
                 <option value="Urgente">Urgente</option>
                 <option value="150%">150%</option>
             </select>
         </div>
         <div class="col-md-3">
-            <label for="estadoPrestamo" class="form-label">Estado del Préstamo</label>
+            <label for="estadoPrestamo" class="form-label">Estado del Prestamo</label>
             <select id="estadoPrestamo" class="form-select">
                 <option value="">Seleccione el estado</option>
                 <option value="activo">Activo</option>
@@ -40,7 +40,7 @@
         <thead>
             <tr>
                 <th>Nombre del Asociado</th>
-                <th>Tipo de Préstamo</th>
+                <th>Tipo de Prestamo</th>
                 <th>Monto</th>
                 <th>Estado</th>
                 <th>Detalle de Pagos</th>
@@ -52,9 +52,35 @@
     </table>
 </div>
 
+<!-- Modal para el historial de pagos -->
+<div class="modal fade" id="modalHistorialPagos" tabindex="-1" aria-labelledby="modalHistorialLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalHistorialLabel">Historial de Pagos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Monto Abonado</th>
+                            <th>Saldo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historialPagos">
+                        <!-- Aquí se insertan los pagos -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     function consultarPrestamos() {
-        fetch('@Url.Action("ObtenerPrestamosAdmin", "Prestamos")')
+        fetch('@Url.Action("ObtenerPrestamosAdmin", "Prestamos")', { method: 'GET' })
             .then(response => response.json())
             .then(data => {
                 console.log("Préstamos obtenidos:", data);
@@ -64,7 +90,7 @@
                 const estadoPrestamo = document.getElementById('estadoPrestamo').value;
 
                 const prestamosFiltrados = data.filter(prestamo => {
-                    const nombreCoincide = nombreAsociado ? prestamo.NombreAsociado.toLowerCase().includes(nombreAsociado) : true;
+                    const nombreCoincide = prestamo.NombreAsociado?.toLowerCase().includes(nombreAsociado) ?? false;
                     const tipoCoincide = tipoPrestamo ? prestamo.TipoPrestamo.toLowerCase() === tipoPrestamo.toLowerCase() : true;
                     const estadoCoincide = estadoPrestamo ? prestamo.EstadoPrestamo.toLowerCase() === estadoPrestamo.toLowerCase() : true;
                     return nombreCoincide && tipoCoincide && estadoCoincide;
@@ -98,7 +124,7 @@
     }
 
     function formatearMonto(monto) {
-        return monto ? monto.toLocaleString('es-CR', { style: 'currency', currency: 'CRC' }) : '₡0.00';
+        return monto ? new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(monto) : '₡0.00';
     }
 
     function verHistorialPagos(prestamoId) {
@@ -112,7 +138,7 @@
                     data.forEach(pago => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${pago.Fecha}</td>
+                            <td>${new Date(pago.Fecha).toLocaleDateString('es-CR')}</td>
                             <td>${formatearMonto(pago.MontoAbonado)}</td>
                             <td>${formatearMonto(pago.Saldo)}</td>
                         `;

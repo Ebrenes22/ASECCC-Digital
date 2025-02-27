@@ -106,7 +106,7 @@ namespace ASECCC_Digital.Models
 
                 Usuario = (dbSolicitud.Usuario != null ? new Entities.Usuario
                 {
-                    // Asegúrate de que en tu entidad Entities.Usuario exista la propiedad NombreCompleto
+                    
                     NombreCompleto = dbSolicitud.Usuario.nombreCompleto,
                     UsuarioId = dbSolicitud.Usuario.usuarioId // Puedes mapear otras propiedades si las necesitas
                 } : null)
@@ -140,6 +140,95 @@ namespace ASECCC_Digital.Models
             }
         }
 
+
+        // Método para buscar un préstamo por nombre de usuario en vista RegistrarAbonos
+        public List<PrestamoDetalleViewModel> ObtenerPrestamosPorUsuario(string NombreCompleto, out List<string> sugerencias)
+        {
+            sugerencias = new List<string>(); // Inicializa la lista de sugerencias
+
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                // 1️⃣ Buscar usuario por coincidencia exacta o parcial
+                var usuario = context.Usuario
+                    .FirstOrDefault(u => u.nombreCompleto.Equals(NombreCompleto)); // Exacto
+
+                if (usuario == null)
+                {
+                    // 2️⃣ Si no se encuentra el usuario exacto, obtener sugerencias de nombres similares
+                    sugerencias = context.Usuario
+                        .Where(u => u.nombreCompleto.Contains(NombreCompleto))
+                        .Select(u => u.nombreCompleto)
+                        .Distinct()
+                        .Take(10)
+                        .ToList();
+
+                    return new List<PrestamoDetalleViewModel>(); // Devuelve una lista vacía si no hay coincidencia exacta
+                }
+
+                // 3️⃣ Si el usuario existe, buscar sus préstamos activos
+                return context.Prestamos
+                    .Where(p => p.usuarioId == usuario.usuarioId && p.estadoPrestamo == "activo")
+                    .Select(p => new PrestamoDetalleViewModel
+                    {
+                        PrestamoId = p.prestamoId,
+                        MontoAprobado = p.montoAprobado,
+                        Plazo = p.plazo,
+                        CuotaSemanal = p.cuotaSemanal,
+                        TipoPrestamo = p.tipoPrestamo,
+                        EstadoPrestamo = p.estadoPrestamo,
+                        FechaSolicitud = (DateTime)p.fechaSolicitud,
+                        SaldoPendiente = p.saldoPendiente
+                    })
+                    .ToList();
+            }
+        }
+
+
+        //Metodo para registrar los abonos a los prestamos 
+        public bool RegistrarAbono(PrestamoTransaccionViewModel model)
+        {
+            try
+            {
+                using (var context = new Database.ASECCC_DIGITALEntities())
+                {
+                    using (var transaction = context.Database.BeginTransaction()) // Manejo de transacción
+                    {
+                        var prestamo = context.Prestamos.Find(model.PrestamoId);
+                        if (prestamo == null) return false;
+
+                        // Crear la nueva transacción de abono
+                        var nuevaTransaccion = new Database.PrestamosTransacciones
+                        {
+                            prestamoId = model.PrestamoId, // ✅ Asignación correcta según la entidad
+                            montoAbonado = model.MontoAbonado,
+                            fechaPago = DateTime.Now
+                        };
+
+                        context.PrestamosTransacciones.Add(nuevaTransaccion);
+
+                        // Actualizar saldo pendiente del préstamo
+                        prestamo.saldoPendiente -= model.MontoAbonado;
+
+                        // Evitar valores negativos y cambiar el estado si el préstamo se paga completamente
+                        if (prestamo.saldoPendiente <= 0)
+                        {
+                            prestamo.estadoPrestamo = "Cancelado";
+                            prestamo.saldoPendiente = 0;
+                        }
+
+                        context.SaveChanges();
+                        transaction.Commit(); // Confirmar cambios en la base de datos
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Registro del error para depuración
+                Console.WriteLine($"Error al registrar el abono: {ex.Message}");
+                return false;
+            }
+        }
 
 
 
