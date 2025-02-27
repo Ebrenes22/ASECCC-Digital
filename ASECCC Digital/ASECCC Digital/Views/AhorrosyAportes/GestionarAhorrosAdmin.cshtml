@@ -1,8 +1,13 @@
-﻿@{
+@model IEnumerable<ASECCC_Digital.Models.AhorroModel>
+
+@{
     ViewBag.Title = "Gestionar Ahorros";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
+
+<!-- Agregar SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="container my-5">
     <h1 class="text-center mb-4">Gestión de Ahorros</h1>
@@ -80,7 +85,7 @@
         let asociado = $("#asociado").val().trim();
 
         if (asociado === "") {
-            alert("Por favor, ingrese el nombre del asociado.");
+            Swal.fire("Atención", "Por favor, ingrese el nombre del asociado.", "warning");
             return;
         }
 
@@ -112,11 +117,10 @@
                 });
             },
             error: function () {
-                alert("Error al consultar los ahorros.");
+                Swal.fire("Error", "Error al consultar los ahorros.", "error");
             }
         });
     }
-
 
     function registrarAhorro() {
         let asociado = $("#asociado").val().trim();
@@ -125,7 +129,7 @@
         let plazo = 12;
 
         if (asociado === "" || monto === "") {
-            alert("Debe ingresar el nombre del asociado y el monto.");
+            Swal.fire("Atención", "Debe ingresar el nombre del asociado y el monto.", "warning");
             return;
         }
 
@@ -134,55 +138,71 @@
             type: "POST",
             data: { nombreAsociado: asociado, tipoAhorro: tipoAhorro, monto: monto, plazo: plazo },
             success: function (response) {
-                alert(response.message);
+                Swal.fire("Éxito", response.message, "success");
                 if (response.success) {
                     $("#modalRegistrarAhorro").modal("hide");
                     consultarAhorros();
                 }
             },
             error: function () {
-                alert("Error al registrar el ahorro.");
+                Swal.fire("Error", "Error al registrar el ahorro.", "error");
             }
         });
     }
 
     function editarAhorro(ahorroId) {
-        let nuevoMonto = prompt("Ingrese el nuevo monto del ahorro:");
-        if (!nuevoMonto) return;
-
-        $.ajax({
-            url: "/AhorrosyAportes/ModificarAhorro",
-            type: "POST",
-            data: { ahorroId: ahorroId, nuevoMonto: nuevoMonto },
-            success: function (response) {
-                alert(response.message);
-                if (response.success) {
-                    consultarAhorros();
-                }
-            },
-            error: function () {
-                alert("Error al modificar el ahorro.");
+        Swal.fire({
+            title: "Editar Monto",
+            input: "number",
+            inputLabel: "Ingrese el nuevo monto del ahorro:",
+            showCancelButton: true,
+            confirmButtonText: "Guardar",
+            cancelButtonText: "Cancelar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "/AhorrosyAportes/ModificarAhorro",
+                    type: "POST",
+                    data: { ahorroId: ahorroId, nuevoMonto: result.value },
+                    success: function (response) {
+                        Swal.fire("Éxito", response.message, "success");
+                        if (response.success) {
+                            consultarAhorros();
+                        }
+                    },
+                    error: function () {
+                        Swal.fire("Error", "Error al modificar el ahorro.", "error");
+                    }
+                });
             }
         });
     }
 
     function eliminarAhorro(ahorroId) {
-        if (!confirm("¿Está seguro de eliminar este ahorro?")) return;
-
-        $.ajax({
-            url: "/AhorrosyAportes/EliminarAhorro",
-            type: "POST",
-            data: { ahorroId: ahorroId },
-            success: function (response) {
-                alert(response.message);
-                if (response.success) {
-                    consultarAhorros();
-                }
-            },
-            error: function () {
-                alert("Error al eliminar el ahorro.");
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "Esta acción no se puede deshacer.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "/AhorrosyAportes/EliminarAhorro",
+                    type: "POST",
+                    data: { ahorroId: ahorroId },
+                    success: function (response) {
+                        Swal.fire("Éxito", response.message, "success");
+                        if (response.success) {
+                            consultarAhorros();
+                        }
+                    },
+                    error: function () {
+                        Swal.fire("Error", "Error al eliminar el ahorro.", "error");
+                    }
+                });
             }
         });
     }
-
 </script>
