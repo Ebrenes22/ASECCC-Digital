@@ -5,6 +5,7 @@ using System;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
+using System.Collections.Generic;
 
 namespace ASECCC_Digital.Controllers
 {
@@ -20,11 +21,12 @@ namespace ASECCC_Digital.Controllers
             ViewBag.CurrentModule = "AhorroyAporte";
         }
 
-
+        [Authorize]
         public ActionResult AhorroyAporte()
         {
             return View();
         }
+
 
         public ActionResult GestionarAportes()
         {
@@ -36,6 +38,8 @@ namespace ASECCC_Digital.Controllers
             return View();
         }
 
+
+        [Authorize]
         [HttpGet]
         public JsonResult ConsultarAportesAsociado(string nombreAsociado)
         {
@@ -44,22 +48,12 @@ namespace ASECCC_Digital.Controllers
         }
 
 
-        public ActionResult RegistrarAportes()
-        {
-            return View();
-        }
-
         [HttpPost]
         public JsonResult RegistrarAporte(string nombreAsociado, string tipoAporte, decimal monto)
         {
            var resultado = aporteM.RegistrarAporte(nombreAsociado, tipoAporte, monto);
             return Json(resultado, JsonRequestBehavior.AllowGet);
         }
-
-        public ActionResult ModificarAportes()
-        {
-            return View();
-        }   
 
 
         [HttpPost]
@@ -76,12 +70,24 @@ namespace ASECCC_Digital.Controllers
             return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
+
         [HttpGet]
-        public JsonResult ConsultarAhorrosAsociado(string nombreAsociado)
+        [Authorize]
+        public ActionResult ConsultarAhorrosAsociado()
         {
-          var resultado = ahorroM.ConsultarAhorrosAsociados(nombreAsociado);
-            return Json(resultado, JsonRequestBehavior.AllowGet);
+            var usuarioId = (int)Session["usuarioId"];
+            var ahorros = ahorroM.ConsultarAhorrosAsociados(usuarioId).Data as dynamic; // Extraer datos de JsonResult
+
+            if (ahorros != null && ahorros.success)
+            {
+                return View(ahorros.data); // Enviar solo la lista de ahorros a la vista
+            }
+
+            return View(new List<Ahorro>()); // Si hay un error, pasar una lista vacía
         }
+
+
+
 
 
         [HttpPost]
@@ -104,7 +110,7 @@ namespace ASECCC_Digital.Controllers
         public JsonResult EliminarAhorro(int ahorroId)
         {
           var resultado = ahorroM.EliminarAhorro(ahorroId);
-            return Json(resultado, JsonRequestBehavior.AllowGet);
+            return Json(resultado, JsonRequestBehavior.AllowGet);   
         }
     }
 }

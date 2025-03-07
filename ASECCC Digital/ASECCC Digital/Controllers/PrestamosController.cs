@@ -28,6 +28,7 @@
         #region Vistas ADMIN
         //--------VISTAS ADMIN--------------//
 
+        [Authorize]
         // GET: Prestamos
         public ActionResult Prestamo()
             {
@@ -57,7 +58,7 @@
             return View(viewModel);
         }
 
-
+        [Authorize]
         [HttpPost]
         public ActionResult RegistrarAbonos(PrestamoTransaccionViewModel model)
         {
@@ -83,7 +84,7 @@
 
 
 
-
+        [Authorize]
         public ActionResult ConsultaPrestamosAdmin()
         {
             // Llamar a un método en prestamoM para obtener los préstamos para consulta admin
@@ -225,7 +226,7 @@
 
         //----------VISTAS ASOCIADO-----------//
 
-
+        [Authorize]
         [HttpGet]
         public ActionResult SolicitudPrestamo()
         {
@@ -261,7 +262,7 @@
         }
 
 
-                public ActionResult ObtenerPrestamosAsociado()
+        public ActionResult ObtenerPrestamosAsociado()
         {
             // Si la sesión es nula, usa el usuarioId 1 por problemas de conexion
             int usuarioId = Session["usuarioId"] != null ? (int)Session["usuarioId"] : 1;

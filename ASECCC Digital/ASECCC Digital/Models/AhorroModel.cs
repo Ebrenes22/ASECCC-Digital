@@ -1,5 +1,7 @@
-﻿using System;
+﻿using ASECCC_Digital.ViewModels;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -11,26 +13,46 @@ namespace ASECCC_Digital.Models
     {
         #region Metodos Vistas Administrador
 
-        public JsonResult ConsultarAhorrosAsociados(string nombreAsociado)
+        public JsonResult ConsultarAhorrosAsociados(int usuarioId)
         {
             try
             {
-
                 using (var context = new Database.ASECCC_DIGITALEntities())
                 {
-                    var usuario = context.Usuario.FirstOrDefault(u => u.nombreCompleto.Contains(nombreAsociado));
-                    if (usuario == null)
-                        return new JsonResult { Data = new { success = false, message = "Asociado no encontrado." } };
-                    var ahorros = context.Ahorros.Where(a => a.usuarioId == usuario.usuarioId).ToList();
-                    return new JsonResult { Data = new { success = true, ahorros = ahorros } };
+                    // Busca los ahorros del usuario directamente por ID
+                    var ahorros = context.Ahorros
+                        .Where(a => a.usuarioId == usuarioId)
+                        .Include(a => a.CatalogoTipoAhorro.tipoAhorro) // Cargar la relación correctamente
+                        .Select(a => new AhorroViewModel
+                        {
+                            AhorroId = a.ahorroId,
+                            TipoAhorro = a.CatalogoTipoAhorro.tipoAhorro, // Accede al nombre correctamente
+                            MontoActual = a.montoActual,
+                            FechaInicio = (DateTime)a.fechaInicio,
+                            FechaFin = (DateTime)a.fechaFin,
+                            Plazo = a.plazo,
+                            Estado = a.estado
+                        })
+                        .ToList();
+
+                    return new JsonResult
+                    {
+                        Data = new { success = true, data = ahorros },
+                        JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                    };
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                return new JsonResult
+                {
+                    Data = new { success = false, message = "Error al consultar los ahorros: " + ex.Message },
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                };
             }
         }
+
+
 
         #endregion
 

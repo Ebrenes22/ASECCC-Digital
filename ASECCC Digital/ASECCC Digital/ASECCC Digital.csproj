@@ -240,6 +240,7 @@
     <Compile Include="Models\SeguridadAuditoriaModel.cs" />
     <Compile Include="Models\UsuariosModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\AhorroViewModel.cs" />
     <Compile Include="ViewModels\PrestamoUsuarioTransacciones.cs" />
     <Compile Include="ViewModels\SolicitudPrestamoViewModel.cs" />
   </ItemGroup>
