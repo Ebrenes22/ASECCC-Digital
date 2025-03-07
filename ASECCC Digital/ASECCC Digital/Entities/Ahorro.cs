@@ -34,6 +34,11 @@ namespace ASECCC_Digital.Entities
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
         public DateTime FechaInicio { get; set; } // Fecha de inicio del ahorro
 
+        [Required(ErrorMessage = "La fecha de fin es requerida")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
+        public DateTime FechaFin { get; set; } // Fecha de inicio del ahorro
+
         [Range(1, 120, ErrorMessage = "El plazo debe estar entre 1 y 120")]
         public int? Plazo { get; set; } // Plazo del ahorro en semanas o meses
 

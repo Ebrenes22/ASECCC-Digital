@@ -1,5 +1,6 @@
-using ASECCC_Digital.Database;
 using ASECCC_Digital.Models;
+using ASECCC_Digital.Database;
+using ASECCC_Digital.Entities;
 using System;
 using System.Data.Entity;
 using System.Linq;
@@ -9,7 +10,9 @@ namespace ASECCC_Digital.Controllers
 {
     public class AhorrosyAportesController : Controller
     {
-        private ASECCC_DIGITALEntities db = new ASECCC_DIGITALEntities();
+        
+        private readonly AhorroModel ahorroM = new AhorroModel();
+        private readonly AporteModel aporteM = new AporteModel();
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
@@ -36,206 +39,72 @@ namespace ASECCC_Digital.Controllers
         [HttpGet]
         public JsonResult ConsultarAportesAsociado(string nombreAsociado)
         {
-            try
-            {
-                var usuario = db.Usuarios.FirstOrDefault(u => u.nombreCompleto.Contains(nombreAsociado));
-                if (usuario == null)
-                    return Json(new { success = false, message = "Asociado no encontrado." }, JsonRequestBehavior.AllowGet);
+            var resultado = aporteM.ObtenerAportesPorAsociado(nombreAsociado);  
+            return Json(resultado, JsonRequestBehavior.AllowGet);
+        }
 
-                var aportes = db.Aportes
-                    .Where(a => a.usuarioId == usuario.usuarioId)
-                    .Select(a => new
-                    {
-                        AporteId = a.aporteId,
-                        TipoAporte = a.tipoAporte,
-                        Monto = a.monto,
-                        FechaRegistro = a.fechaRegistro.HasValue ? a.fechaRegistro.Value.ToString("yyyy-MM-dd HH:mm:ss") : null,
-                        Estado = "Activo"
-                    })
-                    .ToList();
 
-                return Json(new { success = true, data = aportes }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error al consultar los aportes: " + ex.Message }, JsonRequestBehavior.AllowGet);
-            }
+        public ActionResult RegistrarAportes()
+        {
+            return View();
         }
 
         [HttpPost]
         public JsonResult RegistrarAporte(string nombreAsociado, string tipoAporte, decimal monto)
         {
-            try
-            {
-                var usuario = db.Usuarios.FirstOrDefault(u => u.nombreCompleto.Contains(nombreAsociado));
-                if (usuario == null)
-                    return Json(new { success = false, message = "Asociado no encontrado." });
-
-                var nuevoAporte = new Aporte
-                {
-                    usuarioId = usuario.usuarioId,
-                    tipoAporte = tipoAporte,
-                    monto = monto,
-                    fechaRegistro = DateTime.Now
-                };
-
-                db.Aportes.Add(nuevoAporte);
-                db.SaveChanges();
-
-                return Json(new { success = true, message = "Aporte registrado exitosamente." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error al registrar el aporte: " + ex.Message });
-            }
+           var resultado = aporteM.RegistrarAporte(nombreAsociado, tipoAporte, monto);
+            return Json(resultado, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult ModificarAportes()
+        {
+            return View();
+        }   
+
 
         [HttpPost]
         public JsonResult ModificarAporte(int aporteId, decimal nuevoMonto)
         {
-            try
-            {
-                var aporte = db.Aportes.Find(aporteId);
-                if (aporte == null) return Json(new { success = false, message = "Aporte no encontrado." });
-
-                aporte.monto = nuevoMonto;
-                db.SaveChanges();
-
-                return Json(new { success = true, message = "Monto del aporte actualizado exitosamente." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error al modificar el aporte: " + ex.Message });
-            }
+          var resultado = aporteM.ModificarAporte(aporteId, nuevoMonto);
+            return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
         public JsonResult EliminarAporte(int aporteId)
         {
-            try
-            {
-                var aporte = db.Aportes.Find(aporteId);
-                if (aporte == null) return Json(new { success = false, message = "Aporte no encontrado." });
-
-                db.Aportes.Remove(aporte);
-                db.SaveChanges();
-
-                return Json(new { success = true, message = "Aporte eliminado exitosamente." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error al eliminar el aporte: " + ex.Message });
-            }
+          var resultado = aporteM.EliminarAporte(aporteId);
+            return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
         public JsonResult ConsultarAhorrosAsociado(string nombreAsociado)
         {
-            try
-            {
-                // Buscar el usuario por su nombre
-                var usuario = db.Usuarios.FirstOrDefault(u => u.nombreCompleto.Contains(nombreAsociado));
-                if (usuario == null)
-                {
-                    return Json(new { success = false, message = "Asociado no encontrado." }, JsonRequestBehavior.AllowGet);
-                }
-
-                // Obtener ahorros del usuario
-                var ahorros = db.Ahorros
-                    .Where(a => a.usuarioId == usuario.usuarioId && a.estado == "activo")
-                    .Select(a => new
-                    {
-                        AhorroId = a.ahorroId,
-                        TipoAhorro = a.CatalogoTipoAhorro.tipoAhorro,
-                        MontoActual = a.montoActual,
-                        FechaInicio = a.fechaInicio,
-                        Plazo = a.plazo,
-                        Estado = a.estado
-                    })
-                    .ToList();
-
-                return Json(new { success = true, data = ahorros }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error al consultar los ahorros: " + ex.Message }, JsonRequestBehavior.AllowGet);
-            }
+          var resultado = ahorroM.ConsultarAhorrosAsociados(nombreAsociado);
+            return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
 
         [HttpPost]
         public JsonResult RegistrarAhorro(string nombreAsociado, string tipoAhorro, decimal monto, int plazo)
         {
-            try
-            {
-                var usuario = db.Usuarios.FirstOrDefault(u => u.nombreCompleto.Contains(nombreAsociado));
-                if (usuario == null)
-                    return Json(new { success = false, message = "Asociado no encontrado." });
-
-                var tipoAhorroId = db.CatalogoTipoAhorroes.FirstOrDefault(t => t.tipoAhorro == tipoAhorro)?.tipoAhorroId ?? 0;
-                if (tipoAhorroId == 0)
-                    return Json(new { success = false, message = "Tipo de ahorro no válido." });
-
-                var nuevoAhorro = new Ahorro
-                {
-                    usuarioId = usuario.usuarioId,
-                    tipoAhorroId = tipoAhorroId,
-                    montoInicial = monto,
-                    montoActual = monto,
-                    fechaInicio = DateTime.Now,
-                    plazo = plazo,
-                    estado = "activo"
-                };
-
-                db.Ahorros.Add(nuevoAhorro);
-                db.SaveChanges();
-
-                return Json(new { success = true, message = "Ahorro registrado exitosamente." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error al registrar el ahorro: " + ex.Message });
-            }
+            var resultado = ahorroM.RegistrarAhorro(nombreAsociado, tipoAhorro, monto, plazo);
+            return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
 
         [HttpPost]
         public JsonResult ModificarAhorro(int ahorroId, decimal nuevoMonto)
         {
-            try
-            {
-                var ahorro = db.Ahorros.Find(ahorroId);
-                if (ahorro == null) return Json(new { success = false, message = "Ahorro no encontrado." });
-
-                ahorro.montoActual = nuevoMonto;
-                db.SaveChanges();
-
-                return Json(new { success = true, message = "Monto del ahorro actualizado exitosamente." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error al modificar el ahorro: " + ex.Message });
-            }
+          var resultado = ahorroM.ModificarAhorro(ahorroId, nuevoMonto);
+            return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
   
         [HttpPost]
         public JsonResult EliminarAhorro(int ahorroId)
         {
-            try
-            {
-                var ahorro = db.Ahorros.Find(ahorroId);
-                if (ahorro == null) return Json(new { success = false, message = "Ahorro no encontrado." });
-
-                db.Ahorros.Remove(ahorro);
-                db.SaveChanges();
-
-                return Json(new { success = true, message = "Ahorro eliminado exitosamente." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error al eliminar el ahorro: " + ex.Message });
-            }
+          var resultado = ahorroM.EliminarAhorro(ahorroId);
+            return Json(resultado, JsonRequestBehavior.AllowGet);
         }
     }
 }

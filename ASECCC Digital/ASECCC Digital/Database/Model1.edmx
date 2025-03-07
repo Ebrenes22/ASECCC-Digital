@@ -17,6 +17,7 @@
           <Property Name="fechaInicio" Type="datetime" />
           <Property Name="plazo" Type="int" />
           <Property Name="estado" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="fechaFin" Type="datetime" />
         </EntityType>
         <EntityType Name="AhorroTransacciones">
           <Key>
@@ -475,6 +476,7 @@
           <NavigationProperty Name="CatalogoTipoAhorro" Relationship="Self.FK__Ahorros__tipoAho__4AB81AF0" FromRole="Ahorros" ToRole="CatalogoTipoAhorro" />
           <NavigationProperty Name="Usuario" Relationship="Self.FK__Ahorros__usuario__49C3F6B7" FromRole="Ahorros" ToRole="Usuario" />
           <NavigationProperty Name="AhorroTransacciones" Relationship="Self.FK__AhorroTra__ahorr__4E88ABD4" FromRole="Ahorros" ToRole="AhorroTransacciones" />
+          <Property Name="fechaFin" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="AhorroTransacciones">
           <Key>
@@ -950,6 +952,7 @@
           <EntitySetMapping Name="Ahorros">
             <EntityTypeMapping TypeName="ASECCC_DIGITALModel.Ahorros">
               <MappingFragment StoreEntitySet="Ahorros">
+                <ScalarProperty Name="fechaFin" ColumnName="fechaFin" />
                 <ScalarProperty Name="ahorroId" ColumnName="ahorroId" />
                 <ScalarProperty Name="usuarioId" ColumnName="usuarioId" />
                 <ScalarProperty Name="tipoAhorroId" ColumnName="tipoAhorroId" />

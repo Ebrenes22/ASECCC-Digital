@@ -28,6 +28,7 @@ namespace ASECCC_Digital.Database
         public Nullable<System.DateTime> fechaInicio { get; set; }
         public Nullable<int> plazo { get; set; }
         public string estado { get; set; }
+        public Nullable<System.DateTime> fechaFin { get; set; }
     
         public virtual CatalogoTipoAhorro CatalogoTipoAhorro { get; set; }
         public virtual Usuario Usuario { get; set; }
