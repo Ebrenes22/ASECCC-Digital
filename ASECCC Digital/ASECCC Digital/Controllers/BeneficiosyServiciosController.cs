@@ -2,14 +2,13 @@
 
 namespace ASECCC_Digital.Controllers
 {
-    public class BeneficiosyServiciosController : Controller
+    public class BeneficiosyServiciosController : BaseController
     {
-        // Acción que se ejecuta antes de cada acción del controlador
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        protected override string GetCurrentModule()
         {
-            base.OnActionExecuting(filterContext);
-            ViewBag.CurrentModule = "BenefyServ"; //Asigno el CurrentModule para validarlo en el _MenuModulos
+            return "BenefyServ";
         }
+
 
 
         //--------VISTAS ADMIN--------------//

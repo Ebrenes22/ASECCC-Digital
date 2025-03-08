@@ -198,6 +198,8 @@
           <Property Name="rol" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="estadoAfiliacion" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="fechaIngreso" Type="datetime" />
+          <Property Name="resetToken" Type="nvarchar" MaxLength="255" />
+          <Property Name="resetTokenExpiry" Type="datetime" />
         </EntityType>
         <Association Name="FK__Ahorros__tipoAho__4AB81AF0">
           <End Role="CatalogoTipoAhorro" Type="Self.CatalogoTipoAhorro" Multiplicity="1" />
@@ -684,6 +686,8 @@
           <NavigationProperty Name="Prestamos" Relationship="Self.FK__Prestamos__usuar__59FA5E80" FromRole="Usuario" ToRole="Prestamos" />
           <NavigationProperty Name="SeguridadAuditoria" Relationship="Self.FK__Seguridad__usuar__7E37BEF6" FromRole="Usuario" ToRole="SeguridadAuditoria" />
           <NavigationProperty Name="SolicitudesPrestamo" Relationship="Self.FK__Solicitud__usuar__5441852A" FromRole="Usuario" ToRole="SolicitudesPrestamo" />
+          <Property Name="resetToken" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="resetTokenExpiry" Type="DateTime" Precision="3" />
         </EntityType>
         <Association Name="FK__Ahorros__tipoAho__4AB81AF0">
           <End Role="CatalogoTipoAhorro" Type="Self.CatalogoTipoAhorro" Multiplicity="1" />
@@ -1144,6 +1148,8 @@
           <EntitySetMapping Name="Usuario">
             <EntityTypeMapping TypeName="ASECCC_DIGITALModel.Usuario">
               <MappingFragment StoreEntitySet="Usuario">
+                <ScalarProperty Name="resetTokenExpiry" ColumnName="resetTokenExpiry" />
+                <ScalarProperty Name="resetToken" ColumnName="resetToken" />
                 <ScalarProperty Name="usuarioId" ColumnName="usuarioId" />
                 <ScalarProperty Name="nombreCompleto" ColumnName="nombreCompleto" />
                 <ScalarProperty Name="correoElectronico" ColumnName="correoElectronico" />

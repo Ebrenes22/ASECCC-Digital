@@ -1,16 +1,24 @@
 ﻿using ASECCC_Digital.Entities;
 using ASECCC_Digital.Models;
+using ASECCC_Digital.Services;
 using System;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using System.Security.Cryptography;
+using System.Text;
+using ASECCC_Digital.Database;
+using System.Linq;
 
 namespace ASECCC_Digital.Controllers
 {
     public class UsuariosController : Controller
     {
-        // Instancia del modelo para la lógica de negocio
+
         SeguridadAuditoriaModel auditoriaM = new SeguridadAuditoriaModel();
+        private readonly ASECCC_DIGITALEntities _context = new ASECCC_DIGITALEntities();
+        private readonly EmailService _emailService = new EmailService();
+
         //--------VISTAS ADMIN--------------//
         // GET: Usuario
         public ActionResult Usuario()
@@ -124,6 +132,85 @@ namespace ASECCC_Digital.Controllers
 
             return View();
         }
-        //--------VISTAS USUARIO--------------//
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        public ActionResult ResetPassword(string ResetTipoIdentificacion, string ResetCedula)
+        {
+            if (string.IsNullOrEmpty(ResetTipoIdentificacion) || string.IsNullOrEmpty(ResetCedula))
+            {
+                return Json(new { success = false, message = "Debe completar todos los campos." });
+            }
+
+            // Buscar usuario según el tipo y número de identificación
+            var usuario = _context.Usuario.FirstOrDefault(u => u.tipoIdentificacion == ResetTipoIdentificacion && u.identificacion == ResetCedula);
+            if (usuario == null)
+            {
+                return Json(new { success = false, message = "No se encontró un usuario con esa identificación." });
+            }
+
+            // Generar un token seguro
+            var token = GenerarTokenSeguro();
+            usuario.resetToken = token;
+            usuario.resetTokenExpiry = DateTime.UtcNow.AddHours(1);
+            _context.SaveChanges();
+
+            // Enviar correo con el enlace de recuperación
+            var resetLink = Url.Action("RestablecerContrasena", "Usuarios", new { token = token }, Request.Url.Scheme);
+            string mensaje = $"<p>Para restablecer tu contraseña, haz clic en el siguiente enlace:</p><p><a href='{resetLink}'>Restablecer Contraseña</a></p>";
+
+            _emailService.EnviarCorreo(usuario.correoElectronico, "Recuperación de Contraseña", mensaje);
+
+            return Json(new { success = true, message = "Se ha enviado un correo con las instrucciones." });
+        }
+
+        private string GenerarTokenSeguro()
+        {
+            using (var rng = new RNGCryptoServiceProvider())
+            {
+                byte[] tokenBytes = new byte[32];
+                rng.GetBytes(tokenBytes);
+                return Convert.ToBase64String(tokenBytes);
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult RestablecerContrasena(string token)
+        {
+            var usuario = _context.Usuario.FirstOrDefault(u => u.resetToken == token && u.resetTokenExpiry > DateTime.UtcNow);
+            if (usuario == null)
+            {
+                TempData["Error"] = "El enlace es inválido o ha expirado.";
+                return RedirectToAction("Login", "Usuarios");
+            }
+
+            ViewBag.Token = token;
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public ActionResult RestablecerContrasena(string token, string nuevaContrasena)
+        {
+            var usuario = _context.Usuario.FirstOrDefault(u => u.resetToken == token && u.resetTokenExpiry > DateTime.UtcNow);
+            if (usuario == null)
+            {
+                TempData["Error"] = "El enlace es inválido o ha expirado.";
+                return RedirectToAction("Login", "Usuarios");
+            }
+
+            // Hash de la nueva contraseña
+            usuario.contrasena = BCrypt.Net.BCrypt.HashPassword(nuevaContrasena);
+            usuario.resetToken = null;
+            usuario.resetTokenExpiry = null;
+            _context.SaveChanges();
+
+            TempData["Success"] = "Tu contraseña ha sido restablecida.";
+            return RedirectToAction("Login", "Usuarios");
+        }
+
+
     }
 }

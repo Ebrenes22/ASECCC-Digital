@@ -64,5 +64,10 @@ namespace ASECCC_Digital.Entities
         [DataType(DataType.DateTime)]
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy HH:mm:ss}", ApplyFormatInEditMode = true)]
         public DateTime FechaIngreso { get; set; }  // Fecha de registro del usuario
+
+        public string ResetToken { get; set; }  // Token de recuperación
+        public DateTime? ResetTokenExpiry { get; set; } // Expiración del token
+
+
     }
 }

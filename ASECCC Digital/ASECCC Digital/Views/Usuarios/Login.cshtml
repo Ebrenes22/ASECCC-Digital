@@ -53,7 +53,6 @@
     </div>
 </div>
 
-
 <!-- Forgot Password Modal -->
 <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -63,24 +62,23 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                @using (Html.BeginForm("ResetPassword", "Account", FormMethod.Post, new { id = "forgotPasswordForm" }))
-                {
+                <form id="forgotPasswordForm">
                     <div class="mb-3">
-                        @Html.Label("Tipo de Identificación", null, new { @class = "form-label" })
-                        @Html.DropDownList("ResetTipoIdentificacion", new SelectList(new[] {
-                            new { Value = "", Text = "Seleccione tipo de identificación" },
-                            new { Value = "cedula", Text = "Cédula Nacional" },
-                            new { Value = "dimex", Text = "Identificación DIMEX" }
-                        }, "Value", "Text"), new { @class = "form-select", required = "required" })
+                        <label class="form-label">Tipo de Identificación</label>
+                        <select id="ResetTipoIdentificacion" class="form-select" required>
+                            <option value="Nacional">Cédula Nacional</option>
+                            <option value="Dimex">Identificación DIMEX</option>
+                        </select>
                     </div>
                     <div class="mb-3">
-                        @Html.Label("Número de Identificación", "resetCedula", new { @class = "form-label" })
-                        @Html.TextBox("ResetCedula", null, new { @class = "form-control", placeholder = "Ingrese su número de identificación", required = "required", maxlength = "12" })
+                        <label class="form-label">Número de Identificación</label>
+                        <input type="text" id="ResetCedula" class="form-control" placeholder="Ingrese su número de identificación" required maxlength="12">
                         <div class="invalid-feedback">
                             Por favor ingrese un número de identificación válido.
                         </div>
                     </div>
-                }
+                </form>
+                <div id="resetPasswordMessage"></div> <!-- Para mostrar mensajes -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -90,10 +88,30 @@
     </div>
 </div>
 
+
+<!-- Modal de éxito -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">Restablecimiento de Contraseña</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="successModalMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     // Mostrar alerta si hay un error de login
     $(document).ready(function () {
@@ -200,22 +218,120 @@
             icon.classList.add('bi-eye');
         }
     });
+
+    //Script Recuperacion de Contraseña
+
+
+$(document).ready(function () {
+    $("#sendResetEmailBtn").click(function () {
+        console.log("Botón presionado..."); // Debugging
+
+        var tipoIdentificacion = $("#ResetTipoIdentificacion").val();
+        var cedula = $("#ResetCedula").val();
+        var messageDiv = $("#resetPasswordMessage");
+
+        if (!tipoIdentificacion || !cedula) {
+            console.log("Faltan datos...");
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Debe completar todos los campos.',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+            });
+            return;
+        }
+
+        console.log("Enviando solicitud AJAX...");
+
+        $.ajax({
+            url: '@Url.Action("ResetPassword", "Usuarios")', // Asegúrate de que el controlador sea correcto
+            type: 'POST',
+            data: {
+                ResetTipoIdentificacion: tipoIdentificacion,
+                ResetCedula: cedula
+            },
+            success: function (response) {
+                console.log("Respuesta recibida:", response);
+
+                if (response.success) {
+                    $("#forgotPasswordModal").modal('hide'); // Ocultar el modal
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Correo enviado',
+                        text: 'Se ha enviado un correo con las instrucciones para restablecer su contraseña.',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Aceptar'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message,
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Aceptar'
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log("Error en AJAX:", status, error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: 'Hubo un problema al procesar su solicitud. Intente nuevamente.',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        });
+    });
+});
+
+    $(document).ready(function () {
+        const identificacionInput = $("#ResetCedula");
+        const tipoIdentificacionSelect = $("#ResetTipoIdentificacion");
+
+        // Formatear y validar el número de identificación mientras se escribe
+        identificacionInput.on("input", function () {
+            const tipo = tipoIdentificacionSelect.val();
+            let value = identificacionInput.val().replace(/[^0-9]/g, ''); // Solo números
+
+            if (tipo === "Nacional") {
+                // Formato de cédula: 0-0000-0000
+                if (value.length > 9) value = value.slice(0, 9); // Limitar a 9 dígitos
+                value = value.replace(/^(\d{1})(\d{4})(\d+)/, "$1-$2-$3");
+            } else if (tipo === "Dimex") {
+                // Formato de DIMEX: 000000000000
+                if (value.length > 12) value = value.slice(0, 12); // Limitar a 12 dígitos
+            }
+
+            identificacionInput.val(value); // Actualizar el valor del campo
+        });
+
+        // Validar el número de identificación cuando se envía el formulario
+        $("#forgotPasswordForm").on("submit", function (event) {
+            const tipo = tipoIdentificacionSelect.val();
+            const identificacion = identificacionInput.val();
+
+            let esValido = false;
+            if (tipo === "Nacional") {
+                esValido = /^\d{1}-\d{4}-\d{4}$/.test(identificacion);
+            } else if (tipo === "Dimex") {
+                esValido = /^\d{12}$/.test(identificacion);
+            }
+
+            if (!esValido) {
+                identificacionInput.addClass("is-invalid");
+                event.preventDefault();
+                event.stopPropagation();
+            } else {
+                identificacionInput.removeClass("is-invalid");
+            }
+        });
+    });
+
+
 </script>
 
-<!-- Modal de éxito -->
-<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="successModalLabel">Restablecimiento de Contraseña</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p id="successModalMessage"></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
-            </div>
-        </div>
-    </div>
-</div>

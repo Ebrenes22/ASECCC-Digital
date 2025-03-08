@@ -143,6 +143,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AhorrosyAportesController.cs" />
     <Compile Include="Controllers\AsociadosController.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BeneficiosyServiciosController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NotificacionesController.cs" />
@@ -240,6 +241,7 @@
     <Compile Include="Models\SeguridadAuditoriaModel.cs" />
     <Compile Include="Models\UsuariosModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\EmailService.cs" />
     <Compile Include="ViewModels\AhorroViewModel.cs" />
     <Compile Include="ViewModels\PrestamoUsuarioTransacciones.cs" />
     <Compile Include="ViewModels\SolicitudPrestamoViewModel.cs" />
@@ -437,6 +439,8 @@
     <Content Include="Views\Notificaciones\Notificaciones.cshtml" />
     <Content Include="Views\Asociados\BuscarDesactivarAsociado.cshtml" />
     <Content Include="Views\Shared\_SolicitudDetalles.cshtml" />
+    <Content Include="Views\Usuarios\OlvideMiContrasena.cshtml" />
+    <Content Include="Views\Usuarios\RestablecerContrasena.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

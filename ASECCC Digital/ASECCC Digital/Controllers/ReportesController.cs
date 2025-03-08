@@ -6,16 +6,12 @@ using System.Web.Mvc;
 
 namespace ASECCC_Digital.Controllers
 {
-    public class ReportesController : Controller
+    public class ReportesController : BaseController
     {
-
-        // Acción que se ejecuta antes de cada acción del controlador
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        protected override string GetCurrentModule()
         {
-            base.OnActionExecuting(filterContext);
-            ViewBag.CurrentModule = "Reportes"; //Asigno el CurrentModule para validarlo en el _MenuModulos
+            return "Reportes";
         }
-
 
         //--------VISTAS ADMIN--------------//
         // GET: Reportes

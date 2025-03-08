@@ -11,25 +11,21 @@
 
     namespace ASECCC_Digital.Controllers
     {
-        public class PrestamosController : Controller
+        public class PrestamosController : BaseController
+        {    
+
+        protected override string GetCurrentModule()
         {
-            // Instancia del modelo para la logica de negocio
-            private readonly PrestamosModel prestamoM = new PrestamosModel();
-        
+            return "Prestamos"; 
+        }
 
+        //Instancia del modelo prestamos
+        private readonly PrestamosModel prestamoM = new PrestamosModel();
 
-        // Acción que se ejecuta antes de cada acción del controlador
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
-            {
-                base.OnActionExecuting(filterContext);
-                ViewBag.CurrentModule = "Prestamos"; // Asigno el CurrentModule para validarlo en el _MenuModulos
-            }
 
         #region Vistas ADMIN
-        //--------VISTAS ADMIN--------------//
-
         [Authorize]
-        // GET: Prestamos
+
         public ActionResult Prestamo()
             {
                 // Llamar a un método de prestamoM para obtener los datos necesarios

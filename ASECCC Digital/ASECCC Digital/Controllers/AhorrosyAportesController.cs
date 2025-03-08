@@ -9,17 +9,19 @@ using System.Collections.Generic;
 
 namespace ASECCC_Digital.Controllers
 {
-    public class AhorrosyAportesController : Controller
+    public class AhorrosyAportesController : BaseController
     {
-        
+        protected override string GetCurrentModule()
+        {
+            return "AhorroyAporte";
+        }
+
+        //Instancias de los modelos Ahorro y Aporte
         private readonly AhorroModel ahorroM = new AhorroModel();
         private readonly AporteModel aporteM = new AporteModel();
 
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
-        {
-            base.OnActionExecuting(filterContext);
-            ViewBag.CurrentModule = "AhorroyAporte";
-        }
+
+
 
         [Authorize]
         public ActionResult AhorroyAporte()
