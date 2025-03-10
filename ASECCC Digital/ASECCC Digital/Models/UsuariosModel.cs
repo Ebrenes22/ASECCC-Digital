@@ -146,6 +146,11 @@ namespace ASECCC_Digital.Models
                         usuarioDb.correoElectronico = usuario.CorreoElectronico;
                         usuarioDb.telefono = usuario.Telefono;
                         usuarioDb.direccion = usuario.Direccion;
+                        usuarioDb.nombreCompleto = usuario.NombreCompleto;
+                        usuarioDb.fechaNacimiento = usuario.FechaNacimiento;
+                        usuarioDb.tipoIdentificacion = usuario.TipoIdentificacion;
+                        usuarioDb.identificacion = usuario.Identificacion;
+
                     }
 
                     context.SaveChanges();
