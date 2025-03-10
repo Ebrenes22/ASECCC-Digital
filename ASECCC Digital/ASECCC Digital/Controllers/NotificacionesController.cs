@@ -10,16 +10,16 @@ using ASECCC_Digital.Database;
 using System.Linq;
 namespace ASECCC_Digital.Controllers
 {
-    public class NotificacionesController : Controller
+    public class NotificacionesController : BaseController
     {
-        UsuariosModel usuarioM = new UsuariosModel();
-        NotificacionModel notificacionN = new NotificacionModel();
-        // Acción que se ejecuta antes de cada acción del controlador
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        protected override string GetCurrentModule()
         {
-            base.OnActionExecuting(filterContext);
-            ViewBag.CurrentModule = "Notificaciones"; //Asigno el CurrentModule para validarlo en el _MenuModulos
+            return "Notificaciones";
         }
+
+        //Instancias de modelos Usuario  y Notificaciones
+         UsuariosModel usuarioM = new UsuariosModel();
+         NotificacionModel notificacionN = new NotificacionModel();
 
 
         //--------VISTAS ADMIN--------------//
@@ -33,6 +33,7 @@ namespace ASECCC_Digital.Controllers
             return View();
         }
 
+        [Authorize]
         public ActionResult NotificacionAdministrador()
         {
             // Obtener la identificación del usuario desde la sesión

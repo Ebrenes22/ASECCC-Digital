@@ -1,34 +1,31 @@
 ﻿    using ASECCC_Digital.Models;
     using ASECCC_Digital.ViewModels;
+    using ASECCC_Digital.Database;
     using ASECCC_Digital.Entities;
     using System;
     using System.Collections.Generic;
     using System.Web.Mvc;
     using System.Threading.Tasks;
-    using ASECCC_Digital.Database;
     using System.Linq;
-using System.Web.Util;
+    using System.Web.Util;
 
     namespace ASECCC_Digital.Controllers
     {
-        public class PrestamosController : Controller
+        public class PrestamosController : BaseController
+        {    
+
+        protected override string GetCurrentModule()
         {
-            // Instancia del modelo para la logica de negocio
-            private readonly PrestamosModel prestamoM = new PrestamosModel();
-        
+            return "Prestamos"; 
+        }
 
+        //Instancia del modelo prestamos
+        private readonly PrestamosModel prestamoM = new PrestamosModel();
 
-        // Acción que se ejecuta antes de cada acción del controlador
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
-            {
-                base.OnActionExecuting(filterContext);
-                ViewBag.CurrentModule = "Prestamos"; // Asigno el CurrentModule para validarlo en el _MenuModulos
-            }
 
         #region Vistas ADMIN
-        //--------VISTAS ADMIN--------------//
+        [Authorize]
 
-        // GET: Prestamos
         public ActionResult Prestamo()
             {
                 // Llamar a un método de prestamoM para obtener los datos necesarios
@@ -57,7 +54,7 @@ using System.Web.Util;
             return View(viewModel);
         }
 
-
+        [Authorize]
         [HttpPost]
         public ActionResult RegistrarAbonos(PrestamoTransaccionViewModel model)
         {
@@ -83,7 +80,7 @@ using System.Web.Util;
 
 
 
-
+        [Authorize]
         public ActionResult ConsultaPrestamosAdmin()
         {
             // Llamar a un método en prestamoM para obtener los préstamos para consulta admin
@@ -225,7 +222,7 @@ using System.Web.Util;
 
         //----------VISTAS ASOCIADO-----------//
 
-
+        [Authorize]
         [HttpGet]
         public ActionResult SolicitudPrestamo()
         {
@@ -261,7 +258,7 @@ using System.Web.Util;
         }
 
 
-                public ActionResult ObtenerPrestamosAsociado()
+        public ActionResult ObtenerPrestamosAsociado()
         {
             // Si la sesión es nula, usa el usuarioId 1 por problemas de conexion
             int usuarioId = Session["usuarioId"] != null ? (int)Session["usuarioId"] : 1;

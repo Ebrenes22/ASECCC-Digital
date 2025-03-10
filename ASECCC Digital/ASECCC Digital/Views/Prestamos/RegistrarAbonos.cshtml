@@ -13,7 +13,8 @@
     <form method="GET" action="@Url.Action("RegistrarAbonos", "Prestamos")">
         <div class="mb-3">
             <label for="buscarAsociado" class="form-label">Buscar Asociado:</label>
-            <input type="text" id="buscarAsociado" name="NombreCompleto" class="form-control" placeholder="Ingrese el nombre del asociado" list="listaAsociados" autocomplete="off" required>
+            <input type="text" id="buscarAsociado" name="NombreCompleto" class="form-control" placeholder="Ingrese el nombre del asociado" list="listaAsociados" autocomplete="off" required
+                   oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '')">
             <datalist id="listaAsociados">
                 <!-- Opciones dinámicas de la base de datos -->
             </datalist>
@@ -157,3 +158,20 @@
         });
     </script>
 }
+
+<script>
+    function formatearColones(valor) {
+        return new Intl.NumberFormat('es-CR', {
+            style: 'currency',
+            currency: 'CRC',
+            minimumFractionDigits: 2
+        }).format(valor);
+    }
+
+    function actualizarSaldoActual(saldo) {
+        let saldoFormateado = formatearColones(saldo);
+        document.getElementById("saldoActual").value = saldoFormateado;
+    }
+
+</script>
+

@@ -1,0 +1,29 @@
+﻿
+@{
+    ViewBag.Title = "RestablecerContrasena";
+    Layout = "~/Views/Shared/_Layout_Externo.cshtml";
+}
+
+
+<<h2>Restablecer Contraseña</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form action="@Url.Action("RestablecerContrasena", "Usuarios")" method="post">
+    <input type="hidden" name="token" value="@ViewBag.Token" />
+
+    <div>
+        <label>Nueva Contraseña</label>
+        <input type="password" name="nuevaContrasena" required class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-success mt-2">Guardar Contraseña</button>
+</form>

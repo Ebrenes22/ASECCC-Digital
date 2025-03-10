@@ -5,21 +5,19 @@ using System.Web.Mvc;
 
 namespace ASECCC_Digital.Controllers
 {
-    public class SeguridadyPermisosController : Controller
+    public class SeguridadyPermisosController : BaseController
     {
+        protected override string GetCurrentModule()
+        {
+            return "SeguridadyPermisos";
+        }
+
+        //Instancia de modelos usuario y seguridad
         UsuariosModel usuarioM = new UsuariosModel();
         SeguridadAuditoriaModel seguridadM = new SeguridadAuditoriaModel();
 
-
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
-        {
-            base.OnActionExecuting(filterContext);
-            ViewBag.CurrentModule = "SeguridadyPermisos"; //Asigno el CurrentModule para validarlo en el _MenuModulos
-        }
-
-
         //--------VISTAS ADMIN--------------//
-        // GET: SeguridadyPermisos
+
 
         public ActionResult SeguridadyPermiso()
         {

@@ -8,15 +8,12 @@ namespace ASECCC_Digital.Controllers
 {
 
 
-    public class PerfilController : Controller
+    public class PerfilController : BaseController
     {
 
-
-        // Acción que se ejecuta antes de cada acción del controlador   
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        protected override string GetCurrentModule()
         {
-            base.OnActionExecuting(filterContext);
-            ViewBag.CurrentModule = "Asociados"; //Asigno el CurrentModule para validarlo en el _MenuModulos
+            return "Asociados";
         }
 
 

@@ -39,6 +39,8 @@ namespace ASECCC_Digital.Database
         public string rol { get; set; }
         public string estadoAfiliacion { get; set; }
         public Nullable<System.DateTime> fechaIngreso { get; set; }
+        public string resetToken { get; set; }
+        public Nullable<System.DateTime> resetTokenExpiry { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Ahorros> Ahorros { get; set; }

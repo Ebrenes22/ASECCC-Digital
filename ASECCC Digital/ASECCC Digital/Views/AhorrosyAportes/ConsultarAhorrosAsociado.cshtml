@@ -1,23 +1,11 @@
-﻿@model IEnumerable<ASECCC_Digital.Models.AhorroModel>
+﻿@model IEnumerable<ASECCC_Digital.ViewModels.AhorroViewModel>
 
 @{ ViewBag.Title = "ConsultaAhorros";
     Layout = "~/Views/Shared/_Layout.cshtml";
-@Html.Partial("_MenuModulos"); }
+    @Html.Partial("_MenuModulos"); }
 
 <div class="container my-5">
     <h1 class="text-center mb-4">Gestión de Ahorros</h1>
-
-    <!-- Filtro por Tipo de Ahorro -->
-    <div class="mb-4">
-        <label for="filtroTipoAhorro" class="form-label">Filtrar por Tipo de Ahorro:</label>
-        <select id="filtroTipoAhorro" class="form-select" onchange="filtrarAhorros()">
-            <option value="">Todos</option>
-            <option value="A la Vista">A la Vista</option>
-            <option value="Navideño">Navideño</option>
-            <option value="Marchamo">Marchamo</option>
-            <option value="Escolar">Escolar</option>
-        </select>
-    </div>
 
     <!--para Crear Nuevo Ahorro -->
     <button class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#modalCrearAhorro">Crear Nuevo Ahorro</button>
@@ -26,32 +14,35 @@
     <div class="row d-flex justify-content-center flex-wrap" id="cardsAhorros">
         @foreach (var ahorro in Model)
         {
-<div class="col-12 col-md-6 col-lg-4 mb-4 ahorro-card" data-tipo="@ahorro.TipoAhorro" data-id="@ahorro.AhorroId">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h5 class="card-title">@ahorro.TipoAhorro</h5>
-            <p class="card-text">
-                <strong>Fecha:</strong> @(ahorro.FechaInicio.HasValue ? ahorro.FechaInicio.Value.ToString("dd/MM/yyyy") : "N/A")<br>
-                <strong>Capital:</strong> ₡@ahorro.MontoActual<br>
-                <strong>Plazo:</strong> @(ahorro.Plazo.HasValue ? ahorro.Plazo + " meses" : "N/A")<br>
-                <strong>Estado:</strong> @ahorro.Estado
-            </p>
-            <button class="btn btn-info btn-sm" onclick="verDetalles(@ahorro.AhorroId)" data-bs-toggle="modal" data-bs-target="#modalDetallesAhorro">
-                Ver Detalles
-            </button>
-            <button class="btn btn-warning btn-sm" onclick="modificarMonto(@ahorro.AhorroId)" data-bs-toggle="modal" data-bs-target="#modalModificarMonto">
-                Modificar Monto
-            </button>
-            @if (ahorro.TipoAhorro == "A la Vista")
-            {
-<button class="btn btn-danger btn-sm" onclick="finalizarAhorro(@ahorro.AhorroId)" data-bs-toggle="modal" data-bs-target="#modalFinalizarAhorro">
-    Finalizar Ahorro
-    <div class="modal-body">
-    </div>
-</button>}
-        </div>
-    </div>
-</div>}
+            <div class="col-12 col-md-6 col-lg-4 mb-4 ahorro-card" data-tipo="@ahorro.TipoAhorro" data-id="@ahorro.AhorroId">
+
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(ahorro.TipoAhorro.ToLower())</h5>
+                        <p class="card-text">
+                            <strong>Fecha Inicio:</strong> @(ahorro.FechaInicio.ToString("yyyy-MM-dd"))<br>
+                            <strong>Fecha Fin:</strong> @(ahorro.FechaFin.ToString("yyyy-MM-dd"))<br>
+                            <strong>Capital:</strong> ₡@ahorro.MontoActual<br>
+                            <strong>Plazo:</strong> @(ahorro.Plazo.HasValue ? ahorro.Plazo + " semanas" : "N/A")<br>
+                            <strong>Estado:</strong> @ahorro.Estado
+                        </p>
+                        <button class="btn btn-info btn-sm" onclick="verDetalles(@ahorro.AhorroId)" data-bs-toggle="modal" data-bs-target="#modalDetallesAhorro">
+                            Ver Detalles
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="modificarMonto(@ahorro.AhorroId)" data-bs-toggle="modal" data-bs-target="#modalModificarMonto">
+                            Modificar Monto
+                        </button>
+                        @if (ahorro.TipoAhorro != null && ahorro.TipoAhorro == "A la Vista")
+
+                            {
+                                <button class="btn btn-danger btn-sm" onclick="finalizarAhorro(@ahorro.AhorroId)" data-bs-toggle="modal" data-bs-target="#modalFinalizarAhorro">
+                                    Finalizar Ahorro
+                                    <div class="modal-body">
+                                    </div>
+                                </button>}
+                    </div>
+                </div>
+            </div>}
     </div>
 </div>
 

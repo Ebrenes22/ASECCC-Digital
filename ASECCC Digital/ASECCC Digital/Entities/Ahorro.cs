@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ASECCC_Digital.Database;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -34,6 +35,11 @@ namespace ASECCC_Digital.Entities
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
         public DateTime FechaInicio { get; set; } // Fecha de inicio del ahorro
 
+        [Required(ErrorMessage = "La fecha de fin es requerida")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
+        public DateTime FechaFin { get; set; } // Fecha de inicio del ahorro
+
         [Range(1, 120, ErrorMessage = "El plazo debe estar entre 1 y 120")]
         public int? Plazo { get; set; } // Plazo del ahorro en semanas o meses
 
@@ -45,7 +51,11 @@ namespace ASECCC_Digital.Entities
         // Navegación a la entidad Usuario
         public Usuario Usuario { get; set; }
 
+        // Agregar la relación con el catálogo de tipos de ahorro
+        [ForeignKey("TipoAhorroId")]
+        public CatalogoTipoAhorro TipoAhorro { get; set; }
         // Relación con las transacciones de ahorro
+        public IEnumerable<Ahorro> Ahorros{ get; set; }
         public ICollection<AhorroTransaccion> AhorroTransacciones { get; set; }
     }
 }
