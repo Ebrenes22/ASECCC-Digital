@@ -222,6 +222,61 @@ namespace ASECCC_Digital.Controllers
             }
         }
 
+
+
+        //--------VISTAS ASOCIADO--------------//
+
+        [HttpGet]
+        public JsonResult ObtenerInformacionPersonal()
+        {
+            if (Session["usuarioId"] == null)
+            {
+                return Json(new { success = false, message = "No hay un usuario autenticado en la sesión." }, JsonRequestBehavior.AllowGet);
+            }
+
+            int usuarioId = (int)Session["usuarioId"];
+            var usuario = usuarioM.ObtenerInformacionPersonal(usuarioId);
+
+            if (usuario == null)
+                return Json(new { success = false, message = "No se encontró la información del usuario." }, JsonRequestBehavior.AllowGet);
+
+            return Json(new
+            {
+                success = true,
+                usuario = new
+                {
+                    usuario.usuarioId,
+                    usuario.nombreCompleto,
+                    usuario.identificacion,
+                    usuario.fechaNacimiento,
+                    usuario.correoElectronico,
+                    usuario.telefono,
+                    usuario.direccion,
+                    usuario.fechaIngreso
+                }
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult ActualizarInformacionPersonal(string correo, string telefono, string direccion)
+        {
+            if (Session["usuarioId"] == null)
+            {
+                return Json(new { success = false, message = "No hay un usuario autenticado en la sesión." });
+            }
+
+            int usuarioId = (int)Session["usuarioId"];
+            bool actualizado = usuarioM.ActualizarInformacionPersonal(usuarioId, correo, telefono, direccion);
+
+            if (actualizado)
+            {
+                return Json(new { success = true, message = "Información actualizada correctamente." });
+            }
+            else
+            {
+                return Json(new { success = false, message = "No se pudo actualizar la información." });
+            }
+        }
     }
 
 }

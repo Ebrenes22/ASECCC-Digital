@@ -280,6 +280,34 @@ namespace ASECCC_Digital.Models
             public int CuentaId { get; set; }
             public string Tipo { get; set; }
         }
+
+        public Usuario ObtenerInformacionPersonal(int usuarioId)
+        {
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                return context.Usuario
+                    .Where(u => u.usuarioId == usuarioId)
+                    .FirstOrDefault();
+            }
+        }
+
+        public bool ActualizarInformacionPersonal(int usuarioId, string correo, string telefono, string direccion)
+        {
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                var usuario = context.Usuario.Find(usuarioId);
+
+                if (usuario == null)
+                    return false;
+
+                usuario.correoElectronico = correo;
+                usuario.telefono = telefono;
+                usuario.direccion = direccion;
+
+                context.SaveChanges();
+                return true;
+            }
+        }
     }
 }
 

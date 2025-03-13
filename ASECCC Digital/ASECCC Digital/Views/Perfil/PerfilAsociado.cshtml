@@ -1,213 +1,166 @@
-﻿@{
-    ViewBag.Title = "PerfilAsociado";
+﻿@model ASECCC_Digital.Entities.Usuario
+
+@{
+    ViewBag.Title = "Mi Información Personal";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-sm-8 col-md-6">
-            <!-- Card del Perfil -->
-            <div class="card shadow-lg border-0 rounded-3">
-                <div class="card-header text-center bg-primary text-white">
-                    <h3>Perfil del Asociado</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12">
-                            <h5 class="text-primary">Nombre Completo</h5>
-                            <p>Juan Pérez</p>
-                        </div>
-                        <div class="col-12">
-                            <h5 class="text-primary">Correo Electrónico</h5>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-0" id="correo">juan.perez@ejemplo.com</p>
-                                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalCorreo">Modificar</button>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <h5 class="text-primary">Número de Identificación</h5>
-                            <p>123456789</p>
-                        </div>
-                        <div class="col-12">
-                            <h5 class="text-primary">Teléfono</h5>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-0" id="telefono">+1234567890</p>
-                                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalTelefono">Modificar</button>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <h5 class="text-primary">Dirección</h5>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-0" id="direccion">Calle Ficticia 123, Ciudad</p>
-                                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalDireccion">Modificar</button>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <h5 class="text-primary">Fecha de Ingreso</h5>
-                            <p>01 Mayo 2020</p>
-                        </div>
-                        <div class="col-12">
-                            <h5 class="text-primary">Estado de Afiliación</h5>
-                            <p class="badge bg-success">Activo</p>
-                        </div>
+<section class="container mt-5">
+    <h1 class="text-center mb-4">Mi Información Personal</h1>
 
-                    </div>
-                </div>
+    <div class="card shadow p-4 mx-auto" style="max-width: 700px;">
+        <div class="row">
+            <div class="col-md-6 col-12 mb-3">
+                @Html.LabelFor(model => model.NombreCompleto, "Nombre Completo:", new { @class = "fw-bold" })
+                <div id="nombreCompleto">@Html.DisplayFor(model => model.NombreCompleto)</div>
+            </div>
+            <div class="col-md-6 col-12 mb-3">
+                @Html.LabelFor(model => model.Identificacion, "Identificación: ", new { @class = "fw-bold" })
+                <div id="identificacion">@Html.DisplayFor(model => model.Identificacion)</div>
+            </div>
+            <div class="col-md-6 col-12 mb-3">
+                @Html.LabelFor(model => model.FechaNacimiento, "Fecha de Nacimiento: ", new { @class = "fw-bold" })
+                <div id="fechaNacimiento">@Html.DisplayFor(model => model.FechaNacimiento)</div>
+            </div>
+            <div class="col-md-6 col-12 mb-3">
+                @Html.LabelFor(model => model.CorreoElectronico, "Correo Electrónico: ", new { @class = "fw-bold" })
+                <div id="correoElectronico">@Html.DisplayFor(model => model.CorreoElectronico)</div>
+            </div>
+            <div class="col-md-6 col-12 mb-3">
+                @Html.LabelFor(model => model.Telefono, "Teléfono: ", new { @class = "fw-bold" })
+                <div id="telefono">@Html.DisplayFor(model => model.Telefono)</div>
+            </div>
+            <div class="col-md-6 col-12 mb-3">
+                @Html.LabelFor(model => model.Direccion, "Dirección: ", new { @class = "fw-bold" })
+                <div id="direccion">@Html.DisplayFor(model => model.Direccion)</div>
+            </div>
+            <div class="col-md-6 col-12 mb-3">
+                @Html.LabelFor(model => model.FechaIngreso, "Fecha de ingreso: ", new { @class = "fw-bold" })
+                <div id="fechaIngreso">@Html.DisplayFor(model => model.FechaIngreso)</div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Modal para modificar correo electrónico -->
-<div class="modal fade" id="modalCorreo" tabindex="-1" aria-labelledby="modalCorreoLabel" aria-hidden="true">
-    <div class="modal-dialog">
+        <div class="text-center mt-4">
+            <button class="btn btn-primary w-100" onclick="abrirModal()">Actualizar Información Personal</button>
+        </div>
+    </div>
+</section>
+
+<!-- Modal de actualización -->
+<div class="modal fade" id="modalActualizar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalCorreoLabel">Modificar Correo Electrónico</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Actualizar Información</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="formCorreo">
+                @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "formActualizar" }))
+                {
                     <div class="mb-3">
-                        <label for="nuevoCorreo" class="form-label">Nuevo Correo</label>
-                        <input type="email" class="form-control" id="nuevoCorreo" placeholder="juan.perez@nuevo.com">
+                        @Html.LabelFor(model => model.CorreoElectronico, "Correo Electrónico", new { @class = "form-label" })
+                        @Html.TextBox("nuevoCorreo", null, new { @class = "form-control", type = "email", required = "required" })
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="actualizarCorreo()">Guardar Cambios</button>
+                    <div class="mb-3">
+                        @Html.LabelFor(model => model.Telefono, "Teléfono", new { @class = "form-label" })
+                        @Html.TextBox("nuevoTelefono", null, new { @class = "form-control", type = "tel", required = "required" })
+                    </div>
+                    <div class="mb-3">
+                        @Html.LabelFor(model => model.Direccion, "Dirección", new { @class = "form-label" })
+                        @Html.TextBox("nuevaDireccion", null, new { @class = "form-control", required = "required" })
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Actualizar</button>
+                    </div>
+                }
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para modificar teléfono -->
-<div class="modal fade" id="modalTelefono" tabindex="-1" aria-labelledby="modalTelefonoLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTelefonoLabel">Modificar Teléfono</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formTelefono">
-                    <div class="mb-3">
-                        <label for="nuevoTelefono" class="form-label">Nuevo Teléfono</label>
-                        <input type="text" class="form-control" id="nuevoTelefono" placeholder="+1234567890">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="actualizarTelefono()">Guardar Cambios</button>
-            </div>
-        </div>
-    </div>
-</div>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Modal para modificar dirección -->
-<div class="modal fade" id="modalDireccion" tabindex="-1" aria-labelledby="modalDireccionLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalDireccionLabel">Modificar Dirección</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formDireccion">
-                    <div class="mb-3">
-                        <label for="nuevaDireccion" class="form-label">Nueva Dirección</label>
-                        <input type="text" class="form-control" id="nuevaDireccion" placeholder="Calle Ficticia 123, Ciudad">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="actualizarDireccion()">Guardar Cambios</button>
-            </div>
-        </div>
-    </div>
-</div>
+    <script>
+        $(document).ready(function () {
+            obtenerInformacionPersonal();
+        });
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        function obtenerInformacionPersonal() {
+            $.ajax({
+                url: "/Asociados/ObtenerInformacionPersonal",
+                type: "GET",
+                success: function (data) {
+                    console.log("Datos recibidos:", data);
 
-<script>
-    function actualizarCorreo() {
-        var nuevoCorreo = document.getElementById("nuevoCorreo").value;
-        document.getElementById("correo").innerText = nuevoCorreo;
-        var modalCorreo = new bootstrap.Modal(document.getElementById('modalCorreo'));
-        modalCorreo.hide();
-    }
-
-    function actualizarTelefono() {
-        var nuevoTelefono = document.getElementById("nuevoTelefono").value;
-        document.getElementById("telefono").innerText = nuevoTelefono;
-        var modalTelefono = new bootstrap.Modal(document.getElementById('modalTelefono'));
-        modalTelefono.hide();
-    }
-
-    function actualizarDireccion() {
-        var nuevaDireccion = document.getElementById("nuevaDireccion").value;
-        document.getElementById("direccion").innerText = nuevaDireccion;
-        var modalDireccion = new bootstrap.Modal(document.getElementById('modalDireccion'));
-        modalDireccion.hide();
-    }
-</script>
-
-<style>
-    .card {
-        margin-bottom: 50px; /* Ajusta el valor según sea necesario */
-        border-radius: 10px;
-    }
-
-    .card-header {
-        background-color: #003366; /* Azul oscuro */
-        color: white;
-    }
-
-    .card-body {
-        background-color: #f8f9fa;
-    }
-
-        .card-body h5 {
-            font-size: 1.1rem;
-            font-weight: bold;
+                    if (data.success) {
+                        $("#nombreCompleto").text(data.usuario.nombreCompleto);
+                        $("#identificacion").text(data.usuario.identificacion);
+                        $("#fechaNacimiento").text(formatearFecha(data.usuario.fechaNacimiento));
+                        $("#correoElectronico").text(data.usuario.correoElectronico);
+                        $("#telefono").text(data.usuario.telefono);
+                        $("#direccion").text(data.usuario.direccion);
+                        $("#fechaIngreso").text(formatearFecha(data.usuario.fechaIngreso));
+                    } else {
+                        Swal.fire("Error", data.message, "error");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error en AJAX:", error);
+                    Swal.fire("Error", "Hubo un problema al cargar la información.", "error");
+                }
+            });
         }
 
-    .badge {
-        font-size: 1rem;
-        font-weight: normal;
-    }
+        function formatearFecha(jsonFecha) {
+            if (!jsonFecha) return "No disponible";
 
-    .text-primary {
-        color: #003366 !important;
-    }
+            let fecha = new Date(parseInt(jsonFecha.replace("/Date(", "").replace(")/", ""), 10));
+            let dia = fecha.getDate().toString().padStart(2, "0");
+            let mes = (fecha.getMonth() + 1).toString().padStart(2, "0");
+            let anio = fecha.getFullYear();
 
-    .shadow-lg {
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-    }
-
-    /* Asegura que los botones tengan margen en pantallas pequeñas */
-    .btn-warning {
-        margin-right: 10px; /* Espacio a la derecha del botón */
-    }
-
-    /* Espaciado en pantallas pequeñas */
-    .mb-sm-0 {
-        margin-bottom: 0 !important;
-    }
-
-    .mb-3 {
-        margin-bottom: 1rem !important;
-    }
-
-    .d-flex {
-        align-items: center;
-    }
-
-        .d-flex .btn {
-            margin-left: 10px;
+            return `${dia}/${mes}/${anio}`;
         }
-</style>
+
+        function abrirModal() {
+            $("#nuevoCorreo").val($("#correoElectronico").text());
+            $("#nuevoTelefono").val($("#telefono").text());
+            $("#nuevaDireccion").val($("#direccion").text());
+            $("#modalActualizar").modal("show");
+        }
+
+        $("#formActualizar").submit(function (e) {
+            e.preventDefault();
+            $.post("/Asociados/ActualizarInformacionPersonal", {
+                correo: $("#nuevoCorreo").val(),
+                telefono: $("#nuevoTelefono").val(),
+                direccion: $("#nuevaDireccion").val()
+            }, function (data) {
+                Swal.fire(data.success ? "¡Éxito!" : "Error", data.message, data.success ? "success" : "error")
+                    .then(() => {
+                        if (data.success) {
+                            $("#modalActualizar").modal("hide");
+                            obtenerInformacionPersonal();
+                        }
+                    });
+            });
+        });
+
+        // Formatear el teléfono en tiempo real dentro del modal
+        $(document).ready(function () {
+            $("#nuevoTelefono").on("input", function () {
+                var value = $(this).val().replace(/\D/g, ''); // Solo números
+
+                if (value.length > 8) {
+                    value = value.substring(0, 8); // Limita a 8 caracteres
+                }
+
+                $(this).val(value); // Asigna el valor limpio sin guiones
+            });
+        });
+
+    </script>
+}
