@@ -1,213 +1,169 @@
-﻿@{
-    ViewBag.Title = "Beneficiarios";
+﻿@model ASECCC_Digital.Entities.Beneficiario
+@{
+    ViewBag.Title = "Administración de Beneficiarios";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-sm-10 col-md-8 col-lg-6">
-            <!-- Card para Beneficiarios -->
-            <div class="card shadow-lg border-0 rounded-3">
-                <div class="card-header text-center bg-primary text-white">
-                    <h3>Gestión de Beneficiarios</h3>
-                </div>
-                <div class="card-body">
-                    <!-- Botón para Agregar Beneficiario -->
-                    <button class="btn btn-success mb-4" data-bs-toggle="modal" data-bs-target="#modalAgregarBeneficiario">
-                        <i class="bi bi-person-plus"></i> Agregar Beneficiario
-                    </button>
+<section class="container mt-5">
+    <h1 class="text-center mb-4">Administrar Beneficiarios</h1>
 
-                    <!-- Tabla de Beneficiarios -->
-                    <table class="table table-striped table-responsive">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Cédula</th>
-                                <th>Teléfono</th>
-                                <th>%</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Aquí irían los beneficiarios listados desde el modelo o base de datos -->
-                            <tr>
-                                <td>Juan Pérez</td>
-                                <td>123456789</td>
-                                <td>+1234567890</td>
-                                <td>15%</td>
-                            </tr>
-                            <tr>
-                                <td>Ana Gómez</td>
-                                <td>987654321</td>
-                                <td>+0987654321</td>
-                                <td>10%</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <!-- Botones de acción (editar y eliminar) debajo de la tabla -->
-                    <div class="d-flex justify-content-between mt-4">
-                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarBeneficiario">
-                            Editar Beneficiario
-                        </button>
-                        <button class="btn btn-danger btn-sm">
-                            Eliminar Beneficiario
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="text-end mb-3">
+        <button class="btn btn-success" onclick="abrirModalRegistro()">Agregar Beneficiario</button>
     </div>
-</div>
 
-<!-- Modal para agregar beneficiario -->
-<div class="modal fade" id="modalAgregarBeneficiario" tabindex="-1" aria-labelledby="modalAgregarBeneficiarioLabel" aria-hidden="true">
+    <!-- Contenedor de Beneficiarios -->
+    <div id="contenedorBeneficiarios" class="row g-3">
+        <!-- Aquí se insertarán los beneficiarios dinámicamente -->
+    </div>
+</section>
+
+<!-- Modal de Registro/Edición de Beneficiarios -->
+<div class="modal fade" id="modalBeneficiario" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalAgregarBeneficiarioLabel">Agregar Beneficiario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Gestionar Beneficiario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="formAgregarBeneficiario">
-                    <div class="mb-3">
-                        <label for="nombreBeneficiario" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombreBeneficiario" placeholder="Nombre del beneficiario" required>
+                @using (Html.BeginForm("", "", FormMethod.Post, new { id = "formBeneficiario" }))
+                {
+                    @Html.HiddenFor(model => model.BeneficiarioId, new { id = "beneficiarioId" })
+
+                    <div class="mb-2">
+                        @Html.LabelFor(model => model.NombreCompleto, "Nombre Completo: ", new { @class = "form-label" })
+                        @Html.TextBoxFor(model => model.NombreCompleto, new { @class = "form-control", id = "nombreBeneficiario", placeholder = "Ingrese el nombre", required = "required" })
                     </div>
-                    <div class="mb-3">
-                        <label for="cedulaBeneficiario" class="form-label">Cédula</label>
-                        <input type="text" class="form-control" id="cedulaBeneficiario" placeholder="Cédula del beneficiario" required>
+
+                    <div class="mb-2">
+                        @Html.LabelFor(model => model.Relacion, "Relación: ", new { @class = "form-label" })
+                        @Html.TextBoxFor(model => model.Relacion, new { @class = "form-control", id = "relacionBeneficiario", placeholder = "Ejemplo: Hijo, Cónyuge", required = "required" })
                     </div>
+
                     <div class="mb-3">
-                        <label for="telefonoBeneficiario" class="form-label">Teléfono</label>
-                        <input type="text" class="form-control" id="telefonoBeneficiario" placeholder="Número de teléfono" required>
+                        @Html.LabelFor(model => model.PorcentajeBeneficio, "Porcentaje de beneficio: ", new { @class = "form-label" })
+                        @Html.TextBoxFor(model => model.PorcentajeBeneficio, new { @class = "form-control", id = "porcentajeBeneficio", type = "number", min = "1", max = "100", required = "required" })
                     </div>
-                    <div class="mb-3">
-                        <label for="porcentajeBeneficio" class="form-label">Porcentaje</label>
-                        <input type="number" class="form-control" id="porcentajeBeneficio" placeholder="Porcentaje" required>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="guardarBeneficiario()">Guardar</button>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="agregarBeneficiario()">Agregar</button>
+                }
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para editar beneficiario -->
-<div class="modal fade" id="modalEditarBeneficiario" tabindex="-1" aria-labelledby="modalEditarBeneficiarioLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalEditarBeneficiarioLabel">Editar Beneficiario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formEditarBeneficiario">
-                    <div class="mb-3">
-                        <label for="editarNombreBeneficiario" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="editarNombreBeneficiario" value="Juan Pérez" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editarCedulaBeneficiario" class="form-label">Cédula</label>
-                        <input type="text" class="form-control" id="editarCedulaBeneficiario" value="123456789" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editarTelefonoBeneficiario" class="form-label">Teléfono</label>
-                        <input type="text" class="form-control" id="editarTelefonoBeneficiario" value="+1234567890" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editarPorcentajeBeneficio" class="form-label">Porcentaje de Beneficio</label>
-                        <input type="number" class="form-control" id="editarPorcentajeBeneficio" value="15" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="editarBeneficiario()">Guardar Cambios</button>
-            </div>
-        </div>
-    </div>
-</div>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            cargarBeneficiarios();
+        });
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        // Validación en tiempo real para el porcentaje
+        $("#porcentajeBeneficio").on("input", function () {
+            let valor = $(this).val().replace(/[^0-9]/g, ""); 
+            let numero = parseInt(valor, 10);
 
-<script>
-    function agregarBeneficiario() {
-        var nombre = document.getElementById("nombreBeneficiario").value;
-        var cedula = document.getElementById("cedulaBeneficiario").value;
-        var telefono = document.getElementById("telefonoBeneficiario").value;
-        var porcentaje = document.getElementById("porcentajeBeneficio").value;
+            if (isNaN(numero)) {
+                $(this).val(""); 
+            } else if (numero < 0) {
+                $(this).val("0"); 
+            } else if (numero > 100) {
+                $(this).val("100"); 
+            } else {
+                $(this).val(numero); 
+            }
+        });
 
-        // Aquí se podría agregar la lógica para guardar el beneficiario en la base de datos
-        // Actualizar la tabla de beneficiarios (simulado con un alert)
-        alert("Beneficiario agregado: " + nombre);
-
-        var modalAgregarBeneficiario = new bootstrap.Modal(document.getElementById('modalAgregarBeneficiario'));
-        modalAgregarBeneficiario.hide();
-    }
-
-    function editarBeneficiario() {
-        var nombre = document.getElementById("editarNombreBeneficiario").value;
-        var cedula = document.getElementById("editarCedulaBeneficiario").value;
-        var telefono = document.getElementById("editarTelefonoBeneficiario").value;
-        var porcentaje = document.getElementById("editarPorcentajeBeneficio").value;
-
-        // Aquí se podría agregar la lógica para guardar los cambios en la base de datos
-        // Actualizar la tabla de beneficiarios (simulado con un alert)
-        alert("Beneficiario editado: " + nombre);
-
-        var modalEditarBeneficiario = new bootstrap.Modal(document.getElementById('modalEditarBeneficiario'));
-        modalEditarBeneficiario.hide();
-    }
-</script>
-
-<style>
-    .card {
-        margin-bottom: 50px; /* Ajusta el valor según sea necesario */
-        border-radius: 10px;
-    }
-
-    .card-header {
-        background-color: #003366; /* Azul oscuro */
-        color: white;
-    }
-
-    .card-body {
-        background-color: #f8f9fa;
-    }
-
-        .card-body h5 {
-            font-size: 1.1rem;
-            font-weight: bold;
+        function cargarBeneficiarios() {
+            $.get("/Perfil/ObtenerBeneficiarios", function (data) {
+                let contenedor = $("#contenedorBeneficiarios").empty();
+                if (data.success) {
+                    data.beneficiarios.forEach(b => {
+                        contenedor.append(`
+                                <div class="col-12 col-md-6">
+                                    <div class="card shadow-sm p-3">
+                                        <h5 class="fw-bold">${b.nombreCompleto}</h5>
+                                        <p class="text-muted">Relación: ${b.relacion}</p>
+                                        <p><strong>Porcentaje:</strong> ${b.porcentajeBeneficio}%</p>
+                                        <div class="d-flex justify-content-end">
+                                            <button class="btn btn-warning btn-sm me-2" onclick="editarBeneficiario(${b.beneficiarioId}, '${b.nombreCompleto}', '${b.relacion}', ${b.porcentajeBeneficio})">Editar</button>
+                                            <button class="btn btn-danger btn-sm" onclick="eliminarBeneficiario(${b.beneficiarioId})">Eliminar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `);
+                    });
+                }
+            });
         }
 
-    .text-primary {
-        color: #003366 !important;
-    }
+        function abrirModalRegistro() {
+            $("#beneficiarioId").val("");
+            $("#nombreBeneficiario").val("");
+            $("#relacionBeneficiario").val("");
+            $("#porcentajeBeneficio").val("");
+            $("#modalBeneficiario").modal("show");
+        }
 
-    .shadow-lg {
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-    }
+        function editarBeneficiario(id, nombre, relacion, porcentaje) {
+            $("#beneficiarioId").val(id);
+            $("#nombreBeneficiario").val(nombre);
+            $("#relacionBeneficiario").val(relacion);
+            $("#porcentajeBeneficio").val(porcentaje);
+            $("#modalBeneficiario").modal("show");
+        }
 
-    .table-responsive {
-        overflow-x: auto;
-    }
+        function guardarBeneficiario() {
+            let id = $("#beneficiarioId").val();
+            let nombre = $("#nombreBeneficiario").val().trim();
+            let relacion = $("#relacionBeneficiario").val().trim();
+            let porcentaje = parseFloat($("#porcentajeBeneficio").val()) || 0;
 
-    .btn-success, .btn-warning, .btn-danger {
-        width: 100%;
-    }
+            if (nombre === "" || relacion === "" || porcentaje <= 0 || porcentaje > 100) {
+                Swal.fire("Error", "Por favor complete todos los campos correctamente.", "error");
+                return;
+            }
 
-    .btn-sm {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.875rem;
-        line-height: 1.5;
-        border-radius: 0.2rem;
-    }
+            let url = id ? "/Perfil/ModificarBeneficiario" : "/Perfil/RegistrarBeneficiario";
+            let datos = {
+                BeneficiarioId: id,
+                NombreCompleto: nombre,
+                Relacion: relacion,
+                PorcentajeBeneficio: porcentaje
+            };
 
-    .d-flex {
-        gap: 10px;
-    }
-</style>
+            $.post(url, datos, function (data) {
+                Swal.fire(data.success ? "¡Éxito!" : "Error", data.message, data.success ? "success" : "error");
+                if (data.success) {
+                    $("#modalBeneficiario").modal("hide");
+                    cargarBeneficiarios();
+                }
+            });
+        }
+
+        function eliminarBeneficiario(id) {
+            Swal.fire({
+                title: "¿Eliminar beneficiario?",
+                text: "El porcentaje se redistribuirá entre los demás beneficiarios.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post("/Perfil/EliminarBeneficiario", { beneficiarioId: id }, function (data) {
+                        Swal.fire("Información", data.message, data.success ? "success" : "error");
+                        cargarBeneficiarios();
+                    });
+                }
+            });
+        }
+    </script>
+}

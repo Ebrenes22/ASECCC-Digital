@@ -236,6 +236,7 @@
     <Compile Include="Models\AhorroModel.cs" />
     <Compile Include="Models\AporteModel.cs" />
     <Compile Include="Models\FiltroSeguridad.cs" />
+    <Compile Include="Models\BeneficiariosModel.cs" />
     <Compile Include="Models\NotificacionModel.cs" />
     <Compile Include="Models\PrestamosModel.cs" />
     <Compile Include="Models\SeguridadAuditoriaModel.cs" />
