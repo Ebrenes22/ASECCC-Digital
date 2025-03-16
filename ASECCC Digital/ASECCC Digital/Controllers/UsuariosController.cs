@@ -179,6 +179,12 @@ namespace ASECCC_Digital.Controllers
         [AllowAnonymous]
         public ActionResult RestablecerContrasena(string token)
         {
+            // Si ya se actualizó la contraseña y se dejó un mensaje en TempData, mostramos la vista sin validar el token.
+            if (TempData["SuccessMessage"] != null)
+            {
+                return View();
+            }
+
             var usuario = _context.Usuario.FirstOrDefault(u => u.resetToken == token && u.resetTokenExpiry > DateTime.UtcNow);
             if (usuario == null)
             {
@@ -207,8 +213,9 @@ namespace ASECCC_Digital.Controllers
             usuario.resetTokenExpiry = null;
             _context.SaveChanges();
 
-            TempData["Success"] = "Tu contraseña ha sido restablecida.";
-            return RedirectToAction("Login", "Usuarios");
+            TempData["SuccessMessage"] = "Tu contraseña ha sido restablecida.";
+            // Redirigimos a la acción GET; al detectar el SuccessMessage, se omitirá la validación del token.
+            return RedirectToAction("RestablecerContrasena", "Usuarios");
         }
 
 

@@ -1,29 +1,120 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "RestablecerContrasena";
     Layout = "~/Views/Shared/_Layout_Externo.cshtml";
 }
+<style>
+    h2, label {
+        color: white;
+    }
+    .input-group-text {
+        background-color: transparent !important;
+        border: none !important;
+    }
+    .btn-custom {
+        height: calc(1.5em + .75rem + 2px);
+        line-height: calc(1.5em + .75rem + 2px);
+        padding: .375rem .75rem;
+    }
+</style>
 
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-sm-8 col-12">
+            <h2 class="mb-4 text-center">Restablecer Contraseña</h2>
 
-<<h2>Restablecer Contraseña</h2>
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Error"]</div>
+            }
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
+            <form id="resetPasswordForm" action="@Url.Action("RestablecerContrasena", "Usuarios")" method="post">
+                <input type="hidden" name="token" value="@ViewBag.Token" />
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
+                <div class="mb-3">
+                    <label for="nuevaContrasena" class="form-label">Nueva Contraseña</label>
+                    <div class="input-group">
+                        <input type="password" id="nuevaContrasena" name="nuevaContrasena" required class="form-control" />
+                        <span class="input-group-text">
+                            <i class="toggle-password fa fa-eye" style="cursor:pointer"></i>
+                        </span>
+                    </div>
+                </div>
 
-<form action="@Url.Action("RestablecerContrasena", "Usuarios")" method="post">
-    <input type="hidden" name="token" value="@ViewBag.Token" />
+                <div class="mb-3">
+                    <label for="confirmContrasena" class="form-label">Confirmar Contraseña</label>
+                    <div class="input-group">
+                        <input type="password" id="confirmContrasena" name="confirmContrasena" required class="form-control" />
+                        <span class="input-group-text">
+                            <i class="toggle-password-confirm fa fa-eye" style="cursor:pointer"></i>
+                        </span>
+                    </div>
+                </div>
 
-    <div>
-        <label>Nueva Contraseña</label>
-        <input type="password" name="nuevaContrasena" required class="form-control" />
+                <button type="submit" class="btn btn-success w-100 btn-custom">Guardar Contraseña</button>
+            </form>
+        </div>
     </div>
+</div>
 
-    <button type="submit" class="btn btn-success mt-2">Guardar Contraseña</button>
-</form>
+<!-- Elemento oculto para leer el mensaje de éxito -->
+<span id="SuccessMessage" style="display: none;">@TempData["SuccessMessage"]</span>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const nuevaContrasena = document.getElementById("nuevaContrasena");
+    const confirmContrasena = document.getElementById("confirmContrasena");
+    const form = document.getElementById("resetPasswordForm");
+
+    // Alternar visibilidad del primer input
+    document.querySelector(".toggle-password").addEventListener("click", function() {
+        if (nuevaContrasena.type === "password") {
+            nuevaContrasena.type = "text";
+            this.classList.remove("fa-eye");
+            this.classList.add("fa-eye-slash");
+        } else {
+            nuevaContrasena.type = "password";
+            this.classList.remove("fa-eye-slash");
+            this.classList.add("fa-eye");
+        }
+    });
+
+    // Alternar visibilidad del segundo input
+    document.querySelector(".toggle-password-confirm").addEventListener("click", function() {
+        if (confirmContrasena.type === "password") {
+            confirmContrasena.type = "text";
+            this.classList.remove("fa-eye");
+            this.classList.add("fa-eye-slash");
+        } else {
+            confirmContrasena.type = "password";
+            this.classList.remove("fa-eye-slash");
+            this.classList.add("fa-eye");
+        }
+    });
+
+    // Validación de coincidencia de contraseñas antes de enviar el formulario
+    form.addEventListener("submit", function(e) {
+        if (nuevaContrasena.value !== confirmContrasena.value) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Las contraseñas no coinciden. Por favor, verifique e intente de nuevo.'
+            });
+        }
+    });
+
+    // Mostrar alerta de éxito si existe un mensaje en SuccessMessage, y redirigir al Login tras cerrarla
+    const successMessage = document.getElementById("SuccessMessage").innerText.trim();
+    if (successMessage) {
+        Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: successMessage,
+            showConfirmButton: true
+        }).then(function() {
+            window.location.href = '@Url.Action("Login", "Usuarios")';
+        });
+    }
+});
+</script>
