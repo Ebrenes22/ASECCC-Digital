@@ -9,7 +9,7 @@ namespace ASECCC_Digital.Models
     public class BeneficioServicioModel
     {
 
-
+        #region Metodos CRUD Vista GestionarBenefyServ
         public List<BeneficioServicio> ConsultarBeneficioServicio()
         {
 
@@ -98,6 +98,9 @@ namespace ASECCC_Digital.Models
                 return context.SaveChanges() > 0;
             }
         }
+        #endregion
+
+
 
 
 

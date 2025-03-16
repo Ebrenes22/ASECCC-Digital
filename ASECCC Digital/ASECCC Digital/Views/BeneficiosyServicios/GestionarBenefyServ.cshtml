@@ -25,6 +25,9 @@
                     <div class="card-body">
                         <p class="card-text"><strong>Descripción:</strong> @item.Descripcion</p>
                         <p class="card-text"><strong>Requisitos:</strong> @item.Requisitos</p>
+                        <p class="card-text"><strong>Descripción:</strong> @item.Categoria</p>
+                        <strong>Estado:</strong> @System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item.Estado)
+                        <p class="card-text"><strong>Fecha:</strong> @item.FechaRegistro.ToString("dd-MM-yyyy")</p>
                     </div>
                     <div class="card-footer">
                         <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarBeneficio"
@@ -162,7 +165,7 @@
 <!-- Modal Eliminar Beneficio -->
 <div class="modal fade" id="modalEliminarBeneficio" tabindex="-1" aria-labelledby="modalEliminarBeneficioLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        @using (Html.BeginForm("Eliminar", "BeneficiosyServicios", FormMethod.Post, new { id = "deleteForm", @class = "needs-validation", novalidate = "novalidate" }))
+        @using (Html.BeginForm("Eliminars", "BeneficiosyServicios", FormMethod.Post, new { id = "deleteForm", @class = "needs-validation", novalidate = "novalidate" }))
         {
             @Html.AntiForgeryToken()
             <div class="modal-content">

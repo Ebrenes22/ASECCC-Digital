@@ -1,7 +1,9 @@
 ﻿using ASECCC_Digital.Entities;
 using ASECCC_Digital.Models;
 using ASECCC_Digital.ViewModels;
+using System.Linq;
 using System.Web.Mvc;
+using System;
 
 namespace ASECCC_Digital.Controllers
 {
@@ -14,15 +16,14 @@ namespace ASECCC_Digital.Controllers
 
         private BeneficioServicioModel beneficioServicioM = new BeneficioServicioModel();
 
-
-
         //--------VISTAS ADMIN--------------//
-        // GET: BeneficiosyServicios
+        
         public ActionResult BeneficioyServicio()
         {
             return View();
         }
 
+        #region CRUD Vista GestionarBenefyServ
         public ActionResult GestionarBenefyServ()
         {
             var lista = beneficioServicioM.ConsultarBeneficioServicio(); // Retorna List<BeneficioServicio>
@@ -102,6 +103,8 @@ namespace ASECCC_Digital.Controllers
             return RedirectToAction("GestionarBenefyServ");
         }
 
+        #endregion
+
 
         public ActionResult RegistrarCuentaxCobrar()
         {
@@ -119,7 +122,16 @@ namespace ASECCC_Digital.Controllers
 
         public ActionResult BenefyServDisponibles()
         {
-            return View();
+            var lista = beneficioServicioM.ConsultarBeneficioServicio();                                               
+            var listaActiva = lista.Where(b => b.Estado.Equals("activo", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var viewModel = new BeneficioServicioViewModel
+            {
+                BeneficioServicio = new BeneficioServicio(),
+                BeneficioServicios = listaActiva
+            };
+
+            return View(viewModel);
         }
 
         public ActionResult ConsultarBenefyServAsociado()

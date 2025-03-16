@@ -1,73 +1,75 @@
-﻿@{
-    ViewBag.Title = "Beneficios y Servicios Disponibles";
+﻿@model ASECCC_Digital.ViewModels.BeneficioServicioViewModel
+
+@{
+    ViewBag.Title = "Gestión de Beneficios y Servicios";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    @Html.Partial("_MenuModulos");
 }
 
 <h1 class="text-center">Beneficios y Servicios Disponibles</h1>
 
 <div class="container">
-    <form id="filtros" class="mb-3">
-        <div class="row">
+    <div class="row">
+        @foreach (var item in Model.BeneficioServicios)
+        {
             <div class="col-md-4">
-                <label for="categoria" class="form-label">Categoría</label>
-                <select class="form-control" id="categoria" name="categoria" onchange="filtrarBeneficios()">
-                    <option value="">Seleccione Categoría</option>
-                    <option value="Casa">Casa</option>
-                    <option value="Salud">Salud</option>
-                    <option value="Educación">Educación</option>
-                    <option value="Deporte">Deporte</option>
-                </select>
+                <div class="card mb-4">
+                    <div class="card-header">
+                        @item.Nombre
+                    </div>
+                    <div class="card-footer text-end">
+                        <button class="btn btn-info btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalVerMas"
+                                data-id="@item.BeneficioId"
+                                data-nombre="@item.Nombre"
+                                data-descripcion="@item.Descripcion"
+                                data-requisitos="@item.Requisitos"
+                                data-categoria="@item.Categoria">
+                            Ver Más
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
-    </form>
-
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Requisitos</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
-        <tbody id="beneficiosTable">
-            <tr>
-                <td><a href="#" onclick="mostrarDetalle('Casa  playa')">Casa en la playa</a></td>
-                <td>La asociación cuenta con villas y apartamentos en condominio para el disfrute de sus asociados.</td>
-                <td>Documento de identidad</td>
-                <td><button class="btn btn-info btn-sm" onclick="mostrarDetalle('Casaplaya')">Ver Detalles</button></td>
-            </tr>
-        </tbody>
-    </table>
-
+        }
+    </div>
 </div>
 
-<div id="detalleModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="detalleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="modalVerMas" tabindex="-1" aria-labelledby="modalVerMasLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="detalleModalLabel">Detalles del Beneficio</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title" id="modalVerMasLabel">Más Información</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="modal-body" id="detalleContenido">
+            <div class="modal-body">
+                <p><strong>Nombre:</strong> <span id="verMasNombre"></span></p>
+                <p><strong>Descripción:</strong> <span id="verMasDescripcion"></span></p>
+                <p><strong>Requisitos:</strong> <span id="verMasRequisitos"></span></p>
+                <p><strong>Categoría:</strong> <span id="verMasCategoria"></span></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
 
-<script>
+@section Scripts {
+    <script>
+        var modalVerMas = document.getElementById('modalVerMas');
+        modalVerMas.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget; // Botón que disparó el modal
+            var nombre = button.getAttribute('data-nombre');
+            var descripcion = button.getAttribute('data-descripcion');
+            var requisitos = button.getAttribute('data-requisitos');
+            var categoria = button.getAttribute('data-categoria');
+            var estado = button.getAttribute('data-estado');
 
-    function mostrarDetalle(beneficio) {
-        var detalles = {
-            "Casa en la playa": "Detalles: La asociación tiene villas y apartamentos en condominio para el disfrute de sus asociados. Condiciones de acceso: Presentar documento de identidad.",
-        };
-    }
-
-</script>
-
+            modalVerMas.querySelector('#verMasNombre').innerText = nombre;
+            modalVerMas.querySelector('#verMasDescripcion').innerText = descripcion;
+            modalVerMas.querySelector('#verMasRequisitos').innerText = requisitos;
+            modalVerMas.querySelector('#verMasCategoria').innerText = categoria;
+            modalVerMas.querySelector('#verMasEstado').innerText = estado;
+        });
+    </script>
+}
