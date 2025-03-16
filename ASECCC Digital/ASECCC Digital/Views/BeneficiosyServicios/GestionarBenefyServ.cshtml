@@ -1,45 +1,234 @@
-﻿@{
+﻿@model ASECCC_Digital.ViewModels.BeneficioServicioViewModel
+
+@{
     ViewBag.Title = "Gestión de Beneficios y Servicios";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    @Html.Partial("_MenuModulos");
 }
 
 <h1 class="text-center">Gestión de Beneficios y Servicios</h1>
 
 <div class="container">
-    <button class="btn btn-success mb-3" data-toggle="modal" data-target="#modalNuevoBeneficio">Registrar Nuevo Beneficio</button>
+    <!-- Botón para abrir el modal de creación -->
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalNuevoBeneficio">
+        Registrar Nuevo Beneficio
+    </button>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Requisitos</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Casa en la playa</td>
-                <td>La asociación cuenta con villas y apartamentos en condominio para el disfrute de sus asociados.</td>
-                <td>Documento de identidad</td>
-                <td>
-                    <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modalEditarBeneficio">Editar</button>
-                    <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalEliminarBeneficio">Eliminar</button>
-                </td>
-            </tr>
-            <tr>
-                <td>Beneficio de Salud</td>
-                <td>Servicios médicos completos para los asociados.</td>
-                <td>Seguro médico</td>
-                <td>
-                    <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modalEditarBeneficio">Editar</button>
-                    <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalEliminarBeneficio">Eliminar</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Grid de tarjetas -->
+    <div class="row">
+        @foreach (var item in Model.BeneficioServicios)
+        {
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        @item.Nombre
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><strong>Descripción:</strong> @item.Descripcion</p>
+                        <p class="card-text"><strong>Requisitos:</strong> @item.Requisitos</p>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarBeneficio"
+                                data-id="@item.BeneficioId"
+                                data-nombre="@item.Nombre"
+                                data-descripcion="@item.Descripcion"
+                                data-requisitos="@item.Requisitos"
+                                data-categoria="@item.Categoria"
+                                data-estado="@item.Estado">
+                            Editar
+                        </button>
+                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminarBeneficio"
+                                data-id="@item.BeneficioId">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
+<!-- Modal Registrar Beneficio -->
+<div class="modal fade" id="modalNuevoBeneficio" tabindex="-1" aria-labelledby="modalNuevoBeneficioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <section class="container mt-3">
+                <div class="card shadow-lg p-4 mx-auto" style="max-width: 800px;">
+                    <h1 class="text-center mb-4">Registrar Beneficio</h1>
+                    @using (Html.BeginForm("Registrar", "BeneficiosyServicios", FormMethod.Post, new { @class = "needs-validation", role = "form", id = "formRegistrarBeneficio", novalidate = "novalidate" }))
+                    {
+                        @Html.AntiForgeryToken()
 
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.BeneficioServicio.Nombre, "Nombre", new { @class = "form-label fw-bold" })
+                            @Html.TextBoxFor(m => m.BeneficioServicio.Nombre, new { @class = "form-control", placeholder = "Ingrese el nombre", required = "required" })
+                            @Html.ValidationMessageFor(m => m.BeneficioServicio.Nombre, "", new { @class = "text-danger" })
+                        </div>
 
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.BeneficioServicio.Descripcion, "Descripción", new { @class = "form-label fw-bold" })
+                            @Html.TextAreaFor(m => m.BeneficioServicio.Descripcion, new { @class = "form-control", placeholder = "Ingrese la descripción", rows = "3", required = "required" })
+                            @Html.ValidationMessageFor(m => m.BeneficioServicio.Descripcion, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.BeneficioServicio.Requisitos, "Requisitos", new { @class = "form-label fw-bold" })
+                            @Html.TextBoxFor(m => m.BeneficioServicio.Requisitos, new { @class = "form-control", placeholder = "Ingrese los requisitos", required = "required" })
+                            @Html.ValidationMessageFor(m => m.BeneficioServicio.Requisitos, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.BeneficioServicio.Categoria, "Categoría", new { @class = "form-label fw-bold" })
+                            @Html.TextBoxFor(m => m.BeneficioServicio.Categoria, new { @class = "form-control", placeholder = "Ingrese la categoría", required = "required" })
+                            @Html.ValidationMessageFor(m => m.BeneficioServicio.Categoria, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.BeneficioServicio.Estado, "Estado", new { @class = "form-label fw-bold" })
+                            @Html.DropDownListFor(m => m.BeneficioServicio.Estado,
+                                new SelectList(new[] {
+                                    new { Value = "activo", Text = "Activo" },
+                                    new { Value = "inactivo", Text = "Inactivo" }
+                                }, "Value", "Text"),
+                                new { @class = "form-select", required = "required" })
+                            @Html.ValidationMessageFor(m => m.BeneficioServicio.Estado, "", new { @class = "text-danger" })
+                        </div>
+
+                        <input type="hidden" name="FechaRegistro" value="@DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss")" />
+
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-success">Registrar</button>
+                        </div>
+                    }
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+<!-- Modal Editar Beneficio -->
+<div class="modal fade" id="modalEditarBeneficio" tabindex="-1" aria-labelledby="modalEditarBeneficioLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        @using (Html.BeginForm("Actualizar", "BeneficiosyServicios", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarBeneficioLabel">Editar Beneficio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    @* Campo oculto para el ID; se asigna mediante JavaScript *@
+                    @Html.HiddenFor(m => m.BeneficioServicio.BeneficioId, new { id = "EditarBeneficioId" })
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.BeneficioServicio.Nombre, "Nombre", new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.BeneficioServicio.Nombre, new { @class = "form-control", id = "EditarNombre", required = "required" })
+                        @Html.ValidationMessageFor(m => m.BeneficioServicio.Nombre, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.BeneficioServicio.Descripcion, "Descripción", new { @class = "form-label" })
+                        @Html.TextAreaFor(m => m.BeneficioServicio.Descripcion, new { @class = "form-control", id = "EditarDescripcion", rows = "3" })
+                        @Html.ValidationMessageFor(m => m.BeneficioServicio.Descripcion, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.BeneficioServicio.Requisitos, "Requisitos", new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.BeneficioServicio.Requisitos, new { @class = "form-control", id = "EditarRequisitos" })
+                        @Html.ValidationMessageFor(m => m.BeneficioServicio.Requisitos, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.BeneficioServicio.Categoria, "Categoría", new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.BeneficioServicio.Categoria, new { @class = "form-control", id = "EditarCategoria" })
+                        @Html.ValidationMessageFor(m => m.BeneficioServicio.Categoria, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.BeneficioServicio.Estado, "Estado", new { @class = "form-label" })
+                        @Html.DropDownListFor(m => m.BeneficioServicio.Estado,
+                            new SelectList(new[] {
+                                new { Value = "activo", Text = "Activo" },
+                                new { Value = "inactivo", Text = "Inactivo" }
+                            }, "Value", "Text"),
+                            new { @class = "form-select", id = "EditarEstado", required = "required" })
+                        @Html.ValidationMessageFor(m => m.BeneficioServicio.Estado, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal Eliminar Beneficio -->
+<div class="modal fade" id="modalEliminarBeneficio" tabindex="-1" aria-labelledby="modalEliminarBeneficioLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        @using (Html.BeginForm("Eliminar", "BeneficiosyServicios", FormMethod.Post, new { id = "deleteForm", @class = "needs-validation", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEliminarBeneficioLabel">Eliminar Beneficio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro de que desea eliminar este beneficio?</p>
+                    @Html.Hidden("BeneficioId", null, new { id = "EliminarBeneficioId" })
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<span id="SuccessMessage" style="display: none;">@TempData["SuccessMessage"]</span>
+
+@section Scripts {
+    <script>
+        // Modal de edición: transferir datos usando Bootstrap 5
+        var modalEditar = document.getElementById('modalEditarBeneficio');
+        if (modalEditar) {
+            modalEditar.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var id = button.getAttribute('data-id');
+                var nombre = button.getAttribute('data-nombre');
+                var descripcion = button.getAttribute('data-descripcion');
+                var requisitos = button.getAttribute('data-requisitos');
+                var categoria = button.getAttribute('data-categoria');
+                var estado = button.getAttribute('data-estado');
+
+                modalEditar.querySelector('#EditarBeneficioId').value = id;
+                modalEditar.querySelector('#EditarNombre').value = nombre;
+                modalEditar.querySelector('#EditarDescripcion').value = descripcion;
+                modalEditar.querySelector('#EditarRequisitos').value = requisitos;
+                modalEditar.querySelector('#EditarCategoria').value = categoria;
+                modalEditar.querySelector('#EditarEstado').value = estado;
+            });
+        }
+
+        // Modal de eliminación
+        var modalEliminar = document.getElementById('modalEliminarBeneficio');
+        if (modalEliminar) {
+            modalEliminar.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var id = button.getAttribute('data-id');
+                modalEliminar.querySelector('#EliminarBeneficioId').value = id;
+            });
+        }
+
+        // Mostrar SweetAlert si hay mensaje de éxito
+        const successMessage = document.getElementById("SuccessMessage").innerText.trim();
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: successMessage,
+                showConfirmButton: true
+            }).then(function() {
+                window.location.href = '@Url.Action("GestionarBenefyServ", "BeneficiosyServicios")';
+            });
+        }
+    </script>
+}

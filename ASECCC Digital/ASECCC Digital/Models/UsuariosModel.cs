@@ -48,10 +48,7 @@ namespace ASECCC_Digital.Models
             }
             catch (Exception)
             {
-                // Manejo de excepciones
-
-
-
+            
                 return false;
             }
         }

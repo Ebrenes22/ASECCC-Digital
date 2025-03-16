@@ -77,12 +77,14 @@
                     if (userRole == "administrador")
                     {
                         <li class="nav-item"><a class="nav-link" href="@Url.Action("GestionarBenefyServ", "BeneficiosyServicios")">Gestionar Beneficios o Servicios</a></li>
-                        <li class="nav-item"><a class="nav-link" href="@Url.Action("ConsultarBenefyServAdmin", "BeneficiosyServicios")">Consultar Beneficios o Servicios</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("RegistrarCuentaxCobrar", "BeneficiosyServicios")">Registrar Cuenta por Cobrar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("RegistrarAbonoBenefyServ", "BeneficiosyServicios")">Registrar Abono a Cuenta</a></li>
+
                     }
                     else if (userRole == "asociado")
                     {
                         <li class="nav-item"><a class="nav-link" href="@Url.Action("BenefyServDisponibles", "BeneficiosyServicios")">Beneficios y Servicios Disponibles</a></li>
-                        <li class="nav-item"><a class="nav-link" href="@Url.Action("ConsultarBenefyServAsociado", "BeneficiosyServicios")">Consulta de Beneficios Activos</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("ConsultarBenefyServAsociado", "BeneficiosyServicios")">Consulta de Cuenta Activa</a></li>
                     }
                 }
 

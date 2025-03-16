@@ -1,4 +1,7 @@
-﻿using System.Web.Mvc;
+﻿using ASECCC_Digital.Entities;
+using ASECCC_Digital.Models;
+using ASECCC_Digital.ViewModels;
+using System.Web.Mvc;
 
 namespace ASECCC_Digital.Controllers
 {
@@ -8,6 +11,8 @@ namespace ASECCC_Digital.Controllers
         {
             return "BenefyServ";
         }
+
+        private BeneficioServicioModel beneficioServicioM = new BeneficioServicioModel();
 
 
 
@@ -20,13 +25,83 @@ namespace ASECCC_Digital.Controllers
 
         public ActionResult GestionarBenefyServ()
         {
-            return View();
+            var lista = beneficioServicioM.ConsultarBeneficioServicio(); // Retorna List<BeneficioServicio>
+            var viewModel = new BeneficioServicioViewModel
+            {
+                BeneficioServicio = new BeneficioServicio(),
+                BeneficioServicios = lista               
+            };
+
+            return View(viewModel);
         }
 
-        public ActionResult ConsultarBenefyServAdmin()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Registrar(BeneficioServicioViewModel viewModel)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                // Se registra usando la información contenida en viewModel.BeneficioServicio
+                bool registrado = beneficioServicioM.RegistrarBeneficioServicio(viewModel.BeneficioServicio);
+                if (registrado)
+                {
+                    TempData["SuccessMessage"] = "El beneficio ha sido registrado exitosamente.";
+                    return RedirectToAction("GestionarBenefyServ");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "No se pudo registrar el beneficio.");
+                }
+            }
+            // En caso de error, se recarga la vista con la lista actualizada
+            viewModel.BeneficioServicios = beneficioServicioM.ConsultarBeneficioServicio();
+            return View("GestionarBenefyServ", viewModel);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Actualizar(BeneficioServicioViewModel viewModel)
+
+        {
+            if (ModelState.IsValid)
+            {
+                
+                bool actualizado = beneficioServicioM.ActualizarBeneficioServicio(viewModel.BeneficioServicio);
+                if (actualizado)
+                {
+                    TempData["SuccessMessage"] = "El beneficio ha sido actualizado exitosamente.";
+                    return RedirectToAction("GestionarBenefyServ");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "No se pudo actualizar el beneficio.");
+                }
+            }
+            // Si ocurre algún error, se recarga la vista con la lista actualizada y los datos ingresados
+       
+            {
+                viewModel.BeneficioServicios = beneficioServicioM.ConsultarBeneficioServicio(); // O ConsultaBeneficioServicio() según tu método
+                return View("GestionarBenefyServ", viewModel);
+            };
+           
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Eliminar(int BeneficioId)
+        {
+            bool eliminado = beneficioServicioM.EliminarBeneficioServicio(BeneficioId);
+            if (eliminado)
+            {
+                TempData["SuccessMessage"] = "El beneficio ha sido eliminado exitosamente.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "No se pudo eliminar el beneficio.";
+            }
+            return RedirectToAction("GestionarBenefyServ");
+        }
+
 
         public ActionResult RegistrarCuentaxCobrar()
         {
@@ -37,6 +112,8 @@ namespace ASECCC_Digital.Controllers
         {
             return View();
         }
+
+
 
         //--------VISTAS ASOCIADOS--------------//
 
