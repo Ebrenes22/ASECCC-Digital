@@ -108,8 +108,70 @@ namespace ASECCC_Digital.Controllers
 
         public ActionResult RegistrarCuentaxCobrar()
         {
-            return View();
+            // Obtenemos la lista de cuentas, usuarios y beneficios
+            var cuentas = beneficioServicioM.ConsultarBeneficioServicioCuentas();
+            var usuarios = beneficioServicioM.ConsultarUsuarios();
+            var beneficios = beneficioServicioM.ConsultarBeneficioServicios();
+
+            // Creamos el ViewModel con un objeto vacío para la nueva cuenta
+            var viewModel = new BeneficioServicioViewModel
+            {
+                BeneficioServicioCuenta = new BeneficioServicioCuenta(),
+                BeneficioServicioCuentas = cuentas,
+                Usuarios = usuarios,
+                BeneficioServicios = beneficios
+            };
+
+            return View(viewModel);
         }
+
+     
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RegistrarCuenta(BeneficioServicioViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                bool registrado = beneficioServicioM.RegistrarBeneficioServicioCuenta(viewModel.BeneficioServicioCuenta);
+                if (registrado)
+                {
+                    TempData["SuccessMessage"] = "La cuenta ha sido registrada exitosamente.";
+                    return RedirectToAction("RegistrarCuentaxCobrar");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "No se pudo registrar la cuenta.");
+                }
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Por favor, revise los datos ingresados.";
+            }
+            viewModel.BeneficioServicioCuentas = beneficioServicioM.ConsultarBeneficioServicioCuentas();
+            viewModel.Usuarios = beneficioServicioM.ConsultarUsuarios();
+            viewModel.BeneficioServicios = beneficioServicioM.ConsultarBeneficioServicios();
+            return View("RegistrarCuentaxCobrar", viewModel);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EliminarCuenta(int CuentaBeneficiosServiciosId)
+        {
+            bool eliminado = beneficioServicioM.EliminarBeneficioServicioCuenta(CuentaBeneficiosServiciosId);
+            if (eliminado)
+            {
+                TempData["SuccessMessage"] = "La cuenta ha sido eliminada exitosamente.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "No se pudo eliminar la cuenta.";
+            }
+            return RedirectToAction("RegistrarCuentaxCobrar");
+        }
+
+
+
 
         public ActionResult RegistrarAbonoBenefyServ()
         {
@@ -133,6 +195,8 @@ namespace ASECCC_Digital.Controllers
 
             return View(viewModel);
         }
+
+
 
         public ActionResult ConsultarBenefyServAsociado()
         {

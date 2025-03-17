@@ -1,28 +1,252 @@
-﻿
+﻿@model ASECCC_Digital.ViewModels.BeneficioServicioViewModel
+
 @{
-    ViewBag.Title = "RegistrarCuentaxCobrar";
+    ViewBag.Title = "Cuentas por Cobrar";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
 
-<h1 class="text-center">Registrar Cuenta por Cobrar</h1>
+<h1 class="text-center">Cuentas por Cobrar</h1>
 
 <div class="container">
-    <form method="post" action="@Url.Action("RegistrarCuenta", "Beneficio")">
-        <div class="form-group">
-            <label for="beneficio">Seleccionar Beneficio</label>
-            <select class="form-control" id="beneficio" name="beneficio">
+    <!-- Botón para abrir el modal de registro de cuenta -->
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalNuevoCuenta">
+        Registrar Cuenta
+    </button>
 
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="asociado">Asociado</label>
-            <input type="text" class="form-control" id="asociado" name="asociado" required />
-        </div>
-        <div class="form-group">
-            <label for="monto">Monto</label>
-            <input type="number" class="form-control" id="monto" name="monto" required />
-        </div>
-        <button type="submit" class="btn btn-success">Registrar Cuenta</button>
-    </form>
+    <!-- Tabla de cuentas con DataTables -->
+    <table id="cuentasTable" class="table table-striped">
+        <thead>
+            <tr>
+                <th class="d-none">ID</th>
+                <th>Asociado</th>
+                <th>Beneficio</th>
+                <th>Monto Total</th>
+                <th>Monto Pendiente</th>
+                <th>N° Proforma</th>
+                <th>Plazo Semanas</th>
+                <th>Fecha Creación</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cuenta in Model.BeneficioServicioCuentas)
+            {
+                <tr>
+                    <td class="d-none">@cuenta.CuentaBeneficiosServiciosId</td>
+                    <td class="text-center">@cuenta.Usuario.NombreCompleto</td>
+                    <td class="text-center">@cuenta.BeneficioServicio.Nombre</td>
+                    <td class="text-center">@cuenta.MontoTotal.ToString("C", new System.Globalization.CultureInfo("es-CR"))</td>
+                    <td class="text-center">@cuenta.MontoPendiente.ToString("C", new System.Globalization.CultureInfo("es-CR"))</td>
+                    <td class="text-center">@cuenta.NumeroProforma</td>
+                    <td class="text-center">@cuenta.Plazo</td>
+                    <td class="text-center">@cuenta.FechaCreacion.ToString("dd-MM-yyyy")</td>
+                    <td class="text-center">@(char.ToUpper(cuenta.Estado[0]) + cuenta.Estado.Substring(1))</td>
+                    <td class="text-center">
+                        <button class="btn btn-danger btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalEliminarCuenta"
+                                data-id="@cuenta.CuentaBeneficiosServiciosId">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
 </div>
+<!-- Modal para Registrar Cuenta -->
+<div class="modal fade" id="modalNuevoCuenta" tabindex="-1" aria-labelledby="modalNuevoCuentaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Quitar modal-lg para usar max-width del CSS -->
+        <div class="modal-content">
+            @using (Html.BeginForm("RegistrarCuenta", "BeneficiosyServicios", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalNuevoCuentaLabel">Registrar Cuenta por Cobrar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Dropdown para seleccionar el Usuario -->
+                    <div class="mb-3">
+                        <label for="UsuarioId" class="form-label">Usuario</label>
+                        <select class="form-control" id="UsuarioId" name="UsuarioId" required>
+                            <option value="">Seleccione un usuario</option>
+                            @foreach (var usuario in Model.Usuarios)
+                            {
+                                <option value="@usuario.UsuarioId">@usuario.NombreCompleto</option>
+                            }
+                        </select>
+                        @Html.ValidationMessage("UsuarioId", "", new { @class = "text-danger" })
+                    </div>
+                    <!-- Dropdown para seleccionar el Beneficio -->
+                    <div class="mb-3">
+                        <label for="BeneficioId" class="form-label">Beneficio</label>
+                        <select class="form-control" id="BeneficioId" name="BeneficioId" required>
+                            <option value="">Seleccione un beneficio</option>
+                            @foreach (var beneficio in Model.BeneficioServicios)
+                            {
+                                <option value="@beneficio.BeneficioId">@beneficio.Nombre</option>
+                            }
+                        </select>
+                        @Html.ValidationMessage("BeneficioId", "", new { @class = "text-danger" })
+                    </div>
+                    <!-- Campo para Monto Total -->
+                    <div class="mb-3">
+                        <label for="MontoTotal" class="form-label">Monto Total</label>
+                        <input type="number" step="0.01" class="form-control" id="MontoTotal" name="MontoTotal" required />
+                        @Html.ValidationMessage("MontoTotal", "", new { @class = "text-danger" })
+                    </div>
+                    <!-- Campo para Número de Proforma -->
+                    <div class="mb-3">
+                        <label for="NumeroProforma" class="form-label">Número de Proforma</label>
+                        <input type="text" class="form-control" id="NumeroProforma" name="NumeroProforma" required />
+                        @Html.ValidationMessage("NumeroProforma", "", new { @class = "text-danger" })
+                    </div>
+                    <!-- Campo para Plazo en Semanas -->
+                    <div class="mb-3">
+                        <label for="Plazo" class="form-label">Plazo en Semanas</label>
+                        <input type="number" class="form-control" id="Plazo" name="Plazo" required max="999" />
+                        @Html.ValidationMessage("Plazo", "", new { @class = "text-danger" })
+                    </div>
+                    <!-- Dropdown para Estado -->
+                    <div class="mb-3">
+                        <label for="Estado" class="form-label">Estado</label>
+                        <select class="form-control" id="Estado" name="Estado" required>
+                            <option value="">Seleccione un estado</option>
+                            <option value="activo">Activo</option>
+                            <option value="cancelado">Cancelada</option>
+                        </select>
+                        @Html.ValidationMessage("Estado", "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-success">Registrar Cuenta</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal para Eliminar Cuenta -->
+<div class="modal fade" id="modalEliminarCuenta" tabindex="-1" aria-labelledby="modalEliminarCuentaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        @using (Html.BeginForm("EliminarCuenta", "Beneficio", FormMethod.Post, new { id = "deleteCuentaForm", @class = "needs-validation", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEliminarCuentaLabel">Eliminar Cuenta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro de que desea eliminar esta cuenta?</p>
+                    @Html.Hidden("CuentaBeneficiosServiciosId", null, new { id = "deleteCuentaId" })
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<span id="SuccessMessage" style="display: none;">@TempData["SuccessMessage"]</span>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#cuentasTable').DataTable({
+                "pageLength": 10,  // Muestra 15 notificaciones por página
+                "lengthChange": false,  // Oculta la opción de cambiar la cantidad de registros por página
+                "order": [[1, "desc"]],  // Ordena por fecha (columna 2) de forma descendente
+                "language": {
+                    "paginate": {
+                        "previous": "Anterior",
+                        "next": "Siguiente"
+                    },
+                    "search": "Buscar:",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Cuentas",
+                    "infoEmpty": "No hay cuentas disponibles",
+                    "emptyTable": "No hay cuentas registradas",
+                    "zeroRecords": "No se encontraron coincidencias"
+                }
+            });
+        });
+
+        var modalEliminarCuenta = document.getElementById('modalEliminarCuenta');
+        modalEliminarCuenta.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var cuentaId = button.getAttribute('data-id');
+            modalEliminarCuenta.querySelector('#deleteCuentaId').value = cuentaId;
+        });
+
+
+        // Validación de formularios
+        (function () {
+            'use strict'
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.querySelectorAll('.needs-validation')
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+
+
+                })
+        })()
+
+         // Mostrar SweetAlert si hay mensaje de éxito
+        const successMessage = document.getElementById("SuccessMessage").innerText.trim();
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: successMessage,
+                showConfirmButton: true
+            }).then(function () {
+                window.location.href = '@Url.Action("GestionarBenefyServ", "BeneficiosyServicios")';
+            });
+        }
+    </script>
+
+}
+
+<style>
+    /* Reducir el ancho máximo del modal */
+    .modal-dialog {
+        max-width: 400px; /* Ajusta según lo necesites */
+    }
+
+    /* Reducir el espacio entre grupos de formulario */
+    .modal-body .mb-3 {
+        margin-bottom: 10px;
+    }
+
+    /* Reducir el padding y el tamaño de fuente de los inputs */
+    .modal-body .form-control {
+        padding: 5px 10px;
+        font-size: 0.9rem;
+    }
+
+    /* Opcional: ajustar el padding de las etiquetas */
+    .modal-body .form-label {
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+</style>

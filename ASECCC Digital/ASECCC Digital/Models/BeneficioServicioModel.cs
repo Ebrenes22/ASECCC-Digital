@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Data.Entity;
 
 namespace ASECCC_Digital.Models
 {
@@ -67,7 +68,7 @@ namespace ASECCC_Digital.Models
         {
             using (var context = new Database.ASECCC_DIGITALEntities())
             {
-             
+
                 var beneficioActual = context.BeneficiosServicios.Find(beneficio.BeneficioId);
                 if (beneficioActual == null)
                 {
@@ -91,9 +92,9 @@ namespace ASECCC_Digital.Models
                 var beneficio = context.BeneficiosServicios.Find(beneficioId);
                 if (beneficio == null)
                 {
-                    return false; // No se encontró el registro a eliminar
+                    return false; 
                 }
-                // Eliminar el registro y guardar los cambios
+            
                 context.BeneficiosServicios.Remove(beneficio);
                 return context.SaveChanges() > 0;
             }
@@ -101,8 +102,119 @@ namespace ASECCC_Digital.Models
         #endregion
 
 
+        #region Metodos CRUD Vista RegistrarCuentaxCobrar
+        public List<BeneficioServicioCuenta> ConsultarBeneficioServicioCuentas()
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                return context.BeneficiosServiciosCuenta
+                              .Include(c => c.Usuario)
+                              .Include(c => c.BeneficiosServicios)
+                              .Select(b => new BeneficioServicioCuenta
+                              {
+                                  CuentaBeneficiosServiciosId = b.cuentaBeneficiosServiciosId,
+                                  UsuarioId = b.usuarioId,
+                                  BeneficioId = b.beneficioId,
+                                  MontoTotal = b.montoTotal,
+                                  MontoPendiente = b.montoPendiente,
+                                  NumeroProforma = b.numeroProforma,
+                                  Plazo = b.plazo,
+                                  FechaCreacion = (DateTime)b.fechaCreacion,
+                                  Estado = b.estado,
+                                 
+                                  Usuario = new Entities.Usuario
+                                  {
+                                      UsuarioId = b.Usuario.usuarioId,
+                                      NombreCompleto = b.Usuario.nombreCompleto
+                                  },
+                         
+                                  BeneficioServicio = new Entities.BeneficioServicio
+                                  {
+                                      BeneficioId = b.BeneficiosServicios.beneficioId,
+                                      Nombre = b.BeneficiosServicios.nombre
+                                  }
+                              })
+                              .ToList();
+            }
+
+        }
+
+        public List<Usuario> ConsultarUsuarios()
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                return context.Usuario
+                    .Select(u => new Usuario
+                    {
+                        UsuarioId = u.usuarioId,
+                        NombreCompleto = u.nombreCompleto
+                    })
+                    .ToList();
+            }
+        }
+
+        public List<BeneficioServicio> ConsultarBeneficioServicios()
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                return context.BeneficiosServicios
+                    .Select(b => new BeneficioServicio
+                    {
+                         BeneficioId = b.beneficioId,
+                        Nombre = b.nombre
+
+                })
+                    .ToList();
+            }
+        }
+
+        public bool RegistrarBeneficioServicioCuenta(BeneficioServicioCuenta cuenta)
+        {
+            int rowsAffected;
+            try
+            {
+                using (var context = new Database.ASECCC_DIGITALEntities())
+                {
+                    var tabladb = new Database.BeneficiosServiciosCuenta
+                    {
+                        usuarioId = cuenta.UsuarioId,
+                        beneficioId = cuenta.BeneficioId,
+                        montoTotal = cuenta.MontoTotal,
+                        montoPendiente = cuenta.MontoPendiente,
+                        numeroProforma = cuenta.NumeroProforma,
+                        plazo = cuenta.Plazo,
+                        fechaCreacion = DateTime.Now,
+                        estado = cuenta.Estado
+                    };
+                    context.BeneficiosServiciosCuenta.Add(tabladb);
+                    rowsAffected = context.SaveChanges();
+                    return rowsAffected > 0;
+                }
+
+                }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
 
+        // Elimina una cuenta por cobrar
+        public bool EliminarBeneficioServicioCuenta(int cuentaId)
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                var cuenta = context.BeneficiosServiciosCuenta.Find(cuentaId);
+                if (cuenta == null)
+                    return false;
+
+                context.BeneficiosServiciosCuenta.Remove(cuenta);
+                return context.SaveChanges() > 0;
+            }
+        }
+
+
+        #endregion
 
     }
 }
