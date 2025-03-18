@@ -1,7 +1,15 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-}
 
+    var usuario = User.Identity.Name;
+    var rol = "";
+
+    // Asigna el rol si el usuario está autenticado
+    if (User.Identity.IsAuthenticated && User.Identity is FormsIdentity identity)
+    {
+        rol = identity.Ticket.UserData.ToLower();
+    }
+}
 <section id="hero" class="hero section">
     <div class="hero-background">
         <img src="~/assets/img/wallpaper/wp3404276.jpg" alt="Fondo" class="img-fluid" />
@@ -9,9 +17,63 @@
     <div class="container hero-content text-center text-black">
         <h1 class="display-4">¡Bienvenidos a ASECCC Digital!</h1>
         <p class="lead">Estamos comprometidos a brindarte lo mejor.</p>
+        @if (rol == "asociado")
+        {
+            <div class="container mt-4">
+                <!-- Pestañas -->
+                <ul class="nav nav-tabs" id="misionVisionTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="mision-tab" data-bs-toggle="tab" data-bs-target="#mision" type="button" role="tab" aria-controls="mision" aria-selected="true">
+                            Misión
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="vision-tab" data-bs-toggle="tab" data-bs-target="#vision" type="button" role="tab" aria-controls="vision" aria-selected="false">
+                            Visión
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Contenido de las pestañas -->
+                <div class="tab-content mt-3" id="misionVisionTabContent">
+                    <div class="tab-pane fade show active" id="mision" role="tabpanel" aria-labelledby="mision-tab">
+                        <p>
+                            Ofrecer servicios y beneficios innovadores que impulsen el bienestar económico, social y personal de nuestros asociados, fomentando valores de solidaridad, cooperación y responsabilidad compartida para mejorar su calidad de vida y fortalecer la comunidad.
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="vision" role="tabpanel" aria-labelledby="vision-tab">
+                        <p>
+                            Convertirnos en un pilar fundamental para el progreso económico y social de nuestros asociados, promoviendo la solidaridad y el trabajo conjunto para alcanzar el bienestar común y el desarrollo sostenible de nuestras comunidades.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+
+
     </div>
 </section>
 
+<!-- Estilos adicionales para reducir el tamaño de las tarjetas -->
+<style>
+    .small-card {
+        max-width: 100%; /* Se adapta al contenedor */
+        margin: 0 auto;
+    }
+
+        .small-card .card-body {
+            padding: 0.75rem;
+        }
+
+        .small-card .card-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .small-card .card-text {
+            font-size: 0.85rem;
+        }
+</style>
 
 
 
