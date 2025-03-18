@@ -18,8 +18,8 @@ namespace ASECCC_Digital.Controllers
         }
 
         //Instancias de modelos Usuario  y Notificaciones
-         UsuariosModel usuarioM = new UsuariosModel();
-         NotificacionModel notificacionN = new NotificacionModel();
+         private UsuariosModel usuarioM = new UsuariosModel();
+         private NotificacionModel notificacionN = new NotificacionModel();
 
 
         //--------VISTAS ADMIN--------------//
@@ -69,8 +69,10 @@ namespace ASECCC_Digital.Controllers
 
         public ActionResult NotificacionUsuario()
         {
-            return View();
+            var notificaciones =notificacionN.ObtenerNotificacionesPersonalizadas();
+            return View(notificaciones);
         }
+
 
     }
 }

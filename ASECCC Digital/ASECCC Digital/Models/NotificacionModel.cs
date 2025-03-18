@@ -22,5 +22,20 @@ namespace ASECCC_Digital.Models
             }
         }
 
+        public List<Database.Notificaciones> ObtenerNotificacionesPersonalizadas()
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                // Obtener el usuarioId desde la sesión (asegúrate de que esté almacenado y de su tipo)
+                int usuarioId = Convert.ToInt32(System.Web.HttpContext.Current.Session["usuarioId"]);
+
+                return context.Notificaciones
+                              .Where(n => n.usuarioId == usuarioId)
+                              .OrderByDescending(n => n.fechaEnvio)
+                              .ToList();
+            }
+        }
+
+
     }
 }

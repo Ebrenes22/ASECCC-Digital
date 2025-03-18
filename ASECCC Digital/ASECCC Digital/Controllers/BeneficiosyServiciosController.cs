@@ -139,6 +139,7 @@ namespace ASECCC_Digital.Controllers
                 bool registrado = beneficioServicioM.RegistrarBeneficioServicioCuenta(viewModel.BeneficioServicioCuenta);
                 if (registrado)
                 {
+                    beneficioServicioM.NotificacionCuentaporCobrar(viewModel.BeneficioServicioCuenta);
                     TempData["SuccessMessage"] = "La cuenta ha sido registrada exitosamente.";
                     return RedirectToAction("RegistrarCuentaxCobrar");
                 }

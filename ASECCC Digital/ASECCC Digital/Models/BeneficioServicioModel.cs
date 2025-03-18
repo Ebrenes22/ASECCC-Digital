@@ -216,8 +216,48 @@ namespace ASECCC_Digital.Models
 
         #endregion
 
+        public bool NotificacionCuentaporCobrar(Entities.BeneficioServicioCuenta cuenta)
+        {
+            try
+            {
+                using (var context = new Database.ASECCC_DIGITALEntities())
+                {
+                    // Buscar el usuario por su ID
+                    var usuario = context.Usuario.FirstOrDefault(u => u.usuarioId == cuenta.UsuarioId);
+                    string nombreUsuario = usuario != null ? usuario.nombreCompleto : "Usuario desconocido";
+
+                    // Obtener el beneficio usando el beneficioId
+                    var beneficio = context.BeneficiosServicios.FirstOrDefault(b => b.beneficioId == cuenta.BeneficioId);
+                    string nombreBeneficio = beneficio != null ? beneficio.nombre : "Beneficio desconocido";
+
+                    // Crear la notificación
+                    var notificacion = new Database.Notificaciones
+                    {
+                        usuarioId = cuenta.UsuarioId,
+                        titulo = "Nueva Cuenta por Cobrar",
+                        contenido = $"Se ha recibido una nueva cuenta por cobrar de {nombreUsuario} para el beneficio {nombreBeneficio} por un monto de ¢{cuenta.MontoTotal}",
+                        tipo = "Personalizada",
+                        fechaEnvio = DateTime.Now,
+                        estado = "enviada"
+                    };
+
+                    context.Notificaciones.Add(notificacion);
+                    int rowsAffected = context.SaveChanges();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Aquí puedes registrar el error para depuración
+                Console.WriteLine($"Error al registrar la notificación: {ex.Message}");
+                return false;
+            }
+        }
+
+
     }
 }
+
 
 
 
