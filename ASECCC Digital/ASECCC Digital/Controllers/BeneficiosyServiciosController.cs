@@ -130,6 +130,10 @@ namespace ASECCC_Digital.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult RegistrarCuenta(BeneficioServicioViewModel viewModel)
         {
+            viewModel.BeneficioServicioCuentas = beneficioServicioM.ConsultarBeneficioServicioCuentas();
+            viewModel.Usuarios = beneficioServicioM.ConsultarUsuarios();
+            viewModel.BeneficioServicios = beneficioServicioM.ConsultarBeneficioServicios();
+
             if (ModelState.IsValid)
             {
                 bool registrado = beneficioServicioM.RegistrarBeneficioServicioCuenta(viewModel.BeneficioServicioCuenta);
@@ -147,9 +151,7 @@ namespace ASECCC_Digital.Controllers
             {
                 TempData["ErrorMessage"] = "Por favor, revise los datos ingresados.";
             }
-            viewModel.BeneficioServicioCuentas = beneficioServicioM.ConsultarBeneficioServicioCuentas();
-            viewModel.Usuarios = beneficioServicioM.ConsultarUsuarios();
-            viewModel.BeneficioServicios = beneficioServicioM.ConsultarBeneficioServicios();
+           
             return View("RegistrarCuentaxCobrar", viewModel);
         }
 
