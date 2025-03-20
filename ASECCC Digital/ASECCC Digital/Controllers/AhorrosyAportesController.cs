@@ -41,11 +41,11 @@ namespace ASECCC_Digital.Controllers
         }
 
 
-        [Authorize]
         [HttpGet]
+        [Authorize]
         public JsonResult ConsultarAportesAsociado(string nombreAsociado)
         {
-            var resultado = aporteM.ObtenerAportesPorAsociado(nombreAsociado);  
+            var resultado = aporteM.ObtenerAportesPorAsociado(nombreAsociado);
             return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
@@ -53,7 +53,7 @@ namespace ASECCC_Digital.Controllers
         [HttpPost]
         public JsonResult RegistrarAporte(string nombreAsociado, string tipoAporte, decimal monto)
         {
-           var resultado = aporteM.RegistrarAporte(nombreAsociado, tipoAporte, monto);
+            var resultado = aporteM.RegistrarAporte(nombreAsociado, tipoAporte, monto);
             return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
@@ -61,36 +61,38 @@ namespace ASECCC_Digital.Controllers
         [HttpPost]
         public JsonResult ModificarAporte(int aporteId, decimal nuevoMonto)
         {
-          var resultado = aporteM.ModificarAporte(aporteId, nuevoMonto);
+            var resultado = aporteM.ModificarAporte(aporteId, nuevoMonto);
             return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
         public JsonResult EliminarAporte(int aporteId)
         {
-          var resultado = aporteM.EliminarAporte(aporteId);
+            var resultado = aporteM.EliminarAporte(aporteId);
             return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
-
         [HttpGet]
-        [Authorize]
-        public ActionResult ConsultarAhorrosAsociado()
+        public JsonResult BuscarAsociados(string termino)
         {
-            var usuarioId = (int)Session["usuarioId"];
-            var ahorros = ahorroM.ConsultarAhorrosAsociados(usuarioId).Data as dynamic; // Extraer datos de JsonResult
-
-            if (ahorros != null && ahorros.success)
+            using (var context = new ASECCC_DIGITALEntities())
             {
-                return View(ahorros.data); // Enviar solo la lista de ahorros a la vista
-            }
+                var asociados = context.Usuario
+                    .Where(u => u.nombreCompleto.Contains(termino))
+                    .Select(u => new { label = u.nombreCompleto, value = u.usuarioId })
+                    .Take(10)
+                    .ToList();
 
-            return View(new List<Ahorro>()); // Si hay un error, pasar una lista vacía
+                return Json(asociados, JsonRequestBehavior.AllowGet);
+            }
         }
 
-
-
-
+        [HttpGet]
+        public JsonResult ConsultarAhorrosAsociado(string nombreAsociado)
+        {
+            var resultado = ahorroM.ConsultarAhorrosAsociado(nombreAsociado);
+            return Json(resultado, JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost]
         public JsonResult RegistrarAhorro(string nombreAsociado, string tipoAhorro, decimal monto, int plazo)
@@ -99,20 +101,27 @@ namespace ASECCC_Digital.Controllers
             return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public JsonResult ObtenerHistorialAporte(int aporteId)
+        {
+            var resultado = aporteM.ObtenerHistorialAporte(aporteId);
+            return Json(resultado, JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpPost]
         public JsonResult ModificarAhorro(int ahorroId, decimal nuevoMonto)
         {
-          var resultado = ahorroM.ModificarAhorro(ahorroId, nuevoMonto);
+            var resultado = ahorroM.ModificarAhorro(ahorroId, nuevoMonto);
             return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
-  
+
         [HttpPost]
         public JsonResult EliminarAhorro(int ahorroId)
         {
-          var resultado = ahorroM.EliminarAhorro(ahorroId);
-            return Json(resultado, JsonRequestBehavior.AllowGet);   
+            var resultado = ahorroM.EliminarAhorro(ahorroId);
+            return Json(resultado, JsonRequestBehavior.AllowGet);
         }
     }
 }

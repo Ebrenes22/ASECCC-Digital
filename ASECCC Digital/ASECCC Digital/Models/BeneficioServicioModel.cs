@@ -92,9 +92,9 @@ namespace ASECCC_Digital.Models
                 var beneficio = context.BeneficiosServicios.Find(beneficioId);
                 if (beneficio == null)
                 {
-                    return false; 
+                    return false;
                 }
-            
+
                 context.BeneficiosServicios.Remove(beneficio);
                 return context.SaveChanges() > 0;
             }
@@ -121,13 +121,13 @@ namespace ASECCC_Digital.Models
                                   Plazo = b.plazo,
                                   FechaCreacion = (DateTime)b.fechaCreacion,
                                   Estado = b.estado,
-                                 
+
                                   Usuario = new Entities.Usuario
                                   {
                                       UsuarioId = b.Usuario.usuarioId,
                                       NombreCompleto = b.Usuario.nombreCompleto
                                   },
-                         
+
                                   BeneficioServicio = new Entities.BeneficioServicio
                                   {
                                       BeneficioId = b.BeneficiosServicios.beneficioId,
@@ -160,10 +160,10 @@ namespace ASECCC_Digital.Models
                 return context.BeneficiosServicios
                     .Select(b => new BeneficioServicio
                     {
-                         BeneficioId = b.beneficioId,
+                        BeneficioId = b.beneficioId,
                         Nombre = b.nombre
 
-                })
+                    })
                     .ToList();
             }
         }
@@ -191,7 +191,7 @@ namespace ASECCC_Digital.Models
                     return rowsAffected > 0;
                 }
 
-                }
+            }
             catch (Exception)
             {
                 return false;
@@ -254,10 +254,50 @@ namespace ASECCC_Digital.Models
             }
         }
 
+        public List<BeneficioServicioCuenta> ObtenerCuentasPorCobrarAsociado(int usuarioId)
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                return context.BeneficiosServiciosCuenta
+                              .Include(c => c.BeneficiosServicios)
+                              .Where(c => c.usuarioId == usuarioId)
+                              .Select(c => new BeneficioServicioCuenta
+                              {
+                                  CuentaBeneficiosServiciosId = c.cuentaBeneficiosServiciosId,
+                                  UsuarioId = c.usuarioId,
+                                  BeneficioId = c.beneficioId,
+                                  MontoTotal = c.montoTotal,
+                                  MontoPendiente = c.montoPendiente,
+                                  Plazo = c.plazo,
+                                  FechaCreacion = (DateTime)c.fechaCreacion,
+                                  Estado = c.estado,
+                                  BeneficioServicio = new BeneficioServicio
+                                  {
+                                      BeneficioId = c.BeneficiosServicios.beneficioId,
+                                      Nombre = c.BeneficiosServicios.nombre
+                                  }
+                              })
+                              .ToList();
+            }
+        }
+
+        public List<BeneficioTransaccion> ObtenerHistorialCuotas(int cuentaId)
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                return context.BeneficiosTransacciones
+                              .Where(t => t.cuentaBeneficiosServiciosId == cuentaId)
+                              .Select(t => new BeneficioTransaccion
+                              {
+                                  TransaccionId = t.transaccionId,
+                                  CuentaBeneficiosServiciosId = t.cuentaBeneficiosServiciosId,
+                                  Monto = t.monto,
+                                  FechaTransaccion = t.fechaTransaccion ?? DateTime.MinValue,
+                                  Descripcion = t.descripcion
+                              })
+                              .ToList();
+            }
+        }
 
     }
 }
-
-
-
-

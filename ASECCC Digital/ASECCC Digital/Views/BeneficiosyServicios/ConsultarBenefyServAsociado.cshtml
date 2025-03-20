@@ -1,44 +1,188 @@
-﻿@{
-    ViewBag.Title = "ConsultarBenefyServAsociado";
+﻿@model ASECCC_Digital.ViewModels.BeneficioServicioViewModel
+
+@{
+    ViewBag.Title = "Consultar Beneficios y Servicios";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
+
+    var beneficios = Model?.BeneficioServicios ?? new List<ASECCC_Digital.Entities.BeneficioServicio>();
 }
 
-<h2 class="text-center">Consultar Beneficios y Servicios</h2>
+<h2 class="text-center mt-4">Consultar Beneficios y Servicios</h2>
 
 <div class="container">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Casa en la playa</h5>
-                    <p class="card-text">La asociación cuenta con villas y apartamentos en condominio para el disfrute de sus asociados.</p>
-                    <p><strong>Requisitos:</strong> Documento de identidad</p>
-                    <p><strong>Estado:</strong> Activo</p>
+    <div class="row justify-content-center" id="beneficios-container">
+        @if (beneficios.Any())
+        {
+            foreach (var beneficio in beneficios)
+            {
+                <div class="col-md-4">
+                    <div class="card text-center shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">@beneficio.Nombre</h5>
+                            <p class="card-text">@beneficio.Descripcion</p>
+                            <p><strong>Requisitos:</strong> @beneficio.Requisitos</p>
+                            <p><strong>Estado:</strong> <span class="badge bg-success">@beneficio.Estado</span></p>
+                            <button class="btn btn-primary" onclick="consultarCuentas(@beneficio.BeneficioId)">Ver Cuentas</button>
+                        </div>
+                    </div>
                 </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center">
+                <p>No hay beneficios y servicios disponibles en este momento.</p>
             </div>
-        </div>
+        }
+    </div>
 
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Servicio de Transporte</h5>
-                    <p class="card-text">Ofrecemos transporte exclusivo para los asociados a diferentes puntos turísticos.</p>
-                    <p><strong>Requisitos:</strong> Documento de identidad, ser asociado activo</p>
-                    <p><strong>Estado:</strong> Activo</p>
-                </div>
-            </div>
-        </div>
+    <h3 class="text-center mt-5 fw-bold">Cuentas por Cobrar</h3>
+    <div class="row justify-content-center" id="cuentas-container"></div>
 
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Piscina y áreas recreativas</h5>
-                    <p class="card-text">Acceso a una piscina y zonas recreativas dentro del complejo para los miembros de la asociación.</p>
-                    <p><strong>Requisitos:</strong> Documento de identidad</p>
-                    <p><strong>Estado:</strong> Activo</p>
-                </div>
-            </div>
+    <h3 class="text-center mt-5 fw-bold">Historial de Cuotas</h3>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <table class="table table-striped text-center" id="cuotas-table">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Monto</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody id="cuotas-body">
+                    <tr><td colspan="4">No hay transacciones registradas.</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+        cargarBeneficios();
+    });
+
+    function cargarBeneficios() {
+        $.ajax({
+            url: '@Url.Action("ObtenerBeneficios", "BeneficiosyServicios")',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var container = $('#beneficios-container');
+                container.empty();
+
+                if (data.length > 0) {
+                    $.each(data, function (index, beneficio) {
+                        var cardHtml = `
+                            <div class="col-md-4">
+                                <div class="card text-center shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title fw-bold">${beneficio.Nombre}</h5>
+                                        <p class="card-text">${beneficio.Descripcion}</p>
+                                        <p><strong>Requisitos:</strong> ${beneficio.Requisitos}</p>
+                                        <p><strong>Estado:</strong> <span class="badge bg-success">${beneficio.Estado}</span></p>
+                                        <button class="btn btn-primary" onclick="consultarCuentas(${beneficio.BeneficioId})">Ver Cuentas</button>
+                                    </div>
+                                </div>
+                            </div>`;
+                        container.append(cardHtml);
+                    });
+                } else {
+                    container.append('<div class="col-12 text-center"><p>No hay beneficios y servicios disponibles en este momento.</p></div>');
+                }
+            },
+            error: function () {
+                console.log('Error al cargar los beneficios y servicios.');
+            }
+        });
+    }
+
+    function consultarCuentas(beneficioId) {
+        $.ajax({
+            url: '@Url.Action("ConsultarCuentasPorCobrar", "BeneficiosyServicios")',
+            type: 'GET',
+            data: { usuarioId: beneficioId },
+            dataType: 'json',
+            success: function (data) {
+                var container = $('#cuentas-container');
+                container.empty();
+
+                if (data.length > 0) {
+                    $.each(data, function (index, cuenta) {
+                        var cardHtml = `
+                            <div class="col-md-4">
+                                <div class="card text-center shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title fw-bold">Cuenta ID: ${cuenta.CuentaBeneficiosServiciosId}</h5>
+                                        <p><strong>Monto Total:</strong> ${cuenta.MontoTotal}</p>
+                                        <p><strong>Monto Pendiente:</strong> ${cuenta.MontoPendiente}</p>
+                                        <button class="btn btn-secondary" onclick="consultarCuotas(${cuenta.CuentaBeneficiosServiciosId})">Ver Historial</button>
+                                    </div>
+                                </div>
+                            </div>`;
+                        container.append(cardHtml);
+                    });
+                } else {
+                    container.append('<div class="col-12 text-center"><p>No hay cuentas por cobrar asociadas.</p></div>');
+                }
+            },
+            error: function () {
+                console.log('Error al cargar las cuentas.');
+            }
+        });
+    }
+
+   function consultarCuotas(cuentaId) {
+    console.log("Consultando historial de cuotas para cuenta ID:", cuentaId);
+
+    $.ajax({
+        url: '@Url.Action("ConsultarHistorialCuotas", "BeneficiosyServicios")',
+        type: 'GET',
+        data: { cuentaId: cuentaId },
+        dataType: 'json',
+        success: function (response) {
+            var tbody = $('#cuotas-body');
+            tbody.empty();
+
+            $('#cuotas-container').show();
+
+            if (response.success && response.data.length > 0) {
+                $.each(response.data, function (index, cuota) {
+                    let fechaTransaccion = "Fecha no disponible";
+
+                    if (cuota.FechaTransaccion) {
+                        let match = cuota.FechaTransaccion.match(/\d+/);
+                        if (match) {
+                            let timestamp = parseInt(match[0]);
+                            let fechaObj = new Date(timestamp);
+                            fechaTransaccion = fechaObj.toLocaleDateString('es-CR');
+                        } else {
+                            let fechaObj = new Date(cuota.FechaTransaccion);
+                            if (!isNaN(fechaObj)) {
+                                fechaTransaccion = fechaObj.toLocaleDateString('es-CR');
+                            }
+                        }
+                    }
+
+                    var rowHtml = `
+                        <tr>
+                            <td>${cuota.TransaccionId}</td>
+                            <td>${fechaTransaccion}</td>
+                            <td>₡${cuota.Monto.toFixed(2)}</td>
+                            <td>${cuota.Descripcion}</td>
+                        </tr>`;
+                    tbody.append(rowHtml);
+                });
+            } else {
+                tbody.append('<tr><td colspan="4">No hay transacciones registradas.</td></tr>');
+            }
+        },
+        error: function () {
+            console.log('Error al consultar el historial de cuotas.');
+        }
+    });
+}
+</script>
