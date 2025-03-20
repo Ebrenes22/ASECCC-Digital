@@ -92,13 +92,115 @@ namespace ASECCC_Digital.Models
                 var beneficio = context.BeneficiosServicios.Find(beneficioId);
                 if (beneficio == null)
                 {
-                    return false; 
+                    return false;
                 }
-            
+
                 context.BeneficiosServicios.Remove(beneficio);
                 return context.SaveChanges() > 0;
             }
         }
+
+        #endregion
+
+        #region Metodos CRUD Vista RegistrarAbonoCuentaBeneficio
+        public List<BeneficioServicioCuenta> ConsultarCuentasPorUsuario(int usuarioId)
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                return context.BeneficiosServiciosCuenta
+                              .Include(c => c.Usuario)
+                              .Include(c => c.BeneficiosServicios)
+                              .Where(c => c.usuarioId == usuarioId)
+                              .Select(b => new BeneficioServicioCuenta
+                              {
+                                  CuentaBeneficiosServiciosId = b.cuentaBeneficiosServiciosId,
+                                  UsuarioId = b.usuarioId,
+                                  BeneficioId = b.beneficioId,
+                                  MontoTotal = b.montoTotal,
+                                  MontoPendiente = b.montoPendiente,
+                                  NumeroProforma = b.numeroProforma,
+                                  Plazo = b.plazo,
+                                  FechaCreacion = (DateTime)b.fechaCreacion,
+                                  Estado = b.estado,
+                                  Usuario = new Usuario
+                                  {
+                                      UsuarioId = b.Usuario.usuarioId,
+                                      NombreCompleto = b.Usuario.nombreCompleto
+                                  },
+                                  BeneficioServicio = new BeneficioServicio
+                                  {
+                                      BeneficioId = b.BeneficiosServicios.beneficioId,
+                                      Nombre = b.BeneficiosServicios.nombre
+                                  }
+                              })
+                              .ToList();
+            }
+        }
+
+        public bool RegistrarAbono(BeneficioTransaccion abono)
+        {
+            try
+            {
+                using (var context = new Database.ASECCC_DIGITALEntities())
+                {
+                    // Mapear las propiedades del abono a la entidad de base de datos
+                    var dbAbono = new Database.BeneficiosTransacciones
+                    {
+                        // TransaccionId es autogenerado, así que no lo asignamos.
+                        cuentaBeneficiosServiciosId = abono.CuentaBeneficiosServiciosId,
+                        monto = abono.Monto,
+                        // Puedes usar la fecha actual o el valor que venga en el objeto
+                        fechaTransaccion = abono.FechaTransaccion, // o DateTime.Now,
+                        descripcion = abono.Descripcion
+                    };
+
+                    context.BeneficiosTransacciones.Add(dbAbono);
+                    int rowsAffected = context.SaveChanges();
+
+                    if (rowsAffected > 0)
+                    {
+                        // Actualizar el monto pendiente en la cuenta correspondiente
+                        var cuenta = context.BeneficiosServiciosCuenta.Find(abono.CuentaBeneficiosServiciosId);
+                        if (cuenta != null)
+                        {
+                            // Suponiendo que el abono reduce el monto pendiente:
+                            cuenta.montoPendiente = (cuenta.montoPendiente- abono.Monto);
+                            context.SaveChanges();
+                        }
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Opcional: registrar el error para depuración
+                Console.WriteLine("Error al registrar abono: " + ex.Message);
+                return false;
+            }
+        }
+
+        public List<BeneficioTransaccion> ObtenerHistorialPagos(int cuentaId)
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                return context.BeneficiosTransacciones
+                              .Where(t => t.cuentaBeneficiosServiciosId == cuentaId)
+                              .OrderByDescending(t => t.fechaTransaccion)
+                              .Select(x => new BeneficioTransaccion
+                              {
+                                  TransaccionId = x.transaccionId,  // Asegúrate de que el nombre coincida
+                                  CuentaBeneficiosServiciosId = x.cuentaBeneficiosServiciosId,
+                                  Monto = x.monto,
+                                  FechaTransaccion = (DateTime)x.fechaTransaccion, // O x.fechaTransaccion.Value si es nullable
+                                  Descripcion = x.descripcion
+                              })
+                              .ToList();
+            }
+        }
+
+
+
         #endregion
 
 
@@ -121,13 +223,13 @@ namespace ASECCC_Digital.Models
                                   Plazo = b.plazo,
                                   FechaCreacion = (DateTime)b.fechaCreacion,
                                   Estado = b.estado,
-                                 
+
                                   Usuario = new Entities.Usuario
                                   {
                                       UsuarioId = b.Usuario.usuarioId,
                                       NombreCompleto = b.Usuario.nombreCompleto
                                   },
-                         
+
                                   BeneficioServicio = new Entities.BeneficioServicio
                                   {
                                       BeneficioId = b.BeneficiosServicios.beneficioId,
@@ -160,10 +262,10 @@ namespace ASECCC_Digital.Models
                 return context.BeneficiosServicios
                     .Select(b => new BeneficioServicio
                     {
-                         BeneficioId = b.beneficioId,
+                        BeneficioId = b.beneficioId,
                         Nombre = b.nombre
 
-                })
+                    })
                     .ToList();
             }
         }
@@ -180,7 +282,7 @@ namespace ASECCC_Digital.Models
                         usuarioId = cuenta.UsuarioId,
                         beneficioId = cuenta.BeneficioId,
                         montoTotal = cuenta.MontoTotal,
-                        montoPendiente = cuenta.MontoPendiente,
+                        montoPendiente = cuenta.MontoTotal,
                         numeroProforma = cuenta.NumeroProforma,
                         plazo = cuenta.Plazo,
                         fechaCreacion = DateTime.Now,
@@ -191,7 +293,7 @@ namespace ASECCC_Digital.Models
                     return rowsAffected > 0;
                 }
 
-                }
+            }
             catch (Exception)
             {
                 return false;
@@ -199,7 +301,7 @@ namespace ASECCC_Digital.Models
         }
 
 
-        // Elimina una cuenta por cobrar
+
         public bool EliminarBeneficioServicioCuenta(int cuentaId)
         {
             using (var context = new Database.ASECCC_DIGITALEntities())
@@ -248,16 +350,56 @@ namespace ASECCC_Digital.Models
             }
             catch (Exception ex)
             {
-                // Aquí puedes registrar el error para depuración
+            
                 Console.WriteLine($"Error al registrar la notificación: {ex.Message}");
                 return false;
             }
         }
 
+        public List<BeneficioServicioCuenta> ObtenerCuentasPorCobrarAsociado(int usuarioId)
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                return context.BeneficiosServiciosCuenta
+                              .Include(c => c.BeneficiosServicios)
+                              .Where(c => c.usuarioId == usuarioId)
+                              .Select(c => new BeneficioServicioCuenta
+                              {
+                                  CuentaBeneficiosServiciosId = c.cuentaBeneficiosServiciosId,
+                                  UsuarioId = c.usuarioId,
+                                  BeneficioId = c.beneficioId,
+                                  MontoTotal = c.montoTotal,
+                                  MontoPendiente = c.montoPendiente,
+                                  Plazo = c.plazo,
+                                  FechaCreacion = (DateTime)c.fechaCreacion,
+                                  Estado = c.estado,
+                                  BeneficioServicio = new BeneficioServicio
+                                  {
+                                      BeneficioId = c.BeneficiosServicios.beneficioId,
+                                      Nombre = c.BeneficiosServicios.nombre
+                                  }
+                              })
+                              .ToList();
+            }
+        }
+
+        public List<BeneficioTransaccion> ObtenerHistorialCuotas(int cuentaId)
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                return context.BeneficiosTransacciones
+                              .Where(t => t.cuentaBeneficiosServiciosId == cuentaId)
+                              .Select(t => new BeneficioTransaccion
+                              {
+                                  TransaccionId = t.transaccionId,
+                                  CuentaBeneficiosServiciosId = t.cuentaBeneficiosServiciosId,
+                                  Monto = t.monto,
+                                  FechaTransaccion = t.fechaTransaccion ?? DateTime.MinValue,
+                                  Descripcion = t.descripcion
+                              })
+                              .ToList();
+            }
+        }
 
     }
 }
-
-
-
-

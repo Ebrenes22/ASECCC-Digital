@@ -4,6 +4,7 @@ using ASECCC_Digital.ViewModels;
 using System.Linq;
 using System.Web.Mvc;
 using System;
+using ASECCC_Digital.Database;
 
 namespace ASECCC_Digital.Controllers
 {
@@ -17,7 +18,7 @@ namespace ASECCC_Digital.Controllers
         private BeneficioServicioModel beneficioServicioM = new BeneficioServicioModel();
 
         //--------VISTAS ADMIN--------------//
-        
+
         public ActionResult BeneficioyServicio()
         {
             return View();
@@ -30,7 +31,7 @@ namespace ASECCC_Digital.Controllers
             var viewModel = new BeneficioServicioViewModel
             {
                 BeneficioServicio = new BeneficioServicio(),
-                BeneficioServicios = lista               
+                BeneficioServicios = lista
             };
 
             return View(viewModel);
@@ -66,7 +67,7 @@ namespace ASECCC_Digital.Controllers
         {
             if (ModelState.IsValid)
             {
-                
+
                 bool actualizado = beneficioServicioM.ActualizarBeneficioServicio(viewModel.BeneficioServicio);
                 if (actualizado)
                 {
@@ -79,12 +80,12 @@ namespace ASECCC_Digital.Controllers
                 }
             }
             // Si ocurre algún error, se recarga la vista con la lista actualizada y los datos ingresados
-       
+
             {
                 viewModel.BeneficioServicios = beneficioServicioM.ConsultarBeneficioServicio(); // O ConsultaBeneficioServicio() según tu método
                 return View("GestionarBenefyServ", viewModel);
             };
-           
+
         }
 
         [HttpPost]
@@ -125,7 +126,7 @@ namespace ASECCC_Digital.Controllers
             return View(viewModel);
         }
 
-     
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult RegistrarCuenta(BeneficioServicioViewModel viewModel)
@@ -152,7 +153,7 @@ namespace ASECCC_Digital.Controllers
             {
                 TempData["ErrorMessage"] = "Por favor, revise los datos ingresados.";
             }
-           
+
             return View("RegistrarCuentaxCobrar", viewModel);
         }
 
@@ -178,7 +179,56 @@ namespace ASECCC_Digital.Controllers
 
         public ActionResult RegistrarAbonoBenefyServ()
         {
-            return View();
+            var viewModel = new BeneficioServicioViewModel
+            {
+                Usuarios = beneficioServicioM.ConsultarUsuarios(), 
+            };
+            return View(viewModel);
+        }
+
+        public ActionResult ConsultarCuentasPorUsuario(int usuarioId)
+        {
+            var cuentas = beneficioServicioM.ConsultarCuentasPorUsuario(usuarioId);
+            return Json(new { success = true, cuentas = cuentas }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RegistrarAbono(BeneficioTransaccion abono)
+        {
+            if (ModelState.IsValid)
+            {
+                bool registrado = beneficioServicioM.RegistrarAbono(abono);
+                if (registrado)
+                {
+                    TempData["SuccessMessage"] = "El abono se ha registrado exitosamente.";
+                    return RedirectToAction("RegistrarAbonoBenefyServ");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "No se pudo registrar el abono.");
+                }
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Por favor, revise los datos ingresados.";
+            }
+            
+            return View("RegistrarAbonoBenefyServ");
+        }
+
+        public ActionResult HistorialPagos(int cuentaId)
+        {
+            try
+            {
+                var historial = beneficioServicioM.ObtenerHistorialPagos(cuentaId);
+                return Json(new { success = true, registros = historial }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                // Devuelve el error en formato JSON para depuración
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
 
@@ -187,7 +237,7 @@ namespace ASECCC_Digital.Controllers
 
         public ActionResult BenefyServDisponibles()
         {
-            var lista = beneficioServicioM.ConsultarBeneficioServicio();                                               
+            var lista = beneficioServicioM.ConsultarBeneficioServicio();
             var listaActiva = lista.Where(b => b.Estado.Equals("activo", StringComparison.OrdinalIgnoreCase)).ToList();
 
             var viewModel = new BeneficioServicioViewModel
@@ -199,13 +249,64 @@ namespace ASECCC_Digital.Controllers
             return View(viewModel);
         }
 
+        [HttpGet]
+        public JsonResult ObtenerBeneficios()
+        {
+            var lista = beneficioServicioM.ConsultarBeneficioServicio();
+            var listaActiva = lista.Where(b => b.Estado.Equals("activo", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            return Json(listaActiva, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet]
+        public JsonResult ConsultarCuentasPorCobrar()
+        {
+            int usuarioId = ObtenerUsuarioIdLogueado();
+            Console.WriteLine("Usuario en sesión para cuentas: " + usuarioId);
+
+            if (usuarioId == -1)
+            {
+                return Json(new { success = false, message = "Asociado no encontrado." }, JsonRequestBehavior.AllowGet);
+            }
+
+            var resultado = beneficioServicioM.ObtenerCuentasPorCobrarAsociado(usuarioId);
+            Console.WriteLine("Cuentas encontradas: " + resultado.Count);
+
+            return Json(resultado, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet]
+        public JsonResult ConsultarHistorialCuotas(int cuentaId)
+        {
+            var historial = beneficioServicioM.ObtenerHistorialCuotas(cuentaId);
+
+            if (historial == null || !historial.Any())
+            {
+                return Json(new { success = false, message = "No hay transacciones registradas." }, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json(new { success = true, data = historial }, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+        private int ObtenerUsuarioIdLogueado()
+        {
+            if (Session["UsuarioId"] == null)
+            {
+                return -1;
+            }
+
+            return Convert.ToInt32(Session["UsuarioId"]);
+        }
 
 
         public ActionResult ConsultarBenefyServAsociado()
         {
             return View();
         }
-
 
     }
 }
