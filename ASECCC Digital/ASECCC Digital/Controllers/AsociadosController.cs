@@ -146,10 +146,9 @@ namespace ASECCC_Digital.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public JsonResult BuscarDesactivarAsociado(int usuarioId)
         {
-
 
             Console.WriteLine($"Solicitud para desactivar usuario con ID: {usuarioId}"); 
 

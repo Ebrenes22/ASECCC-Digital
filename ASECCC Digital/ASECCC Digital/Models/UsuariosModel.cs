@@ -145,7 +145,6 @@ namespace ASECCC_Digital.Models
                         usuarioDb.direccion = usuario.Direccion;
                         usuarioDb.nombreCompleto = usuario.NombreCompleto;
                         usuarioDb.fechaNacimiento = usuario.FechaNacimiento;
-                        usuarioDb.tipoIdentificacion = usuario.TipoIdentificacion;
                         usuarioDb.identificacion = usuario.Identificacion;
 
                     }
