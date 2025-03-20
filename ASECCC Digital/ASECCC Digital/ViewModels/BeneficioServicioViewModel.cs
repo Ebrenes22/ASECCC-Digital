@@ -19,7 +19,6 @@ namespace ASECCC_Digital.ViewModels
         public BeneficioTransaccion BeneficioTransaccion { get; set; }
 
         public IEnumerable<BeneficioTransaccion> BeneficioTransacciones { get; set; }
-
         public Usuario Usuario { get; set; }
 
         public IEnumerable<Usuario> Usuarios { get; set; }

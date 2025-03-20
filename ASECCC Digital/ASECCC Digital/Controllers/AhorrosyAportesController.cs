@@ -75,7 +75,14 @@ namespace ASECCC_Digital.Controllers
         [HttpGet]
         public JsonResult BuscarAsociados(string termino)
         {
+<<<<<<< Updated upstream
             using (var context = new ASECCC_DIGITALEntities())
+=======
+            var usuarioId = (int)Session["usuarioId"];
+            var ahorros = ahorroM.ConsultarAhorrosAsociados(usuarioId).Data as dynamic; 
+
+            if (ahorros != null && ahorros.success)
+>>>>>>> Stashed changes
             {
                 var asociados = context.Usuario
                     .Where(u => u.nombreCompleto.Contains(termino))

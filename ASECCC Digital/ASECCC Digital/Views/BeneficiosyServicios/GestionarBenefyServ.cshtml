@@ -166,7 +166,7 @@
 <!-- Modal Eliminar Beneficio -->
 <div class="modal fade" id="modalEliminarBeneficio" tabindex="-1" aria-labelledby="modalEliminarBeneficioLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        @using (Html.BeginForm("Eliminars", "BeneficiosyServicios", FormMethod.Post, new { id = "deleteForm", @class = "needs-validation", novalidate = "novalidate" }))
+        @using (Html.BeginForm("Eliminar", "BeneficiosyServicios", FormMethod.Post, new { id = "deleteForm", @class = "needs-validation", novalidate = "novalidate" }))
         {
             @Html.AntiForgeryToken()
             <div class="modal-content">

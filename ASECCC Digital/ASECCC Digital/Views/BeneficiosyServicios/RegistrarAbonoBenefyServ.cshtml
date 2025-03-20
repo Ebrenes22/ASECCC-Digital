@@ -1,25 +1,212 @@
-﻿
+﻿@model ASECCC_Digital.ViewModels.BeneficioServicioViewModel
+
 @{
-    ViewBag.Title = "RegistrarAbonoBenefyServ";
+    ViewBag.Title = "Registrar Abono a Beneficio y Servicio";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
 
-<h1 class="text-center">Registrar Abono a Beneficio y Servicio</h1>
+<div class="container my-4">
+    <h1 class="text-center">Registrar Abono a Beneficio y Servicio</h1>
 
-<div class="container">
-    <form method="post" action="@Url.Action("RegistrarAbono", "Beneficio")">
-        <div class="form-group">
-            <label for="beneficio">Seleccionar Beneficio</label>
-            <select class="form-control" id="beneficio" name="beneficio">
+    <!-- Dropdown para seleccionar el asociado -->
+    <div class="row mb-3">
+        <div class="col-12 col-md-6 offset-md-3">
+            <select id="searchAssociated" class="form-control">
+                <option value="">Seleccione un asociado</option>
+                @foreach (var usuario in Model.Usuarios)
                 {
+                    <option value="@usuario.UsuarioId">@usuario.NombreCompleto</option>
+                }
             </select>
         </div>
-        <div class="form-group">
-            <label for="monto">Monto Abonado</label>
-            <input type="number" class="form-control" id="monto" name="monto" required />
-        </div>
-        <strong></strong>
-        <button type="submit" class="btn btn-success">Registrar Abono</button>
-    </form>
+    </div>
+
+    <!-- Tabla de Cuentas del Asociado (se llenará vía AJAX) -->
+    <div id="accountsContainer" class="table-responsive mb-4">
+        <table id="accountsTable" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Cuenta ID</th>
+                    <th>Beneficio</th>
+                    <th>Monto Total</th>
+                    <th>Monto Pendiente</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @* Las filas se cargarán vía AJAX al seleccionar un asociado *@
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<!-- Modal para Registrar Abono -->
+<div class="modal fade" id="modalRegistrarAbono" tabindex="-1" aria-labelledby="modalRegistrarAbonoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            @using (Html.BeginForm("RegistrarAbono", "Beneficio", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalRegistrarAbonoLabel">Registrar Abono</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Campo oculto para almacenar el ID de la cuenta seleccionada -->
+                    <input type="hidden" id="ModalCuentaId" name="CuentaBeneficiosServiciosId" value="" />
+                    <!-- Campo para ingresar el monto abonado -->
+                    <div class="mb-3">
+                        <label for="MontoAbonado" class="form-label">Monto Abonado</label>
+                        <input type="number" step="0.01" id="MontoAbonado" name="Monto" class="form-control" required />
+                        @Html.ValidationMessage("Monto", "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Registrar Abono</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Mostrar Historial de Pagos -->
+<div class="modal fade" id="modalHistorial" tabindex="-1" aria-labelledby="modalHistorialLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalHistorialLabel">Historial de Pagos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="historialTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Monto Abonado</th>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @* Se llenará vía AJAX al solicitar el historial *@
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DataTables y jQuery (si no están ya incluidos en el Layout) -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Inicializar DataTables para la tabla de cuentas
+            var accountsTable = $('#accountsTable').DataTable({
+                "pageLength": 10,
+                "lengthChange": false,
+                "language": {
+                    "paginate": { "previous": "Anterior", "next": "Siguiente" },
+                    "search": "Buscar:",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ cuentas",
+                    "infoEmpty": "No hay cuentas disponibles",
+                    "emptyTable": "No hay cuentas registradas",
+                    "zeroRecords": "No se encontraron coincidencias"
+                }
+            });
+
+            // Al cambiar la selección del dropdown de asociados, se consulta la lista de cuentas vía AJAX
+            $('#searchAssociated').on('change', function () {
+                var usuarioId = $(this).val();
+                if (usuarioId === "") {
+                    accountsTable.clear().draw();
+                    return;
+                }
+                $.ajax({
+                    url: '@Url.Action("ConsultarCuentasPorUsuario", "BeneficiosyServicios")',
+                    type: 'GET',
+                    data: { usuarioId: usuarioId },
+                    success: function (response) {
+                        if (response.success) {
+                            accountsTable.clear();
+                            $.each(response.cuentas, function (i, cuenta) {
+                                accountsTable.row.add([
+                                    cuenta.CuentaBeneficiosServiciosId,
+                                    cuenta.BeneficioServicio.Nombre,
+                                    new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(cuenta.MontoTotal),
+                                    new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(cuenta.MontoPendiente),
+                                    '<button type="button" class="btn btn-info btn-sm select-account" data-id="' + cuenta.CuentaBeneficiosServiciosId + '">Realizar Abono</button> ' +
+                                    '<button type="button" class="btn btn-secondary btn-sm view-history" data-id="' + cuenta.CuentaBeneficiosServiciosId + '">Historial</button>'
+                                ]).draw();
+                            });
+                        }
+                    },
+                    error: function () {
+                        alert('Error al consultar las cuentas del asociado.');
+                    }
+                });
+            });
+
+            // Al hacer clic en "Realizar Abono", se asigna el ID de la cuenta y se muestra el modal
+            $(document).on('click', '.select-account', function () {
+                var cuentaId = $(this).data('id');
+                $('#ModalCuentaId').val(cuentaId);
+                $('#modalRegistrarAbono').modal('show');
+            });
+
+            // Al hacer clic en "Historial", se consulta el historial vía AJAX y se muestra el modal
+            $(document).on('click', '.view-history', function () {
+                var cuentaId = $(this).data('id');
+                $.ajax({
+                    url: '@Url.Action("HistorialPagos", "Beneficio")',
+                    type: 'GET',
+                    data: { cuentaId: cuentaId },
+                    success: function (data) {
+                        if (data.success) {
+                            var tbody = $('#historialTable tbody');
+                            tbody.empty();
+                            $.each(data.registros, function (i, pago) {
+                                tbody.append(
+                                    '<tr>' +
+                                        '<td>' + pago.TransaccionId + '</td>' +
+                                        '<td>' + new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(pago.Monto) + '</td>' +
+                                        '<td>' + new Date(pago.FechaTransaccion).toLocaleDateString("es-CR") + '</td>' +
+                                        '<td>' + (pago.Descripcion || "") + '</td>' +
+                                    '</tr>'
+                                );
+                            });
+                            $('#modalHistorial').modal('show');
+                        }
+                    },
+                    error: function () {
+                        alert('Error al consultar el historial de pagos.');
+                    }
+                });
+            });
+
+            // Mostrar SweetAlert si hay mensaje de éxito
+            var successElement = document.getElementById("SuccessMessage");
+            var successMessage = successElement ? successElement.innerText.trim() : "";
+            if (successMessage) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: successMessage,
+                    showConfirmButton: true
+                }).then(function () {
+                    window.location.href = '@Url.Action("RegistrarAbonoBenefyServ", "BeneficiosyServicios")';
+                });
+            }
+        });
+    </script>
+}

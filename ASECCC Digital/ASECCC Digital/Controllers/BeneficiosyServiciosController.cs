@@ -4,6 +4,7 @@ using ASECCC_Digital.ViewModels;
 using System.Linq;
 using System.Web.Mvc;
 using System;
+using ASECCC_Digital.Database;
 
 namespace ASECCC_Digital.Controllers
 {
@@ -178,7 +179,56 @@ namespace ASECCC_Digital.Controllers
 
         public ActionResult RegistrarAbonoBenefyServ()
         {
-            return View();
+            var viewModel = new BeneficioServicioViewModel
+            {
+                Usuarios = beneficioServicioM.ConsultarUsuarios(), 
+            };
+            return View(viewModel);
+        }
+
+        public ActionResult ConsultarCuentasPorUsuario(int usuarioId)
+        {
+            var cuentas = beneficioServicioM.ConsultarCuentasPorUsuario(usuarioId);
+            return Json(new { success = true, cuentas = cuentas }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RegistrarAbono(BeneficioTransaccion abono)
+        {
+            if (ModelState.IsValid)
+            {
+                bool registrado = beneficioServicioM.RegistrarAbono(abono);
+                if (registrado)
+                {
+                    TempData["SuccessMessage"] = "El abono se ha registrado exitosamente.";
+                    return RedirectToAction("RegistrarAbonoBenefyServ");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "No se pudo registrar el abono.");
+                }
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Por favor, revise los datos ingresados.";
+            }
+            
+            return View("RegistrarAbonoBenefyServ");
+        }
+
+        public ActionResult HistorialPagos(int cuentaId)
+        {
+            try
+            {
+                var historial = beneficioServicioM.ObtenerHistorialPagos(cuentaId);
+                return Json(new { success = true, registros = historial }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                // Devuelve el error en formato JSON para depuración
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
 
