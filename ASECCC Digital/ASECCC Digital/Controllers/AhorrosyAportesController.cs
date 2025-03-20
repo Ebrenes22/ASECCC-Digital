@@ -75,23 +75,23 @@ namespace ASECCC_Digital.Controllers
         [HttpGet]
         public JsonResult BuscarAsociados(string termino)
         {
-<<<<<<< Updated upstream
             using (var context = new ASECCC_DIGITALEntities())
-=======
-            var usuarioId = (int)Session["usuarioId"];
-            var ahorros = ahorroM.ConsultarAhorrosAsociados(usuarioId).Data as dynamic; 
-
-            if (ahorros != null && ahorros.success)
->>>>>>> Stashed changes
             {
-                var asociados = context.Usuario
-                    .Where(u => u.nombreCompleto.Contains(termino))
-                    .Select(u => new { label = u.nombreCompleto, value = u.usuarioId })
-                    .Take(10)
-                    .ToList();
+                var usuarioId = (int)Session["usuarioId"];
+                var ahorros = ahorroM.ConsultarAhorrosAsociado(usuarioId.ToString());
 
-                return Json(asociados, JsonRequestBehavior.AllowGet);
+                if (ahorros != null && ahorros.GetType().GetProperty("success") != null && (bool)ahorros.GetType().GetProperty("success").GetValue(ahorros))
+                {
+                    var asociados = context.Usuario
+                        .Where(u => u.nombreCompleto.Contains(termino))
+                        .Select(u => new { label = u.nombreCompleto, value = u.usuarioId })
+                        .Take(10)
+                        .ToList();
+
+                    return Json(asociados, JsonRequestBehavior.AllowGet);
+                }
             }
+            return Json(new List<object>(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
