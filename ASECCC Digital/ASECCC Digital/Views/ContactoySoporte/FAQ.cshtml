@@ -1,8 +1,104 @@
-﻿
-@{
-    ViewBag.Title = "FAQ";
+﻿@{
+    ViewBag.Title = "Preguntas Frecuentes";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>FAQ</h2>
+<section class="container mt-5">
+    <h1 class="text-center mb-4">Preguntas Frecuentes (FAQ)</h1>
 
+    <div class="row mb-3">
+        <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Buscar por palabra clave</label>
+            <input type="text" id="busquedaTexto" class="form-control" placeholder="Ej. contraseña, préstamo...">
+        </div>
+        <div class="col-md-6 mb-2">
+            <label class="form-label fw-bold">Filtrar por categoría</label>
+            <select id="filtroCategoria" class="form-select">
+                <option value="">Todas</option>
+                <option value="Cuenta">Cuenta</option>
+                <option value="Ahorros">Ahorros</option>
+                <option value="Préstamos">Préstamos</option>
+                <option value="Sistema">Sistema</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="contenedorFaqs" class="accordion" style="max-width: 1000px; margin: auto;"></div>
+</section>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const faqs = [
+            {
+                categoria: "Cuenta",
+                pregunta: "¿Cómo cambio mi contraseña?",
+                respuesta: "Puedes cambiar tu contraseña desde la sección de perfil en 'Actualizar información'."
+            },
+            {
+                categoria: "Ahorros",
+                pregunta: "¿Cómo puedo ver mis ahorros actuales?",
+                respuesta: "Dirígete al módulo de Ahorros desde el menú principal y revisa tu saldo."
+            },
+            {
+                categoria: "Préstamos",
+                pregunta: "¿Qué requisitos necesito para solicitar un préstamo?",
+                respuesta: "Debes tener al menos 6 meses de afiliación y no tener préstamos activos pendientes."
+            },
+            {
+                categoria: "Sistema",
+                pregunta: "¿Puedo acceder al sistema desde mi celular?",
+                respuesta: "Sí, el sistema es responsivo y funciona correctamente en dispositivos móviles."
+            },
+            {
+                categoria: "Cuenta",
+                pregunta: "¿Cómo actualizo mis datos personales?",
+                respuesta: "Ve a la sección de perfil y selecciona 'Actualizar información personal'."
+            }
+        ];
+
+        function renderizarFaqs() {
+            const texto = $("#busquedaTexto").val().toLowerCase();
+            const categoria = $("#filtroCategoria").val();
+
+            const contenedor = $("#contenedorFaqs");
+            contenedor.empty();
+
+            let filtrados = faqs.filter(f => {
+                const coincideTexto = f.pregunta.toLowerCase().includes(texto) || f.respuesta.toLowerCase().includes(texto);
+                const coincideCategoria = categoria === "" || f.categoria === categoria;
+                return coincideTexto && coincideCategoria;
+            });
+
+            if (filtrados.length === 0) {
+                contenedor.html('<div class="alert alert-info text-center">No se encontraron resultados.</div>');
+                return;
+            }
+
+            filtrados.forEach((faq, index) => {
+                contenedor.append(`
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading${index}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
+                                ${faq.pregunta}
+                            </button>
+                        </h2>
+                        <div id="collapse${index}" class="accordion-collapse collapse" data-bs-parent="#contenedorFaqs">
+                            <div class="accordion-body">
+                                <strong>Categoría:</strong> ${faq.categoria}<br />
+                                ${faq.respuesta}
+                            </div>
+                        </div>
+                    </div>
+                `);
+            });
+        }
+
+        $(document).ready(function () {
+            renderizarFaqs();
+
+            $("#busquedaTexto").on("input", renderizarFaqs);
+            $("#filtroCategoria").on("change", renderizarFaqs);
+        });
+    </script>
+}

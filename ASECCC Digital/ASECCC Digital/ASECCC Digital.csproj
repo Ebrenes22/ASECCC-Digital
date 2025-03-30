@@ -145,6 +145,7 @@
     <Compile Include="Controllers\AsociadosController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BeneficiosyServiciosController.cs" />
+    <Compile Include="Controllers\ContactoySoporteController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NotificacionesController.cs" />
     <Compile Include="Controllers\PerfilController.cs" />
