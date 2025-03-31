@@ -10,10 +10,8 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
-
 <div class="container my-5">
-    <h1 class="text-center mb-4">Gestión de Ahorros</h1>
+    <h1 class="text-center mb-4">Gestión de Aportes</h1>
 
     <div class="row mb-4">
         <div class="col-12 mb-3">
@@ -25,6 +23,9 @@
     <div class="d-flex justify-content-between mb-4">
         <button class="btn btn-primary" onclick="consultarAportes()">
             <i class="bi bi-search"></i> Consultar
+        </button>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarAporte">
+            <i class="bi bi-plus-circle"></i> Registrar Aporte
         </button>
     </div>
 
@@ -43,6 +44,40 @@
     </div>
 </div>
 
+<!-- Modal para Registrar Aporte -->
+<div class="modal fade" id="modalRegistrarAporte" tabindex="-1" aria-labelledby="modalRegistrarAporteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalRegistrarAporteLabel">Registrar Nuevo Aporte</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRegistrarAporte">
+                    <div class="mb-3">
+                        <label for="nombreAsociado" class="form-label">Nombre del Asociado</label>
+                        <input type="text" id="nombreAsociado" class="form-control" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tipoAporte" class="form-label">Tipo de Aporte</label>
+                        <select id="tipoAporte" class="form-select">
+                            <option value="Personal">Personal</option>
+                            <option value="Patronal">Patronal</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="montoAporte" class="form-label">Monto</label>
+                        <input type="number" id="montoAporte" class="form-control" placeholder="Ingrese el monto del aporte">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="registrarAporte()">Registrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     $(document).ready(function () {
@@ -115,12 +150,33 @@
                     tablaBody.append(fila);
                 });
 
-
             }
         });
     }
 
+    function registrarAporte() {
+        let nombreAsociado = $("#nombreAsociado").val().trim();
+        let tipoAporte = $("#tipoAporte").val();
+        let monto = $("#montoAporte").val();
 
+        if (nombreAsociado === "" || monto === "") {
+            Swal.fire("Atención", "Debe ingresar el nombre del asociado y el monto.", "warning");
+            return;
+        }
+
+        $.ajax({
+            url: "/AhorrosyAportes/RegistrarAporte",
+            type: "POST",
+            data: { nombreAsociado: nombreAsociado, tipoAporte: tipoAporte, monto: monto },
+            success: function (response) {
+                Swal.fire("Éxito", response.message, "success");
+                if (response.success) {
+                    $("#modalRegistrarAporte").modal("hide");
+                    consultarAportes();
+                }
+            }
+        });
+    }
 
     function editarAporte(aporteId) {
         Swal.fire({
@@ -137,7 +193,7 @@
                     type: "POST",
                     data: { aporteId: aporteId, nuevoMonto: result.value },
                     success: function (response) {
-                        Swal.fire("Exito", response.message, "success");
+                        Swal.fire("Éxito", response.message, "success");
                         if (response.success) {
                             consultarAportes();
                         }
@@ -153,10 +209,9 @@
             type: "POST",
             data: { aporteId: aporteId },
             success: function (response) {
-                Swal.fire("Exito", response.message, "success");
+                Swal.fire("Éxito", response.message, "success");
                 consultarAportes();
             }
         });
     }
-
 </script>

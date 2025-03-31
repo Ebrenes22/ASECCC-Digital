@@ -4,41 +4,12 @@
     ViewBag.Title = "Consultar Beneficios y Servicios";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
-
-    var beneficios = Model?.BeneficioServicios ?? new List<ASECCC_Digital.Entities.BeneficioServicio>();
 }
 
 <h2 class="text-center mt-4">Consultar Beneficios y Servicios</h2>
 
 <div class="container">
-    <div class="row justify-content-center" id="beneficios-container">
-        @if (beneficios.Any())
-        {
-            foreach (var beneficio in beneficios)
-            {
-                <div class="col-md-4">
-                    <div class="card text-center shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold">@beneficio.Nombre</h5>
-                            <p class="card-text">@beneficio.Descripcion</p>
-                            <p><strong>Requisitos:</strong> @beneficio.Requisitos</p>
-                            <p><strong>Estado:</strong> <span class="badge bg-success">@beneficio.Estado</span></p>
-                            <button class="btn btn-primary" onclick="consultarCuentas(@beneficio.BeneficioId)">Ver Cuentas</button>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
-        else
-        {
-            <div class="col-12 text-center">
-                <p>No hay beneficios y servicios disponibles en este momento.</p>
-            </div>
-        }
-    </div>
-
-    <h3 class="text-center mt-5 fw-bold">Cuentas por Cobrar</h3>
-    <div class="row justify-content-center" id="cuentas-container"></div>
+    <div class="row justify-content-center" id="beneficios-container"></div>
 
     <h3 class="text-center mt-5 fw-bold">Historial de Cuotas</h3>
     <div class="row justify-content-center">
@@ -46,7 +17,7 @@
             <table class="table table-striped text-center" id="cuotas-table">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
+                        <th>Pago</th>
                         <th>Fecha</th>
                         <th>Monto</th>
                         <th>Descripción</th>
@@ -67,7 +38,7 @@
 
     function cargarBeneficios() {
         $.ajax({
-            url: '@Url.Action("ObtenerBeneficios", "BeneficiosyServicios")',
+            url: '@Url.Action("ConsultarCuentasPorCobrar", "BeneficiosyServicios")',
             type: 'GET',
             dataType: 'json',
             success: function (data) {
@@ -75,16 +46,16 @@
                 container.empty();
 
                 if (data.length > 0) {
-                    $.each(data, function (index, beneficio) {
+                    $.each(data, function (index, cuenta) {
+                        var beneficio = cuenta.BeneficioServicio;
                         var cardHtml = `
                             <div class="col-md-4">
                                 <div class="card text-center shadow-sm">
                                     <div class="card-body">
                                         <h5 class="card-title fw-bold">${beneficio.Nombre}</h5>
-                                        <p class="card-text">${beneficio.Descripcion}</p>
-                                        <p><strong>Requisitos:</strong> ${beneficio.Requisitos}</p>
-                                        <p><strong>Estado:</strong> <span class="badge bg-success">${beneficio.Estado}</span></p>
-                                        <button class="btn btn-primary" onclick="consultarCuentas(${beneficio.BeneficioId})">Ver Cuentas</button>
+                                        <p><strong>Monto Total: ₡</strong>${cuenta.MontoTotal}</p>
+                                        <p><strong>Monto Pendiente: ₡</strong>${cuenta.MontoPendiente}</p>
+                                        <button class="btn btn-primary" onclick="consultarCuotas(${cuenta.CuentaBeneficiosServiciosId})">Ver Cuotas</button>
                                     </div>
                                 </div>
                             </div>`;
@@ -100,44 +71,7 @@
         });
     }
 
-    function consultarCuentas(beneficioId) {
-        $.ajax({
-            url: '@Url.Action("ConsultarCuentasPorCobrar", "BeneficiosyServicios")',
-            type: 'GET',
-            data: { usuarioId: beneficioId },
-            dataType: 'json',
-            success: function (data) {
-                var container = $('#cuentas-container');
-                container.empty();
-
-                if (data.length > 0) {
-                    $.each(data, function (index, cuenta) {
-                        var cardHtml = `
-                            <div class="col-md-4">
-                                <div class="card text-center shadow-sm">
-                                    <div class="card-body">
-                                        <h5 class="card-title fw-bold">Cuenta ID: ${cuenta.CuentaBeneficiosServiciosId}</h5>
-                                        <p><strong>Monto Total:</strong> ${cuenta.MontoTotal}</p>
-                                        <p><strong>Monto Pendiente:</strong> ${cuenta.MontoPendiente}</p>
-                                        <button class="btn btn-secondary" onclick="consultarCuotas(${cuenta.CuentaBeneficiosServiciosId})">Ver Historial</button>
-                                    </div>
-                                </div>
-                            </div>`;
-                        container.append(cardHtml);
-                    });
-                } else {
-                    container.append('<div class="col-12 text-center"><p>No hay cuentas por cobrar asociadas.</p></div>');
-                }
-            },
-            error: function () {
-                console.log('Error al cargar las cuentas.');
-            }
-        });
-    }
-
    function consultarCuotas(cuentaId) {
-    console.log("Consultando historial de cuotas para cuenta ID:", cuentaId);
-
     $.ajax({
         url: '@Url.Action("ConsultarHistorialCuotas", "BeneficiosyServicios")',
         type: 'GET',
@@ -146,8 +80,6 @@
         success: function (response) {
             var tbody = $('#cuotas-body');
             tbody.empty();
-
-            $('#cuotas-container').show();
 
             if (response.success && response.data.length > 0) {
                 $.each(response.data, function (index, cuota) {

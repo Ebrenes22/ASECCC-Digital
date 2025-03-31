@@ -4,15 +4,13 @@
     @Html.Partial("_MenuModulos");
 }
 
-<!-- Cargar estilos de jQuery UI -->
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
-<!-- Cargar jQuery y jQuery UI -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="container my-5">
-    <h1 class="text-center mb-4">Gestion de Aportes</h1>
+    <h1 class="text-center mb-4">Gestion de Ahorros</h1>
 
     <div class="row mb-4">
         <div class="col-12 mb-3">
@@ -34,7 +32,8 @@
                     <th>Tipo de Ahorro</th>
                     <th>Fecha Inicio</th>
                     <th>Fecha Fin</th>
-                    <th>Monto</th>
+                    <th>Monto Ahorrar</th>
+                    <th>Monto Actual</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -42,43 +41,6 @@
             <tbody>
             </tbody>
         </table>
-    </div>
-</div>
-
-<!-- Modal para Registrar Ahorro -->
-<div class="modal fade" id="modalRegistrarAhorro" tabindex="-1" aria-labelledby="modalRegistrarAhorroLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalRegistrarAhorroLabel">Registrar Nuevo Ahorro</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formRegistrarAhorro">
-                    <div class="mb-3">
-                        <label for="nombreAsociado" class="form-label">Nombre del Asociado</label>
-                        <input type="text" id="nombreAsociado" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="tipoAhorro" class="form-label">Tipo de Ahorro</label>
-                        <select id="tipoAhorro" class="form-select">
-                            <option value="A la Vista">A la Vista</option>
-                            <option value="Navideño">Navideño</option>
-                            <option value="Marchamo">Marchamo</option>
-                            <option value="Escolar">Escolar</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="montoAhorro" class="form-label">Monto</label>
-                        <input type="number" id="montoAhorro" class="form-control" placeholder="Ingrese el monto del ahorro">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="registrarAhorro()">Registrar</button>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -99,7 +61,6 @@
             minLength: 2,
             select: function (event, ui) {
                 $("#asociado").val(ui.item.label);
-                $("#nombreAsociado").val(ui.item.label);
                 return false;
             }
         });
@@ -109,7 +70,7 @@
         let asociado = $("#asociado").val().trim();
 
         if (asociado === "") {
-            Swal.fire("Atención", "Por favor, ingrese el nombre del asociado.", "warning");
+            Swal.fire("Atencion", "Por favor, ingrese el nombre del asociado.", "warning");
             return;
         }
 
@@ -122,93 +83,68 @@
                 tablaBody.empty();
 
                 if (!response.success || response.data.length === 0) {
-                    tablaBody.append("<tr><td colspan='6' class='text-center'>No se encontraron ahorros para este asociado.</td></tr>");
+                    tablaBody.append("<tr><td colspan='7' class='text-center'>No se encontraron ahorros para este asociado.</td></tr>");
                     return;
                 }
 
                 response.data.forEach(ahorro => {
-                    let fechaInicio = "No disponible";
-                    let fechaFin = "No disponible";
+                    console.log("Datos recibidos:", ahorro);
 
-                    if (ahorro.FechaInicio) {
-                        let matchInicio = ahorro.FechaInicio.match(/\d+/);
-                        if (matchInicio) {
-                            let timestampInicio = parseInt(matchInicio[0]);
-                            fechaInicio = new Date(timestampInicio).toLocaleDateString('es-CR');
-                        }
-                    }
-
-                    if (ahorro.FechaFin) {
-                        let matchFin = ahorro.FechaFin.match(/\d+/);
-                        if (matchFin) {
-                            let timestampFin = parseInt(matchFin[0]);
-                            fechaFin = new Date(timestampFin).toLocaleDateString('es-CR');
-                        }
-                    }
-
-                    let montoFormateado = new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(ahorro.MontoActual);
+                    let fechaInicio = formatFecha(ahorro.FechaInicio);
+                    let fechaFin = formatFecha(ahorro.FechaFin);
+                    let montoInicial = formatMoneda(parseFloat(ahorro.MontoInicial || 0));
+                    let montoActual = formatMoneda(parseFloat(ahorro.MontoActual || 0));
 
                     let fila = `<tr>
-                    <td>${ahorro.TipoAhorro}</td>
-                    <td>${fechaInicio}</td>
-                    <td>${fechaFin}</td>
-                    <td>${montoFormateado}</td>
-                    <td>${ahorro.Estado}</td>
-                    <td>
-                        <button class='btn btn-warning btn-sm' onclick='editarAhorro(${ahorro.AhorroId})'>Editar</button>
-                        <button class='btn btn-danger btn-sm' onclick='eliminarAhorro(${ahorro.AhorroId})'>Eliminar</button>
-                    </td>
-                </tr>`;
+                        <td>${ahorro.TipoAhorro}</td>
+                        <td>${fechaInicio}</td>
+                        <td>${fechaFin}</td>
+                        <td>${montoInicial}</td>
+                        <td>${montoActual}</td>
+                        <td>${ahorro.Estado}</td>
+                        <td>
+                            <button class='btn btn-warning btn-sm' onclick='modificarMonto(${ahorro.AhorroId}, ${ahorro.MontoActual})'>Editar</button>
+                            <button class='btn btn-danger btn-sm' onclick='eliminarAhorro(${ahorro.AhorroId})'>Eliminar</button>
+                        </td>
+                    </tr>`;
                     tablaBody.append(fila);
                 });
             }
         });
     }
 
-
-    function registrarAhorro() {
-        let nombreAsociado = $("#nombreAsociado").val().trim();
-        let tipoAhorro = $("#tipoAhorro").val();
-        let monto = $("#montoAhorro").val();
-        let plazo = 12;
-
-        if (nombreAsociado === "" || monto === "") {
-            Swal.fire("Atención", "Debe ingresar el nombre del asociado y el monto.", "warning");
-            return;
-        }
-
-        $.ajax({
-            url: "/AhorrosyAportes/RegistrarAhorro",
-            type: "POST",
-            data: { nombreAsociado: nombreAsociado, tipoAhorro: tipoAhorro, monto: monto, plazo: plazo },
-            success: function (response) {
-                Swal.fire("Exito", response.message, "success");
-                if (response.success) {
-                    $("#modalRegistrarAhorro").modal("hide");
-                    consultarAhorros();
-                }
-            }
-        });
+    function formatFecha(fecha) {
+        if (!fecha) return "No disponible";
+        let match = fecha.match(/\d+/);
+        if (!match) return "No disponible";
+        let timestamp = parseInt(match[0]);
+        return new Date(timestamp).toLocaleDateString('es-CR');
     }
 
-    function editarAhorro(ahorroId) {
+    function formatMoneda(valor) {
+        return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(valor);
+    }
+
+    function modificarMonto(ahorroId, montoActual) {
         Swal.fire({
-            title: "Editar Ahorro",
+            title: "Modificar Monto Actual",
             input: "number",
-            inputLabel: "Ingrese el nuevo monto del ahorro:",
-            inputPlaceholder: "Monto",
+            inputLabel: "Ingrese el nuevo abono:",
+            inputValue: montoActual,
+            inputPlaceholder: "Ingrese el nuevo abono",
             showCancelButton: true,
             confirmButtonText: "Guardar",
             cancelButtonText: "Cancelar",
             inputValidator: (value) => {
-                if (!value) {
-                    return "Debe ingresar un monto válido";
+                if (!value || isNaN(value) || value < 0) {
+                    return "Debe ingresar un monto válido (mayor o igual a 0).";
                 }
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                $.post("/AhorrosyAportes/ModificarAhorro", { ahorroId: ahorroId, nuevoMonto: result.value }, function (response) {
-                    Swal.fire("Éxito", response.message, "success");
+                let nuevoMonto = parseFloat(result.value);
+                $.post("/AhorrosyAportes/ModificarAhorro", { ahorroId: ahorroId, nuevoMonto: nuevoMonto }, function (response) {
+                    Swal.fire("Exito", response.message, "success");
                     consultarAhorros();
                 });
             }
@@ -217,13 +153,13 @@
 
     function eliminarAhorro(ahorroId) {
         Swal.fire({
-            title: "¿Esta seguro?",
+            title: "Esta seguro",
             text: "Esta accion no se puede deshacer.",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
-            confirmButtonText: "Sí, eliminar",
+            confirmButtonText: "Si, eliminar",
             cancelButtonText: "Cancelar"
         }).then((result) => {
             if (result.isConfirmed) {
@@ -234,5 +170,5 @@
             }
         });
     }
-
 </script>
+
