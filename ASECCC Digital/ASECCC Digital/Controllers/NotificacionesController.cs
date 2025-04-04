@@ -73,6 +73,34 @@ namespace ASECCC_Digital.Controllers
             return View(notificaciones);
         }
 
+        [HttpGet]
+        public JsonResult ObtenerNotificacionesNoLeidas()
+        {
+            var notificaciones = notificacionN.ObtenerNoLeidas();
+
+            var resultado = notificaciones.Select(n => new
+            {
+                n.notificacionId,
+                n.titulo,
+                fecha = n.fechaEnvio?.ToString("dd-MM-yyyy HH:mm")
+            });
+
+            return Json(resultado, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult MarcarTodasComoLeidas()
+        {
+            try
+            {
+                notificacionN.MarcarTodasComoLeidas();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, mensaje = ex.Message });
+            }
+        }
 
     }
 }
