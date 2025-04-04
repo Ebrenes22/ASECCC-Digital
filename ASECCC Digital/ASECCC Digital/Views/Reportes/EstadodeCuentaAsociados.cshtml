@@ -1,87 +1,251 @@
-﻿
+﻿@model ASECCC_Digital.ViewModels.EstadoCuentaViewModel
+
 @{
-    ViewBag.Title = "EstadodeCuentaAsociados";
+    ViewBag.Title = "Estado de Cuenta";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
 
-<h2 class="text-center">Estado de Cuenta Asociados</h2>
+<style>
+    .documento-container {
+        max-width: 900px;
+        margin: auto;
+        padding: 30px;
+        background-color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+        color: #333;
+    }
 
+    .documento-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-<div>
-    <form>
-    <label for="asociado">Seleccione un asociado:</label>
-    <select id="asociado" name="asociado">
-        <option value="1">Carlos Esteban Bello Salinas</option>
-        <option value="2">Otro Asociado</option>
-    </select>
-    <button type="submit">Generar PDF</button>
-    </form>
+        .documento-header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .documento-header h3 {
+            margin: 5px 0 0 0;
+            font-weight: normal;
+            font-size: 20px;
+        }
+
+    .documento-datos-usuario {
+        margin-bottom: 30px;
+    }
+
+        .documento-datos-usuario th {
+            width: 30%;
+            text-align: left;
+            padding-right: 10px;
+        }
+
+    .table th, .table td {
+        vertical-align: middle !important;
+    }
+
+    .seccion-titulo {
+        margin-top: 40px;
+        font-size: 18px;
+        border-bottom: 2px solid #ccc;
+        padding-bottom: 5px;
+    }
+
+    .btn-pdf {
+        margin-top: 40px;
+        text-align: center;
+    }
+</style>
+
+<div class="documento-container">
+
+    @using (Html.BeginForm("GenerarEstadoAsociado", "Reportes", FormMethod.Get))
+    {
+        <div class="form-group" style="text-align: center;">
+            <label><strong>Seleccione un asociado:</strong></label>
+            <br />
+            @if (Model.Usuario != null)
+            {
+                @Html.DropDownListFor(m => m.UsuarioIdSeleccionado, Model.Usuario, "Seleccione...", new
+                {
+                    @class = "form-control",
+                    style = "width: 250px; margin: auto;",
+                    onchange = "this.form.submit()"
+                })
+            }
+            else
+            {
+                <p>No hay usuarios disponibles.</p>
+            }
+        </div>
+    }
+
+    <div style="border-bottom: 1px solid #ccc; margin: 20px 0;"></div>
+
+    @if (Model.UsuarioSeleccionado != null)
+    {
+        <div class="documento-header">
+            <h2>Asociación Solidarista Cadena Comercial Cartaginesa</h2>
+            <h3>Estado de Cuenta</h3>
+        </div>
+
+        <table class="table documento-datos-usuario">
+            <tr>
+                <th>Nombre completo:</th>
+                <td>@Model.UsuarioSeleccionado.nombreCompleto</td>
+            </tr>
+            <tr>
+                <th>Identificación:</th>
+                <td>@Model.UsuarioSeleccionado.identificacion</td>
+            </tr>
+            <tr>
+                <th>Estado de afiliación:</th>
+                <td>
+                    @(!string.IsNullOrEmpty(Model.UsuarioSeleccionado.estadoAfiliacion)
+        ? char.ToUpper(Model.UsuarioSeleccionado.estadoAfiliacion[0]) + Model.UsuarioSeleccionado.estadoAfiliacion.Substring(1)
+        : "")
+                </td>
+            </tr>
+            <tr>
+                <th>Fecha de ingreso:</th>
+                <td>@Convert.ToDateTime(Model.UsuarioSeleccionado.fechaIngreso).ToString("dd/MM/yyyy")</td>
+            </tr>
+        </table>
+    }
+
+    @if (Model.UsuarioIdSeleccionado > 0)
+    {
+        <div class="seccion-titulo">Aportes</div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Tipo Aporte</th>
+                    <th>Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Aportes != null && Model.Aportes.Any())
+                {
+                    foreach (var ap in Model.Aportes)
+                    {
+                        <tr>
+                            <td>@ap.tipoAporte</td>
+                            <td>@ap.monto.ToString("N2")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="2" class="text-center">Sin datos</td></tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="seccion-titulo">Ahorros</div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Fecha Inicio</th>
+                    <th>Monto Inicial</th>
+                    <th>Monto Actual</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Ahorros != null && Model.Ahorros.Any())
+                {
+                    foreach (var a in Model.Ahorros)
+                    {
+                        <tr>
+                            <td>
+                                @(a.fechaInicio != null ? Convert.ToDateTime(a.fechaInicio).ToString("dd/MM/yyyy") : "Sin fecha")
+                            </td>
+                            <td>@a.montoInicial.ToString("N2")</td>
+                            <td>@a.montoActual.ToString("N2")</td>
+                            <td>@a.estado</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="4" class="text-center">Sin datos</td></tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="seccion-titulo">Préstamos</div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Fecha Estado</th>
+                    <th>Tipo Préstamo</th>
+                    <th>Monto Aprobado</th>
+                    <th>Saldo Pendiente</th>
+                    <th>Tipo Préstamo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Prestamos != null && Model.Prestamos.Any())
+                {
+                    foreach (var p in Model.Prestamos)
+                    {
+                        <tr>
+                            <td>
+                                @(p.fechaEstado != null ? Convert.ToDateTime(p.fechaEstado).ToString("dd/MM/yyyy") : "Sin fecha")
+                            </td>
+
+                            <td>@p.tipoPrestamo</td>
+                            <td>@(p.montoAprobado.HasValue ? p.montoAprobado.Value.ToString("N2") : "0.00")</td>
+                            <td>@(p.saldoPendiente.HasValue ? p.saldoPendiente.Value.ToString("N2") : "0.00")</td>
+                            <td>@p.tipoPrestamo</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="5" class="text-center">Sin datos</td></tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="seccion-titulo">Beneficios</div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Monto Total</th>
+                    <th>Monto Pendiente</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Beneficios != null && Model.Beneficios.Any())
+                {
+                    foreach (var b in Model.Beneficios)
+                    {
+                        <tr>
+                            <td>
+                                @(b.fechaCreacion != null ? Convert.ToDateTime(b.fechaCreacion).ToString("dd/MM/yyyy") : "Sin fecha")
+                            </td>
+
+                            <td>@b.montoTotal.ToString("N2")</td>
+                            <td>@b.montoPendiente.ToString("N2")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="3" class="text-center">Sin datos</td></tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="btn-pdf">
+            <form method="post" action="@Url.Action("DescargarPdf", "Reportes")">
+                <input type="hidden" name="usuarioId" value="@Model.UsuarioIdSeleccionado" />
+                <button type="submit" class="btn btn-primary">Descargar PDF</button>
+            </form>
+        </div>
+    }
 </div>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Concepto</th>
-            <th>Descripción</th>
-            <th>Cuenta</th>
-            <th>Acumulado</th>
-            <th>Tasa de Interés</th>
-            <th>Cuota</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>001</td>
-            <td>Aporte Obrero</td>
-            <td>Cuenta Principal</td>
-            <td>667,619.59</td>
-            <td>5.00%</td>
-            <td>1,335,239.18</td>
-        </tr>
-        <tr>
-            <td>002</td>
-            <td>Aporte Patronal</td>
-            <td>Cuenta Principal</td>
-            <td>667,619.59</td>
-            <td>5.00%</td>
-            <td>1,335,239.18</td>
-        </tr>
-    </tbody>
-</table>
-
-<h3>Préstamos</h3>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Fecha</th>
-            <th>Cód.</th>
-            <th>Descripción</th>
-            <th>Principal</th>
-            <th>Saldo</th>
-            <th>Tasa</th>
-            <th>Cuota Mensual</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>14/11/2024</td>
-            <td>401</td>
-            <td>Crédito Personal</td>
-            <td>29,000.00</td>
-            <td>11,007.52</td>
-            <td>14.00%</td>
-            <td>19,564.15</td>
-        </tr>
-        <tr>
-            <td>02/12/2024</td>
-            <td>560</td>
-            <td>ASECCC</td>
-            <td>6,138.48</td>
-            <td>6,138.48</td>
-            <td>0.00%</td>
-            <td>6,138.48</td>
-        </tr>
-    </tbody>
-</table>
-
