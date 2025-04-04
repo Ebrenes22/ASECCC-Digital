@@ -45,7 +45,7 @@
 <div class="modal fade" id="modalRegistrarAbono" tabindex="-1" aria-labelledby="modalRegistrarAbonoLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            @using (Html.BeginForm("RegistrarAbono", "Beneficio", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+            @using (Html.BeginForm("RegistrarAbono", "BeneficiosyServicios", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
             {
                 @Html.AntiForgeryToken()
                 <div class="modal-header">

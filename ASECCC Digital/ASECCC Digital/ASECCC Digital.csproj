@@ -247,6 +247,7 @@
     <Compile Include="Services\EmailService.cs" />
     <Compile Include="ViewModels\AhorroViewModel.cs" />
     <Compile Include="ViewModels\BeneficioServicioViewModel.cs" />
+    <Compile Include="ViewModels\EstadoCuentaViewModel.cs" />
     <Compile Include="ViewModels\PrestamoUsuarioTransacciones.cs" />
     <Compile Include="ViewModels\SolicitudPrestamoViewModel.cs" />
   </ItemGroup>
