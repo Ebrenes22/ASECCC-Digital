@@ -6,7 +6,7 @@ using System.Web.Mvc;
 
 namespace ASECCC_Digital.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
 
         //--------VISTAS ADMIN--------------//
@@ -15,6 +15,11 @@ namespace ASECCC_Digital.Controllers
         {
 
             return View();
+        }
+
+        protected override string GetCurrentModule()
+        {
+            return "Home";
         }
 
         //--------VISTAS ASOCIADO-------------//

@@ -69,6 +69,13 @@
                        : "";
 
 }
+@{
+
+    var ultimas = HttpContext.Current.Items["UltimasNotificaciones"] as List<ASECCC_Digital.ViewModels.NotificacionResumenViewModel> ?? new List<ASECCC_Digital.ViewModels.NotificacionResumenViewModel>();
+    var pendientes = HttpContext.Current.Items["NotificacionesPendientes"] as int? ?? 0;
+
+
+}
 
 <body class="index-page">
     <!-- Header -->
@@ -113,19 +120,17 @@
             <!-- Elementos relacionados con el usuario (alineados a la derecha) -->
             <div class="d-flex align-items-center">
                 <!-- Notificaciones -->
-                <div class="notifications position-relative me-3" style="max-width: 280px;">
-                    <i class="bi bi-bell fs-5" id="campanaNotificaciones" style="cursor: pointer;"></i>
-                    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle" id="badgeNotificaciones" style="display:none;"></span>
+                <div class="notifications position-relative me-3">
+                    <a href="@Url.Action("Notificaciones", "Notificaciones")" style="text-decoration: none; color: inherit;">
+                        <i class="bi bi-bell fs-5" style="cursor: pointer;"></i>
 
-                    <!-- Modal pequeño de notificaciones -->
-                    <div id="modalNotificaciones" class="position-absolute bg-white border shadow-sm p-2 rounded"
-                         style="display:none; width: 280px; top: 35px; right: 0; z-index: 1050;">
-                        <h6 class="mb-2">Notificaciones nuevas</h6>
-                        <ul id="listaNotificaciones" class="list-unstyled mb-0" style="max-height: 200px; overflow-y: auto;">
-                            <li class="text-muted text-center">Cargando...</li>
-                        </ul>
-                    </div>
-                </div>
+                        @if (pendientes > 0)
+                        {
+                            <span class="badge bg-danger position-absolute top-0 start-100 translate-middle" id="badgeNotificaciones">@pendientes</span>
+                        }
+                       
+</div>
+
 
 
 
@@ -184,76 +189,44 @@
     <script src="~/assets/vendor/swiper/swiper-bundle.min.js"></script>
     <script src="~/assets/js/main.js"></script>
 
+    @section Scripts {
+        <script>
+            function logout() {
+                $.ajax({
+                    url: '@Url.Action("Logout", "Usuarios")',
+                    type: 'POST',
+                    success: function () {
+                        window.location.href = '@Url.Action("Login", "Usuarios")';
+                    },
+                    error: function () {
+                        alert('Error al cerrar sesión.');
+                    }
+                });
+            }
+
+                function actualizarBadgeNotificaciones() {
+        $.get('@Url.Action("ObtenerNotificacionesNoLeidas", "Notificaciones")', function (data) {
+            if (data.length > 0) {
+                $('#badgeNotificaciones').text(data.length).show();
+            } else {
+                $('#badgeNotificaciones').hide();
+            }
+        });
+    }
+
+                $(document).ready(function () {
+                    actualizarBadgeNotificaciones(); // primera carga
+
+                    setInterval(function () {
+                        actualizarBadgeNotificaciones(); // cada 10 seg
+                    }, 10000);
+                });
+        </script>
+    }
+
     @RenderSection("Scripts", required: false)
 </body>
-
 </html>
-@section Scripts {
-    <script>
-        function logout() {
-            $.ajax({
-                url: '@Url.Action("Logout", "Usuarios")',
-                type: 'POST',
-                success: function () {
-                    window.location.href = '@Url.Action("Login", "Usuarios")';
-                },
-                error: function () {
-                    alert('Error al cerrar sesión.');
-                }
-            });
-        }
 
-        var modalVisible = false;
-
-        function cargarNotificaciones() {
-            $.get('/Notificaciones/ObtenerNotificacionesNoLeidas', function (data) {
-                console.log("AJAX recibido:", data);
-
-                if (data.length > 0) {
-                    $('#badgeNotificaciones').text(data.length).show();
-                    let html = "";
-                    data.forEach(function (item) {
-                        html += `<li class="mb-2"><strong>${item.titulo}</strong><br><small>${item.fecha}</small></li>`;
-                    });
-                    $("#listaNotificaciones").html(html);
-                } else {
-                    $('#badgeNotificaciones').hide();
-                    $("#listaNotificaciones").html('<li class="text-muted text-center">No hay nuevas notificaciones</li>');
-                }
-            }).fail(function (err) {
-                console.log("ERROR AJAX:", err);
-                $("#listaNotificaciones").html('<li class="text-danger text-center">Error al cargar notificaciones</li>');
-            });
-        }
-
-        function marcarComoLeidas() {
-            $.post('/Notificaciones/MarcarTodasComoLeidas', function (data) {
-                if (data.success) {
-                    $('#badgeNotificaciones').hide();
-                }
-            });
-        }
-
-        $(document).ready(function () {
-            cargarNotificaciones();
-
-            $(document).on("click", "#campanaNotificaciones", function (e) {
-                e.stopPropagation();
-                modalVisible = !modalVisible;
-                $("#modalNotificaciones").toggle(modalVisible);
-                if (modalVisible) {
-                    marcarComoLeidas();
-                }
-            });
-
-            $(document).click(function (e) {
-                if (!$(e.target).closest('#modalNotificaciones').length && !$(e.target).is('#campanaNotificaciones')) {
-                    $("#modalNotificaciones").hide();
-                    modalVisible = false;
-                }
-            });
-        });
-    </script>
-}
 
 

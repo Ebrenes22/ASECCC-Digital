@@ -73,20 +73,36 @@ namespace ASECCC_Digital.Controllers
             return View(notificaciones);
         }
 
-        [HttpGet]
-        public JsonResult ObtenerNotificacionesNoLeidas()
-        {
-            var notificaciones = notificacionN.ObtenerNoLeidas();
+[HttpGet]
+public JsonResult ObtenerNotificacionesNoLeidas()
+{
+    try
+    {
+        int usuarioId = Convert.ToInt32(Session["usuarioId"]);
+        var modelo = new NotificacionModel();
 
-            var resultado = notificaciones.Select(n => new
+        var generales = modelo.ObtenerNoLeidasGenerales();
+        var personalizadas = modelo.ObtenerNoLeidasPorUsuario(usuarioId);
+
+        var resultado = generales
+            .Concat(personalizadas)
+            .OrderByDescending(n => n.fechaEnvio)
+            .Select(n => new
             {
                 n.notificacionId,
                 n.titulo,
-                fecha = n.fechaEnvio?.ToString("dd-MM-yyyy HH:mm")
-            });
+                fecha = n.fechaEnvio.HasValue ? n.fechaEnvio.Value.ToString("dd-MM-yyyy HH:mm") : ""
+            })
+            .ToList();
 
-            return Json(resultado, JsonRequestBehavior.AllowGet);
-        }
+        return Json(resultado, JsonRequestBehavior.AllowGet);
+    }
+    catch (Exception ex)
+    {
+        return Json(new { error = true, message = ex.Message }, JsonRequestBehavior.AllowGet);
+    }
+}
+
 
         [HttpPost]
         public JsonResult MarcarTodasComoLeidas()
@@ -99,6 +115,29 @@ namespace ASECCC_Digital.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, mensaje = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult MarcarComoLeida(int id)
+        {
+            try
+            {
+                using (var context = new ASECCC_DIGITALEntities())
+                {
+                    var notificacion = context.Notificaciones.FirstOrDefault(n => n.notificacionId == id);
+                    if (notificacion != null)
+                    {
+                        notificacion.estado = "leida";
+                        context.SaveChanges();
+                    }
+                }
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
             }
         }
 

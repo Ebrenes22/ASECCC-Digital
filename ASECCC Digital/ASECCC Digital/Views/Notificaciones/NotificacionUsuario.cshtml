@@ -20,16 +20,20 @@
             <tbody>
                 @foreach (var notificacion in Model)
                 {
-                    <tr class="@(notificacion.estado.ToLower() == "enviada" ? "fw-bold" : "")" id="fila-@notificacion.notificacionId">
+                    <tr class="@(notificacion.estado.ToLower() == "enviada" ? "fw-bold" : "") notificacion-fila"
+                        data-id="@notificacion.notificacionId"
+                        id="fila-@notificacion.notificacionId"
+                        style="cursor:pointer;">
                         <td>@notificacion.titulo</td>
                         <td>@notificacion.contenido</td>
                         <td class="text-center">
                             @(notificacion.fechaEnvio.HasValue
-                                ? notificacion.fechaEnvio.Value.ToString("dd-MM-yyyy HH:mm")
-                                : "")
+                ? notificacion.fechaEnvio.Value.ToString("dd-MM-yyyy HH:mm")
+                : "")
                         </td>
                     </tr>
                 }
+
             </tbody>
         </table>
     </div>
@@ -42,6 +46,7 @@
 
 <script>
     $(document).ready(function () {
+        // Inicializar DataTable
         $('#tablaNotificaciones').DataTable({
             "pageLength": 15,
             "lengthChange": false,
@@ -58,27 +63,26 @@
                 "zeroRecords": "No se encontraron coincidencias"
             }
         });
-    });
 
-    $(".ver-notificacion").click(function () {
-        var notificacionId = $(this).data("id");
+        // Al hacer clic en una fila de notificación
+        $(".notificacion-fila").click(function () {
+            var fila = $(this);
+            var notificacionId = fila.data("id");
 
-        $.ajax({
-            url: '@Url.Action("MarcarComoLeida", "Notificaciones")',
-            type: 'POST',
-            data: { id: notificacionId },
-            success: function (data) {
-                if (data.success) {
-                    $("#detalleNotificacion").text(data.contenido);
-                    $("#modalNotificacion").modal("show");
-
-                    $("#estado-" + notificacionId).removeClass("bg-warning").addClass("bg-success").text("leida");
-                    $("#fila-" + notificacionId).removeClass("fw-bold");
+            $.ajax({
+                url: '@Url.Action("MarcarComoLeida", "Notificaciones")',
+                type: 'POST',
+                data: { id: notificacionId },
+                success: function (data) {
+                    if (data.success) {
+                        fila.removeClass("fw-bold").addClass("fw-normal");
+                    }
                 }
-            }
+            });
         });
     });
 </script>
+
 
 <style>
     /* Estilos generales para la tabla */
@@ -87,21 +91,18 @@
         text-align: center;
     }
 
-   
+
     @@media (min-width: 768px) {
-        th: nth-child(2), td:nth-child(2)
+        th: nth-child(2), td:nth-child(2) {
+            width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-    {
-        width: 300px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    th:nth-child(3), td:nth-child(3) {
-        width: 180px;
-    }
-
+        th:nth-child(3), td:nth-child(3) {
+            width: 180px;
+        }
     }
 
     @@media (max-width: 767.98px) {
@@ -110,5 +111,4 @@
             padding: 5px;
         }
     }
-
 </style>
