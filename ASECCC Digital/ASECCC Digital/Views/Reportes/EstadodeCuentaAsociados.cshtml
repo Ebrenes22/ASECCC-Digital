@@ -6,64 +6,13 @@
     @Html.Partial("_MenuModulos");
 }
 
-<style>
-    .documento-container {
-        max-width: 900px;
-        margin: auto;
-        padding: 30px;
-        background-color: #fff;
-        font-family: 'Segoe UI', sans-serif;
-        color: #333;
-    }
-
-    .documento-header {
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-        .documento-header h2 {
-            margin: 0;
-            font-size: 24px;
-        }
-
-        .documento-header h3 {
-            margin: 5px 0 0 0;
-            font-weight: normal;
-            font-size: 20px;
-        }
-
-    .documento-datos-usuario {
-        margin-bottom: 30px;
-    }
-
-        .documento-datos-usuario th {
-            width: 30%;
-            text-align: left;
-            padding-right: 10px;
-        }
-
-    .table th, .table td {
-        vertical-align: middle !important;
-    }
-
-    .seccion-titulo {
-        margin-top: 40px;
-        font-size: 18px;
-        border-bottom: 2px solid #ccc;
-        padding-bottom: 5px;
-    }
-
-    .btn-pdf {
-        margin-top: 40px;
-        text-align: center;
-    }
-</style>
+<link href="~/assets/css/estadodecuenta.css" rel="stylesheet" />
 
 <div class="documento-container">
 
-    @using (Html.BeginForm("GenerarEstadoAsociado", "Reportes", FormMethod.Get))
+    @using (Html.BeginForm("EstadodeCuentaAsociados", "Reportes", FormMethod.Get))
     {
-        <div class="form-group" style="text-align: center;">
+        <div class="form-group pdf-hide" style="text-align: center;">
             <label><strong>Seleccione un asociado:</strong></label>
             <br />
             @if (Model.Usuario != null)
@@ -82,18 +31,22 @@
         </div>
     }
 
-    <div style="border-bottom: 1px solid #ccc; margin: 20px 0;"></div>
+    <div class="pdf-hide" style="border-bottom: 1px solid #ccc; margin: 20px 0;"></div>
 
     @if (Model.UsuarioSeleccionado != null)
     {
-        <div class="documento-header">
-            <h2>Asociación Solidarista Cadena Comercial Cartaginesa</h2>
-            <h3>Estado de Cuenta</h3>
+        <div class="documento-header" style="display: flex; align-items: center; justify-content: space-between;">
+            <img src="~/Assets/img/logos/ASECCC_LOGO_1.png" alt="Logo" style="height: 150px;" />
+            <div style="flex: 1; text-align: center;">
+                <h1>Asociación Solidarista Cadena Comercial Cartaginesa</h1>
+                <h2>Estado de Cuenta</h2>
+                <h6 id="fechaActual"></h6>
+            </div>
         </div>
 
-        <table class="table documento-datos-usuario">
+        <table class="table documento-datos-usuario ">
             <tr>
-                <th>Nombre completo:</th>
+                <th>Nombre del asociado:</th>
                 <td>@Model.UsuarioSeleccionado.nombreCompleto</td>
             </tr>
             <tr>
@@ -117,7 +70,7 @@
 
     @if (Model.UsuarioIdSeleccionado > 0)
     {
-        <div class="seccion-titulo">Aportes</div>
+        <div class="seccion-titulo page-break">Aportes</div>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -131,7 +84,7 @@
                     foreach (var ap in Model.Aportes)
                     {
                         <tr>
-                            <td>@ap.tipoAporte</td>
+                            <td>@(char.ToUpper(ap.tipoAporte[0]) + ap.tipoAporte.Substring(1).ToLower())</td>
                             <td>@ap.monto.ToString("N2")</td>
                         </tr>
                     }
@@ -143,14 +96,13 @@
             </tbody>
         </table>
 
-        <div class="seccion-titulo">Ahorros</div>
+        <div class="seccion-titulo page-break">Ahorros</div>
         <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>Fecha Inicio</th>
-                    <th>Monto Inicial</th>
+                    <th>Nombre Ahorro</th>
                     <th>Monto Actual</th>
-                    <th>Estado</th>
                 </tr>
             </thead>
             <tbody>
@@ -162,28 +114,33 @@
                             <td>
                                 @(a.fechaInicio != null ? Convert.ToDateTime(a.fechaInicio).ToString("dd/MM/yyyy") : "Sin fecha")
                             </td>
-                            <td>@a.montoInicial.ToString("N2")</td>
+
+                            <td>
+                                @(a.CatalogoTipoAhorro != null && !string.IsNullOrEmpty(a.CatalogoTipoAhorro.tipoAhorro)
+                        ? char.ToUpper(a.CatalogoTipoAhorro.tipoAhorro[0]) + a.CatalogoTipoAhorro.tipoAhorro.Substring(1).ToLower()
+                        : "Sin nombre")
+                            </td>
                             <td>@a.montoActual.ToString("N2")</td>
-                            <td>@a.estado</td>
                         </tr>
                     }
                 }
                 else
                 {
-                    <tr><td colspan="4" class="text-center">Sin datos</td></tr>
+                    <tr><td colspan="5" class="text-center">Sin datos</td></tr>
                 }
             </tbody>
+
         </table>
 
-        <div class="seccion-titulo">Préstamos</div>
+        <div class="seccion-titulo page-break">Préstamos</div>
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>Fecha Estado</th>
+                    <th>Fecha</th>
                     <th>Tipo Préstamo</th>
-                    <th>Monto Aprobado</th>
-                    <th>Saldo Pendiente</th>
-                    <th>Tipo Préstamo</th>
+                    <th>Monto</th>
+                    <th>Saldo </th>
+
                 </tr>
             </thead>
             <tbody>
@@ -196,10 +153,10 @@
                                 @(p.fechaEstado != null ? Convert.ToDateTime(p.fechaEstado).ToString("dd/MM/yyyy") : "Sin fecha")
                             </td>
 
-                            <td>@p.tipoPrestamo</td>
+                            <td>@(char.ToUpper(p.tipoPrestamo[0]) + p.tipoPrestamo.Substring(1).ToLower())</td>
                             <td>@(p.montoAprobado.HasValue ? p.montoAprobado.Value.ToString("N2") : "0.00")</td>
                             <td>@(p.saldoPendiente.HasValue ? p.saldoPendiente.Value.ToString("N2") : "0.00")</td>
-                            <td>@p.tipoPrestamo</td>
+
                         </tr>
                     }
                 }
@@ -210,11 +167,12 @@
             </tbody>
         </table>
 
-        <div class="seccion-titulo">Beneficios</div>
+        <div class="seccion-titulo page-break">Beneficios</div>
         <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>Fecha</th>
+                    <th>Nombre Servicio</th>
                     <th>Monto Total</th>
                     <th>Monto Pendiente</th>
                 </tr>
@@ -228,7 +186,11 @@
                             <td>
                                 @(b.fechaCreacion != null ? Convert.ToDateTime(b.fechaCreacion).ToString("dd/MM/yyyy") : "Sin fecha")
                             </td>
-
+                            <td>
+                                @(b.BeneficiosServicios != null && !string.IsNullOrEmpty(b.BeneficiosServicios.nombre)
+                        ? char.ToUpper(b.BeneficiosServicios.nombre[0]) + b.BeneficiosServicios.nombre.Substring(1).ToLower()
+                        : "Sin nombre")
+                            </td>
                             <td>@b.montoTotal.ToString("N2")</td>
                             <td>@b.montoPendiente.ToString("N2")</td>
                         </tr>
@@ -239,13 +201,91 @@
                     <tr><td colspan="3" class="text-center">Sin datos</td></tr>
                 }
             </tbody>
+
+
         </table>
 
-        <div class="btn-pdf">
-            <form method="post" action="@Url.Action("DescargarPdf", "Reportes")">
-                <input type="hidden" name="usuarioId" value="@Model.UsuarioIdSeleccionado" />
-                <button type="submit" class="btn btn-primary">Descargar PDF</button>
-            </form>
+        <div style="display: flex; justify-content: center;">
+            <table class="table table-bordered" style="max-width: 500px; margin-top: 30px;">
+                <thead>
+                    <tr style="background-color: #f1f6fc;">
+                        <th colspan="2" style="text-align: center; color: #2e6da4;"> Resumen Financiero</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Total aportes</td>
+                        <td>₡@Model.Aportes.Sum(x => x.monto).ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td>Saldo actual en ahorros</td>
+                        <td>₡@Model.Ahorros.Sum(x => x.montoActual).ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td>Total préstamos pendientes</td>
+                        <td>₡@Model.Prestamos.Sum(x => x.saldoPendiente ?? 0).ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td>Total beneficios pendientes</td>
+                        <td>₡@Model.Beneficios.Sum(x => x.montoPendiente).ToString("N2")</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-    }
-</div>
+
+
+            <div class="btn-pdf pdf-hide">
+                <button type="button" class="btn btn-success" onclick="descargarVistaComoPDF()">Descargar PDF</button>
+            </div>
+
+            <div class="only-pdf-force" style="display: none; margin-top: 50px; font-size: 12px; text-align: center; border-top: 1px solid #ccc; padding-top: 15px;">
+                <p><strong>Asociación Solidarista Cadena Comercial Cartaginesa</strong></p>
+                <p>Cartago, Costa Rica · Tel: 2551-0782 · aseccc.cartago2009@gmail.com · www.asecccdigital.com</p>
+                <p>Estado generado el @DateTime.Now.ToString("dd/MM/yyyy")</p>
+                <p style="font-style: italic;">Este documento es confidencial y exclusivo para el asociado.</p>
+                <br /><br />
+            </div>
+
+            }
+
+
+
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+
+        <script>
+            const hoy = new Date();
+            const dia = String(hoy.getDate()).padStart(2, '0');
+            const mes = String(hoy.getMonth() + 1).padStart(2, '0'); 
+            const anio = hoy.getFullYear();
+            const fechaFormateada = `${dia}/${mes}/${anio}`;
+
+            document.getElementById("fechaActual").textContent = "Fecha: " + fechaFormateada;
+
+            function descargarVistaComoPDF() {
+                const element = document.querySelector(".documento-container");
+
+          
+                document.querySelectorAll('.only-pdf-force').forEach(el => el.style.display = 'block');
+
+                document.querySelectorAll('.pdf-hide').forEach(el => el.style.display = 'none');
+
+                const opt = {
+                    margin: [0.5, 0.5, 0.5, 0.5],
+                    filename: 'EstadoCuenta.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 3 },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    document.querySelectorAll('.only-pdf-force').forEach(el => el.style.display = 'none');
+                    document.querySelectorAll('.pdf-hide').forEach(el => el.style.display = 'block');
+                });
+            }
+
+
+
+        </script>

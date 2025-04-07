@@ -1,0 +1,87 @@
+﻿
+.documento-container {
+    max-width: 900px;
+    margin: auto;
+    padding: 30px;
+    background-color: #fff;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+}
+
+.table {
+    margin-bottom: 15px;
+}
+
+.documento-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+    .documento-header h2 {
+        margin: 0;
+        font-size: 24px;
+    }
+
+    .documento-header h3 {
+        margin: 5px 0 0 0;
+        font-weight: normal;
+        font-size: 20px;
+    }
+
+.documento-datos-usuario {
+    margin-bottom: 30px;
+}
+
+    .documento-datos-usuario th {
+        width: 30%;
+        text-align: left;
+        padding-right: 10px;
+    }
+
+.table th, .table td {
+    vertical-align: middle !important;
+}
+
+.seccion-titulo {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 3px;
+}
+
+
+.btn-pdf {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.pdf-hide {
+    display: block;
+}
+
+@media print {
+    .table {
+        page-break-inside: avoid;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+}
+
+.page-break {
+    padding-top: 20px;
+}
+
+.only-pdf {
+    display: none;
+}
+
+@media print {
+    .only-pdf {
+        display: block;
+    }
+}
+

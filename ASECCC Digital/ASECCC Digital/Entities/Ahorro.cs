@@ -55,6 +55,8 @@ namespace ASECCC_Digital.Entities
         [ForeignKey("TipoAhorroId")]
         public CatalogoTipoAhorro TipoAhorro { get; set; }
         // Relación con las transacciones de ahorro
+
+        public virtual CatalogoTipoAhorro CatalogoTipoAhorro { get; set; }
         public IEnumerable<Ahorro> Ahorros{ get; set; }
         public ICollection<AhorroTransaccion> AhorroTransacciones { get; set; }
     }

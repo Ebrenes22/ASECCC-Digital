@@ -241,6 +241,7 @@
     <Compile Include="Models\BeneficiariosModel.cs" />
     <Compile Include="Models\NotificacionModel.cs" />
     <Compile Include="Models\PrestamosModel.cs" />
+    <Compile Include="Models\ReportesModel.cs" />
     <Compile Include="Models\SeguridadAuditoriaModel.cs" />
     <Compile Include="Models\UsuariosModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -253,6 +254,7 @@
     <Compile Include="ViewModels\SolicitudPrestamoViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="assets\css\estadodecuenta.css" />
     <Content Include="assets\img\logos\ASECCC_LOGO3.1.png" />
     <Content Include="assets\img\logos\ASECCC_LOGO_1.png" />
     <Content Include="assets\img\logos\ASECCC_LOGO_2.png" />

@@ -46,6 +46,7 @@ namespace ASECCC_Digital.Entities
 
         // Propiedades de navegación
         public Usuario Usuario { get; set; }
-        public BeneficioServicio BeneficioServicio { get; set; }
+
+        public virtual BeneficioServicio BeneficioServicio { get; set; }
     }
 }
