@@ -1,6 +1,9 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
 name: Build and deploy ASP app to Azure Web App - asecccdigital
 
 on:
@@ -13,7 +16,7 @@ jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -26,18 +29,15 @@ jobs:
 
       - name: Restore NuGet packages
         run: nuget restore "ASECCC Digital/ASECCCDigital.sln"
-        
-      - name: Build with MSBuild
-        run: msbuild "ASECCC Digital/ASECCCDigital.sln" /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:PublishUrl=".\published" /p:Configuration=Release
 
-      - name: Publish to folder
-        run:  msbuild "ASECCC Digital/ASECCCDigital.sln" /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:PublishUrl=".\published" /p:Configuration=Release
-        
+      - name: Build and Publish
+        run: msbuild "ASECCC Digital/ASECCCDigital.sln" /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:PublishUrl="published" /p:Configuration=Release
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: ASP-app
-          path: '/published/**'
+          path: published
 
   deploy:
     runs-on: windows-latest
@@ -46,15 +46,15 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: ASP-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -69,4 +69,4 @@ jobs:
           app-name: 'asecccdigital'
           slot-name: 'Production'
           package: .
-          
+
