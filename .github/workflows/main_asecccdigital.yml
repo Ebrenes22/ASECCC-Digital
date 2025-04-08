@@ -31,7 +31,16 @@ jobs:
         run: nuget restore "ASECCC Digital/ASECCCDigital.sln"
 
       - name: Build and Publish
-        run: msbuild "ASECCC Digital/ASECCCDigital.sln" /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:PublishUrl="published" /p:Configuration=Release
+        run: |
+          msbuild "ASECCC Digital/ASECCCDigital.sln" `
+            /p:DeployOnBuild=true `
+            /p:WebPublishMethod=FileSystem `
+            /p:PublishUrl="$(System.DefaultWorkingDirectory)\published" `
+            /p:Configuration=Release
+
+      - name: Verificar contenido de carpeta 'published'
+        run: dir published
+
 
       - name: 🔍 Verificar contenido de carpeta 'published'
         run: dir "ASECCC Digital/ASECCC Digital/published"
