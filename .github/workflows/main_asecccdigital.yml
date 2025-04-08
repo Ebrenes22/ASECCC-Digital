@@ -19,7 +19,8 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup MSBuild path
         uses: microsoft/setup-msbuild@v1.0.2
@@ -27,25 +28,20 @@ jobs:
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.0.5
 
-      - name: Restore NuGet packages
+      - name: Restore NuGet packages (.sln)
         run: nuget restore "ASECCC Digital/ASECCCDigital.sln"
 
       - name: Build and Publish
-        run: msbuild "ASECCC Digital/ASECCCDigital.sln" /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:PublishUrl=published /p:Configuration=Release
-
+        run: msbuild "ASECCC Digital/ASECCCDigital.sln" /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:PublishUrl="ASECCC Digital/published" /p:Configuration=Release
 
       - name: Verificar contenido de carpeta 'published'
-        run: dir published
-
-
-      - name: 🔍 Verificar contenido de carpeta 'published'
-        run: dir "ASECCC Digital/ASECCC Digital/published"
+        run: dir "ASECCC Digital/published" /s
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: ASP-app
-          path: ASECCC Digital/ASECCC Digital/published
+          path: "ASECCC Digital/published"
 
   deploy:
     runs-on: windows-latest
