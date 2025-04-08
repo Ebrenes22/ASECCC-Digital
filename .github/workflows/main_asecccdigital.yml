@@ -35,7 +35,7 @@ jobs:
           msbuild "ASECCC Digital/ASECCCDigital.sln" `
             /p:DeployOnBuild=true `
             /p:WebPublishMethod=FileSystem `
-            /p:PublishUrl="$(System.DefaultWorkingDirectory)\published" `
+            /p:PublishUrl=published
             /p:Configuration=Release
 
       - name: Verificar contenido de carpeta 'published'
