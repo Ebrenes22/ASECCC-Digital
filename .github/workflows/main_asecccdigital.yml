@@ -1,10 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy ASP app to Azure Web App - asecccdigital
+name: Build and deploy ASP.NET MVC app to Azure Web App
 
 on:
   push:
@@ -15,11 +12,9 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    permissions:
-      contents: read
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup MSBuild path
         uses: microsoft/setup-msbuild@v1.0.2
@@ -30,14 +25,17 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore "ASECCC Digital/ASECCCDigital.sln"
 
-      - name: Build and Publish
-        run: msbuild "ASECCC Digital/ASECCCDigital.sln" /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:PublishUrl="published" /p:Configuration=Release
+      - name: Build and publish using .sln
+        run: msbuild "ASECCC Digital/ASECCCDigital.sln" /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:PublishUrl="ASECCC Digital/ASECCC Digital/published" /p:Configuration=Release
+
+      - name: Verificar contenido de carpeta 'published'
+        run: dir "ASECCC Digital/ASECCC Digital/published" /s
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: ASP-app
-          path: published
+          path: "ASECCC Digital/ASECCC Digital/published"
 
   deploy:
     runs-on: windows-latest
@@ -45,9 +43,6 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
       - name: Download artifact from build job
@@ -58,9 +53,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_3DBF048DDB184D57AC4B6DD072D48870 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_2B6690D8866C4700AACB018049FC9938 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DA9C3055CE4946EC9E5CE2D6DD79C347 }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
