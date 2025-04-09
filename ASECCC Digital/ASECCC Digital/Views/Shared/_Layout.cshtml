@@ -121,20 +121,34 @@
             <div class="d-flex align-items-center">
                 <!-- Notificaciones -->
                 <div class="notifications position-relative me-3">
-                    <a href="@Url.Action("Notificaciones", "Notificaciones")" style="text-decoration: none; color: inherit;">
-                        <i class="bi bi-bell fs-5" style="cursor: pointer;"></i>
+                    @if (rol == "asociado")
+                    {
+                        <a href="@Url.Action("NotificacionUsuario", "Notificaciones")" style="text-decoration: none; color: inherit;">
+                            <i class="bi bi-bell fs-5" style="cursor: pointer;"></i>
 
-                        @if (pendientes > 0)
-                        {
-                            <span class="badge bg-danger position-absolute top-0 start-100 translate-middle" id="badgeNotificaciones">@pendientes</span>
-                        }
-
+                            @if (pendientes > 0)
+                            {
+                                <span class="badge bg-danger position-absolute top-0 start-100 translate-middle" id="badgeNotificaciones">@pendientes</span>
+                            }
                         </a>
+                    }
+                    else if (rol == "administrador")
+                    {
+                        <a href="@Url.Action("NotificacionAdministrador", "Notificaciones")" style="text-decoration: none; color: inherit;">
+                            <i class="bi bi-bell fs-5" style="cursor: pointer;"></i>
 
-</div>
-
-
-
+                            @if (pendientes > 0)
+                            {
+                                <span class="badge bg-danger position-absolute top-0 start-100 translate-middle" id="badgeNotificaciones">@pendientes</span>
+                            }
+                        </a>
+                    }
+                    else
+                    {
+                        
+                        <i class="bi bi-bell fs-5 text-muted"></i>
+                    }
+                </div>
 
                 <!-- Nombre del usuario -->
                 <div class="user-info me-3">
