@@ -10,7 +10,7 @@
 
         <div class="card">
             <div class="card-body">
-                <form method="post" action="/Notificaciones/Enviar">
+                <form id="formNotificacion">
                     <div class="row g-3">
                         <div class="col-md-12">
                             <label for="tipoNotificacion" class="form-label">Tipo de Notificación</label>
@@ -21,7 +21,7 @@
                         </div>
                         <div class="col-md-12">
                             <label for="destinatarios" class="form-label">Destinatarios</label>
-                            <input type="text" class="form-control" id="destinatarios" name="destinatarios" placeholder="Ingrese nombres o IDs (separados por comas)" disabled>
+                            <input type="text" class="form-control" id="destinatarios" name="destinatarios" placeholder="Ingrese IDs separados por comas" disabled>
                             <small class="text-muted">Este campo solo se habilitará para notificaciones personalizadas.</small>
                         </div>
                         <div class="col-md-12">
@@ -43,9 +43,73 @@
 </section>
 
 <script>
-    // Habilitar o deshabilitar destinatarios según el tipo de notificación
+
     document.getElementById('tipoNotificacion').addEventListener('change', function () {
         const destinatarios = document.getElementById('destinatarios');
         destinatarios.disabled = this.value !== 'personalizada';
     });
+
+    document.getElementById('formNotificacion').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const tipoNotificacion = document.getElementById('tipoNotificacion').value;
+        const destinatarios = document.getElementById('destinatarios').value;
+        const asunto = document.getElementById('asunto').value;
+        const mensaje = document.getElementById('mensaje').value;
+
+        $.ajax({
+            type: 'POST',
+            url: '/Notificaciones/Enviar',
+            data: {
+                tipoNotificacion: tipoNotificacion,
+                destinatarios: destinatarios,
+                asunto: asunto,
+                mensaje: mensaje
+            },
+            beforeSend: function () {
+                Swal.fire({
+                    title: 'Enviando...',
+                    text: 'Por favor espera',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            },
+            success: function (response) {
+                Swal.close();
+
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Notificación enviada!',
+                        text: response.mensaje,
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        document.getElementById('formNotificacion').reset();
+                        document.getElementById('destinatarios').disabled = true;
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.mensaje,
+                        confirmButtonText: 'Aceptar'
+                    });
+                }
+            },
+            error: function () {
+                Swal.close(); 
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error de comunicación con el servidor.',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        });
+    });
+
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -62,6 +62,37 @@ namespace ASECCC_Digital.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult Enviar(string tipoNotificacion, string asunto, string mensaje, string destinatarios)
+        {
+            try
+            {
+                List<int> destinatariosList = null;
+
+                if (tipoNotificacion.ToLower() == "personalizada")
+                {
+                    if (!string.IsNullOrEmpty(destinatarios))
+                    {
+                        destinatariosList = destinatarios
+                            .Split(',')
+                            .Select(id => int.Parse(id.Trim()))
+                            .ToList();
+                    }
+                    else
+                    {
+                        return Json(new { success = false, mensaje = "Debe especificar al menos un destinatario para la notificación personalizada." });
+                    }
+                }
+
+                notificacionN.EnviarNotificacion(tipoNotificacion, asunto, mensaje, destinatariosList);
+
+                return Json(new { success = true, mensaje = "Notificación enviada exitosamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, mensaje = "Error al enviar la notificación: " + ex.Message });
+            }
+        }
 
 
 
