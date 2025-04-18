@@ -7,7 +7,7 @@
 }
 
 <section class="container mt-3">
-    <h1 class="text-center mb-4">Liquidar Asociado</h1>
+    <h1 class="text-center mb-4">LIQUIDAR ASOCIADO</h1>
 
     <!-- Formulario de búsqueda -->
     @using (Html.BeginForm("BuscarAsociado", "Asociados", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "formBuscar", onsubmit = "return false;" }))
@@ -22,9 +22,11 @@
                 {
                     @class = "form-control",
                     placeholder = "Ingrese el nombre del asociado",
+                    autocomplete = "off",
                     required = "required",
                     style = "width: 400px;"
                 })
+                <ul class="list-group position-absolute" id="sugerenciasNombres" style="width: 400px; z-index: 1000; display: none;"></ul>
             </div>
             <div class="col-auto">
                 <button type="button" class="btn btn-primary" onclick="buscarAsociado()">Buscar</button>
@@ -176,6 +178,46 @@
             // Seleccionar/Deseleccionar todas las cuentas
             $("#selectAll").on("change", function () {
                 $(".cuentaCheckbox").prop("checked", this.checked);
+            });
+        });
+
+        // Sugerencias dinámicas
+        $(document).ready(function () {
+            $("#buscarNombre").on("input", function () {
+                const texto = $(this).val().trim();
+                if (texto.length >= 2) {
+                    $.ajax({
+                        url: '/Asociados/BuscarSugerencias',
+                        method: 'GET',
+                        data: { texto },
+                        success: function (data) {
+                            let lista = $("#sugerenciasNombres").empty();
+                            if (data.length > 0) {
+                                data.forEach(nombre => {
+                                    lista.append(`<li class="list-group-item list-group-item-action">${nombre}</li>`);
+                                });
+                                lista.show();
+                            } else {
+                                lista.hide();
+                            }
+                        }
+                    });
+                } else {
+                    $("#sugerenciasNombres").hide();
+                }
+            });
+
+            // Al hacer clic en una sugerencia
+            $("#sugerenciasNombres").on("click", "li", function () {
+                $("#buscarNombre").val($(this).text());
+                $("#sugerenciasNombres").hide();
+            });
+
+            // Ocultar lista al hacer clic fuera
+            $(document).on("click", function (e) {
+                if (!$(e.target).closest("#buscarNombre, #sugerenciasNombres").length) {
+                    $("#sugerenciasNombres").hide();
+                }
             });
         });
     </script>

@@ -42,7 +42,7 @@ namespace ASECCC_Digital.Controllers
             // Verificar si el usuario ya existe en la base de datos
             if (usuarioM.UsuarioExiste(usuario.Identificacion))
             {
-                TempData["Mensaje"] = "El usuario con esta identificación ya está registrado.";
+                TempData["Mensaje"] = "El usuario con esta identificacion ya esta registrado.";
                 TempData["MensajeTipo"] = "error";
                 return RedirectToAction("RegistrarAsociado");
             }
@@ -57,7 +57,7 @@ namespace ASECCC_Digital.Controllers
             }
             else
             {
-                TempData["Mensaje"] = "Ocurrió un error al registrar el usuario.";
+                TempData["Mensaje"] = "Ocurrio un error al registrar el usuario, asegurese de completar todos los campos y que no hayan duplicados.";
                 TempData["MensajeTipo"] = "error";
                 return RedirectToAction("RegistrarAsociado");
             }
@@ -66,7 +66,7 @@ namespace ASECCC_Digital.Controllers
 
 
         [HttpPost]
-        //[ValidateAntiForgeryToken]
+        
         public JsonResult BuscarAsociado(string buscarNombre)
         {
             // Buscar el usuario por nombre usando el modelo
@@ -92,9 +92,17 @@ namespace ASECCC_Digital.Controllers
             else
             {
                 // Si no se encuentra, devolver un mensaje de error
-                return Json(new { success = false, message = "No se encontró ningún usuario con ese nombre." });
+                return Json(new { success = false, message = "No se encontro ningun usuario con ese nombre." });
             }
         }
+
+        [HttpGet]
+        public JsonResult BuscarSugerencias(string texto)
+        {
+            var sugerencias = usuarioM.ObtenerSugerenciasNombre(texto);
+            return Json(sugerencias, JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpGet]
         public ActionResult ActualizarAsociado()
@@ -186,7 +194,7 @@ namespace ASECCC_Digital.Controllers
                 var (cuentas, usuarioId) = usuarioM.BuscarCuentasAsociado(buscarNombre);
 
                 if (usuarioId == 0)
-                    return Json(new { success = false, message = "No se encontró el usuario." });
+                    return Json(new { success = false, message = "No se encontro el usuario." });
 
                 return Json(new
                 {
@@ -237,7 +245,7 @@ namespace ASECCC_Digital.Controllers
             var usuario = usuarioM.ObtenerInformacionPersonal(usuarioId);
 
             if (usuario == null)
-                return Json(new { success = false, message = "No se encontró la información del usuario." }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = false, message = "No se encontró la informacion del usuario." }, JsonRequestBehavior.AllowGet);
 
             return Json(new
             {
@@ -261,7 +269,7 @@ namespace ASECCC_Digital.Controllers
         {
             if (Session["usuarioId"] == null)
             {
-                return Json(new { success = false, message = "No hay un usuario autenticado en la sesión." });
+                return Json(new { success = false, message = "No hay un usuario autenticado en la sesion." });
             }
 
             int usuarioId = (int)Session["usuarioId"];
@@ -269,11 +277,11 @@ namespace ASECCC_Digital.Controllers
 
             if (actualizado)
             {
-                return Json(new { success = true, message = "Información actualizada correctamente." });
+                return Json(new { success = true, message = "Informacion actualizada correctamente." });
             }
             else
             {
-                return Json(new { success = false, message = "No se pudo actualizar la información." });
+                return Json(new { success = false, message = "No se pudo actualizar la informacion." });
             }
         }
     }

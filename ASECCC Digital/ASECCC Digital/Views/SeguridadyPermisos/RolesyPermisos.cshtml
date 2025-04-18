@@ -9,7 +9,7 @@
 <!-- Contenedor principal con espaciado -->
 <section class="container mt-5">
     <div class="card shadow-lg p-4 mx-auto" style="max-width: 800px;">
-        <h1 class="text-center mb-4">Gestión de Roles</h1>
+        <h1 class="text-center mb-4">GESTIÓN DE ROLES</h1>
 
         <!-- Formulario de búsqueda -->
         @using (Html.BeginForm("RolesyPermisos", "Seguridad", FormMethod.Post, new { id = "formBuscar", onsubmit = "return false;" }))
@@ -20,6 +20,7 @@
                 <div class="col-12">
                     @Html.LabelFor(model => model.NombreCompleto, "Buscar por Nombre", new { @class = "form-label fw-bold" })
                     @Html.TextBox("buscarNombre", null, new { @class = "form-control", placeholder = "Ingrese el nombre del asociado", required = "required" })
+                    <ul class="list-group position-absolute" id="sugerenciasNombres" style="width: 400px; z-index: 1000; display: none;"></ul>
                 </div>
                 <div class="col-12 d-flex justify-content-center">
                     <button type="button" class="btn btn-primary w-50" onclick="buscarAsociado()">Buscar</button>
@@ -81,20 +82,23 @@
                             const tabla = document.getElementById('tablaResultados');
                             tabla.innerHTML = ""; // Limpiar resultados previos
 
+                            const rolCapitalizado = data.rol.charAt(0).toUpperCase() + data.rol.slice(1);
+
                             const fila = `
-                                    <tr>
-                                        <td>${data.identificacion}</td>
-                                        <td>${data.nombre}</td>
-                                        <td id="rol_${data.id}">${data.rol}</td>
-                                        <td>
-                                            <input type="radio" name="rol_${data.nombre}" value="administrador" ${data.rol === "administrador" ? "checked" : ""}> Administrador
-                                            <input type="radio" name="rol_${data.nombre}" value="asociado" ${data.rol === "asociado" ? "checked" : ""}> Asociado
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn btn-success btn-sm" onclick="cambiarRol('${data.nombre}')">Guardar</button>
-                                        </td>
-                                    </tr>
-                                `;
+                                <tr>
+                                    <td>${data.identificacion}</td>
+                                    <td>${data.nombre}</td>
+                                    <td id="rol_${data.id}">${rolCapitalizado}</td>
+                                    <td>
+                                        <input type="radio" name="rol_${data.nombre}" value="administrador" ${data.rol === "administrador" ? "checked" : ""}> Administrador
+                                        <input type="radio" name="rol_${data.nombre}" value="asociado" ${data.rol === "asociado" ? "checked" : ""}> Asociado
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-success btn-sm" onclick="cambiarRol('${data.nombre}')">Guardar</button>
+                                    </td>
+                                </tr>
+                            `;
+
                             tabla.innerHTML += fila;
                         } else {
                             document.getElementById('resultadosBusqueda').style.display = 'none';
@@ -165,5 +169,45 @@
                 }
             });
         }
+
+        // Sugerencias dinámicas
+        $(document).ready(function () {
+            $("#buscarNombre").on("input", function () {
+                const texto = $(this).val().trim();
+                if (texto.length >= 2) {
+                    $.ajax({
+                        url: '/Asociados/BuscarSugerencias',
+                        method: 'GET',
+                        data: { texto },
+                        success: function (data) {
+                            let lista = $("#sugerenciasNombres").empty();
+                            if (data.length > 0) {
+                                data.forEach(nombre => {
+                                    lista.append(`<li class="list-group-item list-group-item-action">${nombre}</li>`);
+                                });
+                                lista.show();
+                            } else {
+                                lista.hide();
+                            }
+                        }
+                    });
+                } else {
+                    $("#sugerenciasNombres").hide();
+                }
+            });
+
+            // Al hacer clic en una sugerencia
+            $("#sugerenciasNombres").on("click", "li", function () {
+                $("#buscarNombre").val($(this).text());
+                $("#sugerenciasNombres").hide();
+            });
+
+            // Ocultar lista al hacer clic fuera
+            $(document).on("click", function (e) {
+                if (!$(e.target).closest("#buscarNombre, #sugerenciasNombres").length) {
+                    $("#sugerenciasNombres").hide();
+                }
+            });
+        });
     </script>
 }

@@ -124,6 +124,20 @@ namespace ASECCC_Digital.Models
             }
         }
 
+        public List<string> ObtenerSugerenciasNombre(string texto)
+        {
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                return context.Usuario
+                    .Where(u => u.nombreCompleto.Contains(texto))
+                    .Select(u => u.nombreCompleto)
+                    .Distinct()
+                    .Take(10)
+                    .ToList();
+            }
+        }
+
+
         public bool ActualizarAsociado(Entities.Usuario usuario, bool actualizarRol = false)
         {
             using (var context = new Database.ASECCC_DIGITALEntities())
