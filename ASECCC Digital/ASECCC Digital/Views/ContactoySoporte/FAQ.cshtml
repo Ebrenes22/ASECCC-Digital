@@ -9,16 +9,12 @@
     <div class="row mb-3">
         <div class="col-md-6 mb-2">
             <label class="form-label fw-bold">Buscar por palabra clave</label>
-            <input type="text" id="busquedaTexto" class="form-control" placeholder="Ej. contraseña, préstamo...">
+            <input type="text" id="busquedaTexto" class="form-control" placeholder="Ej. préstamo, contraseña...">
         </div>
         <div class="col-md-6 mb-2">
             <label class="form-label fw-bold">Filtrar por categoría</label>
             <select id="filtroCategoria" class="form-select">
-                <option value="">Todas</option>
-                <option value="Cuenta">Cuenta</option>
-                <option value="Ahorros">Ahorros</option>
-                <option value="Préstamos">Préstamos</option>
-                <option value="Sistema">Sistema</option>
+                <!-- Se cargará dinámicamente -->
             </select>
         </div>
     </div>
@@ -30,32 +26,30 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         const faqs = [
-            {
-                categoria: "Cuenta",
-                pregunta: "¿Cómo cambio mi contraseña?",
-                respuesta: "Puedes cambiar tu contraseña desde la sección de perfil en 'Actualizar información'."
-            },
-            {
-                categoria: "Ahorros",
-                pregunta: "¿Cómo puedo ver mis ahorros actuales?",
-                respuesta: "Dirígete al módulo de Ahorros desde el menú principal y revisa tu saldo."
-            },
-            {
-                categoria: "Préstamos",
-                pregunta: "¿Qué requisitos necesito para solicitar un préstamo?",
-                respuesta: "Debes tener al menos 6 meses de afiliación y no tener préstamos activos pendientes."
-            },
-            {
-                categoria: "Sistema",
-                pregunta: "¿Puedo acceder al sistema desde mi celular?",
-                respuesta: "Sí, el sistema es responsivo y funciona correctamente en dispositivos móviles."
-            },
-            {
-                categoria: "Cuenta",
-                pregunta: "¿Cómo actualizo mis datos personales?",
-                respuesta: "Ve a la sección de perfil y selecciona 'Actualizar información personal'."
-            }
+            // FAQs de préstamos
+            { categoria: "Préstamos", pregunta: "¿Cómo solicito un préstamo en la asociación?", respuesta: "Se apersona al departamento de contabilidad de la asociación, donde se completa la solicitud de crédito, ellos se encargan de realizar el estudio y posteriormente informan si se aprueba o no." },
+            { categoria: "Préstamos", pregunta: "¿Qué requisitos requiero para solicitarlo?", respuesta: "No existe un requisito documental sin embargo, ellos solicitan que la persona esté asociada y que para el monto de crédito sea acorde al monto ahorrado en la asociación según sus escalas." },
+            { categoria: "Préstamos", pregunta: "¿Cómo solicito mi estado de cuenta en referencia al préstamo?", respuesta: "Se apersona al departamento de contabilidad a solicitar el estado de cuenta." },
+            { categoria: "Préstamos", pregunta: "¿Qué tasas y plazos me ofrecen?", respuesta: "La tasa de interés varía dependiendo del plazo del crédito, y en cuanto a plazos según el tipo de crédito solicitado." },
+            { categoria: "Préstamos", pregunta: "¿Qué tipo de créditos me ofrecen?", respuesta: "Poseen dos, el personal y el urgente." },
+            { categoria: "Préstamos", pregunta: "Ya teniendo un crédito, ¿podría solicitar otro?", respuesta: "Sí, siempre y cuando se respalde contra los ahorros acumulados." },
+            { categoria: "Préstamos", pregunta: "¿La asociación realiza refundición de deudas?", respuesta: "El producto refundición de deudas no existe como tal, ya que los asociados solicitan el crédito directamente y ellos mismos se encargan de cancelar deudas." },
+            { categoria: "Préstamos", pregunta: "¿Qué tipo de convenios me ofrecen?", respuesta: "Tiene convenios con Asembis (clínica de especialidades médicas), dentistas, almacenes de venta de electrodomésticos y empresas de comercio ferretero." },
+            { categoria: "Préstamos", pregunta: "¿Se permite realizar renovación de préstamos?", respuesta: "No se realiza renovación; sin embargo, se cancela un préstamo para crear uno nuevo." },
+            { categoria: "Préstamos", pregunta: "¿Se permite realizar la cancelación anticipada de la deuda y se penaliza?", respuesta: "Sí hay posibilidad de cancelarlo anticipadamente y sí existe una penalización según lo normado en la asociación para el tipo de crédito." },
+            // FAQs de Otros
+            { categoria: "Otros", pregunta: "¿Cómo cambio mi contraseña?", respuesta: "Puedes cambiar tu contraseña desde la sección de perfil en 'Actualizar información'." },
+            { categoria: "Otros", pregunta: "¿Cómo actualizo mis datos personales?", respuesta: "Ve a la sección de perfil y selecciona 'Actualizar información personal'." },
+            { categoria: "Otros", pregunta: "¿Cómo puedo ver mis ahorros actuales?", respuesta: "Dirígete al módulo de Ahorros desde el menú principal y revisa tu saldo." },
+            { categoria: "Otros", pregunta: "¿Puedo acceder al sistema desde mi celular?", respuesta: "Sí, el sistema es responsivo y funciona correctamente en dispositivos móviles." }
         ];
+
+        function inicializarFiltros() {
+            const select = $('#filtroCategoria');
+            select.empty().append('<option value="">Todas</option>');
+            const categorias = [...new Set(faqs.map(f => f.categoria))];
+            categorias.forEach(cat => select.append(`<option value="${cat}">${cat}</option>`));
+        }
 
         function renderizarFaqs() {
             const texto = $("#busquedaTexto").val().toLowerCase();
@@ -64,7 +58,7 @@
             const contenedor = $("#contenedorFaqs");
             contenedor.empty();
 
-            let filtrados = faqs.filter(f => {
+            const filtrados = faqs.filter(f => {
                 const coincideTexto = f.pregunta.toLowerCase().includes(texto) || f.respuesta.toLowerCase().includes(texto);
                 const coincideCategoria = categoria === "" || f.categoria === categoria;
                 return coincideTexto && coincideCategoria;
@@ -77,26 +71,26 @@
 
             filtrados.forEach((faq, index) => {
                 contenedor.append(`
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading${index}">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
-                                ${faq.pregunta}
-                            </button>
-                        </h2>
-                        <div id="collapse${index}" class="accordion-collapse collapse" data-bs-parent="#contenedorFaqs">
-                            <div class="accordion-body">
-                                <strong>Categoría:</strong> ${faq.categoria}<br />
-                                ${faq.respuesta}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading${index}">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
+                                    ${faq.pregunta}
+                                </button>
+                            </h2>
+                            <div id="collapse${index}" class="accordion-collapse collapse" data-bs-parent="#contenedorFaqs">
+                                <div class="accordion-body">
+                                    <strong>Categoría:</strong> ${faq.categoria}<br />
+                                    ${faq.respuesta}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `);
+                    `);
             });
         }
 
         $(document).ready(function () {
+            inicializarFiltros();
             renderizarFaqs();
-
             $("#busquedaTexto").on("input", renderizarFaqs);
             $("#filtroCategoria").on("change", renderizarFaqs);
         });
