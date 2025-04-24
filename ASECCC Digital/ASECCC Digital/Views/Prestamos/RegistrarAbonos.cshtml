@@ -9,16 +9,23 @@
 <div class="container my-5">
     <h1 class="text-center mb-4">REGISTRO DE ABONOS A PRÉSTAMOS</h1>
 
-    <!-- Formulario de búsqueda de asociado -->
     <form method="GET" action="@Url.Action("RegistrarAbonos", "Prestamos")">
-        <div class="mb-3">
-            <label for="buscarAsociado" class="form-label">Buscar Asociado:</label>
-            <input type="text" id="buscarAsociado" name="NombreCompleto" class="form-control" placeholder="Ingrese el nombre del asociado" list="listaAsociados" autocomplete="off" required
-                   oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '')">
-            <datalist id="listaAsociados">
-            </datalist>
+        <div class="d-flex mb-3 align-items-end gap-2">
+            <div style="width:25%;">
+                <label for="buscarAsociado" class="form-label">Buscar Asociado:</label>
+                <input type="text"
+                       id="buscarAsociado"
+                       name="NombreCompleto"
+                       class="form-control"
+                       placeholder="Ingrese el nombre del asociado"
+                       list="listaAsociados"
+                       autocomplete="off"
+                       required
+                       oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '')">
+                <datalist id="listaAsociados"></datalist>
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
         </div>
-        <button type="submit" class="btn btn-primary mt-2">Buscar</button>
     </form>
 
     <!-- Mostrar sugerencias si no hay coincidencias exactas -->
@@ -59,7 +66,7 @@
                 @foreach (var prestamo in Model.ListaPrestamos)
                 {
                     <tr>
-                        <td>@prestamo.TipoPrestamo</td>
+                        <td class="text-capitalize">@prestamo.TipoPrestamo</td>
                         <td>@prestamo.FechaSolicitud.ToString("yyyy-MM-dd")</td>
                         <td>₡@(prestamo.MontoAprobado.GetValueOrDefault().ToString("N2"))</td>
                         <td>₡@(prestamo.SaldoPendiente.GetValueOrDefault().ToString("N2"))</td>
@@ -93,7 +100,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="montoAbono" class="form-label">Monto a Abonar</label>
-                        <input type="number" name="MontoAbonado" id="montoAbono" class="form-control" placeholder="Digite el monto" min="0" step="1000" required>
+                        <input type="number" name="MontoAbonado" id="montoAbono" class="form-control" placeholder="Digite el monto" min="0" step="0.01" required>                  
                     </div>
                     <button type="submit" class="btn btn-success">Registrar</button>
                 </form>
@@ -102,7 +109,7 @@
     </div>
 </div>
 
-<!-- JavaScript -->
+
 <script>
     function abrirModal(prestamoId, saldoActual) {
         document.getElementById("prestamoId").value = prestamoId;

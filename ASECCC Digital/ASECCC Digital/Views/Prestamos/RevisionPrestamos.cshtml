@@ -156,17 +156,21 @@
             });
         });
 
-        // Ejemplo: Manejo del botón de guardar cambios (para actualizar el estado, si se requiere)
-        $('#guardarEstado').click(function () {
-            var nuevoEstado = $('#estado').val();
-            console.log("Nuevo estado seleccionado:", nuevoEstado);
-            // Aquí puedes implementar una llamada AJAX para actualizar el estado en el servidor.
-            // Por ahora, simplemente se cierra el modal.
-            var modalEl = document.getElementById('solicitudDetallesModal');
-            var modal = bootstrap.Modal.getInstance(modalEl);
-            modal.hide();
-        });
+
+    // 2) Botón Guardar estado: cierra el modal
+    $('#guardarEstado').click(function () {
+      // Aquí podrías hacer el AJAX de actualización si quieres
+      var modalEl = document.getElementById('solicitudDetallesModal');
+      var modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
     });
+
+    // 3) Cuando el modal ya esté oculto (backdrop removido), redirige
+    var modalEl = document.getElementById('solicitudDetallesModal');
+    modalEl.addEventListener('hidden.bs.modal', function () {
+      window.location.href = '@Url.Action("RevisionPrestamos", "Prestamos")';
+    });
+  });
 </script>
 
 <style>
