@@ -7,7 +7,7 @@
 }
 
 <div class="container my-5">
-    <h1 class="text-center mb-4 fw-normal">GESTIÓN DE APORTES</h1>
+    <h1 class="text-center mb-4 fw-normal">GESTION DE APORTES</h1>
 
     <div class="row mb-4">
         <div class="col-12">
@@ -23,7 +23,14 @@
                 <div class="col-12 col-md-6 col-lg-4 mb-4 aporte-card" data-id="@aporte.AporteId">
                     <div class="card shadow-sm">
                         <div class="card-body">
-                            <h5 class="card-title fw-normal">@aporte.TipoAporte</h5>
+                            <h5 class="card-title fw-normal">
+                                                                @(
+                                    !string.IsNullOrEmpty(aporte.TipoAporte)
+                                      ? char.ToUpper(aporte.TipoAporte[0])
+                                        + aporte.TipoAporte.Substring(1).ToLower()
+                                      : aporte.TipoAporte
+                                  )
+                            </h5>
                             <p class="card-text">
                                 <strong>Fecha:</strong> @(aporte.FechaRegistro != null ? string.Format("{0:yyyy-MM-dd}", aporte.FechaRegistro) : "-")<br>
                                 <strong>Monto:</strong> @aporte.Monto.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("es-CR"))<br>
