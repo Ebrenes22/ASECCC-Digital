@@ -66,7 +66,7 @@ namespace ASECCC_Digital.Controllers
 
 
         [HttpPost]
-        
+
         public JsonResult BuscarAsociado(string buscarNombre)
         {
             // Buscar el usuario por nombre usando el modelo
@@ -128,12 +128,12 @@ namespace ASECCC_Digital.Controllers
                 if (resultado)
                 {
                     TempData["Mensaje"] = "Usuario actualizado correctamente";
-                    TempData["MensajeTipo"] = "success"; 
+                    TempData["MensajeTipo"] = "success";
                 }
                 else
                 {
                     TempData["Mensaje"] = "No se pudo actualizar el usuario.";
-                    TempData["MensajeTipo"] = "error"; 
+                    TempData["MensajeTipo"] = "error";
                 }
 
                 return RedirectToAction("ActualizarAsociado");
@@ -142,7 +142,7 @@ namespace ASECCC_Digital.Controllers
             // Capturar errores de validación y enviarlos a la vista
             var errores = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
             TempData["Errores"] = errores;
-            TempData["MensajeTipo"] = "error"; 
+            TempData["MensajeTipo"] = "error";
 
             return View(usuario);
         }
@@ -154,26 +154,30 @@ namespace ASECCC_Digital.Controllers
         }
 
         [HttpPost]
-        
+
         public JsonResult BuscarDesactivarAsociado(int usuarioId)
         {
 
-            Console.WriteLine($"Solicitud para desactivar usuario con ID: {usuarioId}"); 
+            Console.WriteLine($"Solicitud para desactivar usuario con ID: {usuarioId}");
 
             if (usuarioId <= 0)
-            {
                 return Json(new { success = false, message = "ID de usuario inválido." });
-            }
 
-            var resultado = usuarioM.DesactivarAsociado(usuarioId);
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                var usuario = context.Usuario.Find(usuarioId);
+                if (usuario == null)
+                    return Json(new { success = false, message = "Usuario no encontrado." });
 
-            if (resultado)
-            {
-                return Json(new { success = true, message = "Usuario desactivado correctamente." });
-            }
-            else
-            {
-                return Json(new { success = false, message = "No se pudo desactivar el usuario." });
+                // Conmutar estado
+                usuario.estadoAfiliacion = usuario.estadoAfiliacion
+                    .Equals("activo", StringComparison.OrdinalIgnoreCase)
+                    ? "inactivo"
+                    : "activo";
+
+                context.SaveChanges();
+
+                return Json(new { success = true, estado = usuario.estadoAfiliacion });
             }
         }
 
@@ -215,7 +219,7 @@ namespace ASECCC_Digital.Controllers
         {
             try
             {
-                
+
                 bool resultado = usuarioM.LiquidarCuenta(cuentas);
 
                 if (resultado)

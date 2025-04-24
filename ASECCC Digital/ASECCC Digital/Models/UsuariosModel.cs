@@ -179,7 +179,10 @@ namespace ASECCC_Digital.Models
 
                 if (usuario != null)
                 {
-                    usuario.estadoAfiliacion = "inactivo";
+                    usuario.estadoAfiliacion = usuario.estadoAfiliacion
+                        .Equals("activo", StringComparison.OrdinalIgnoreCase)
+                        ? "inactivo"
+                        : "activo";
                     context.SaveChanges();
                     return true;
                 }
@@ -205,7 +208,7 @@ namespace ASECCC_Digital.Models
                     {
                         id = a.ahorroId,
                         tipo = "Ahorro",
-                        descripcion = $"Identificación del ahorro: {a.ahorroId}",
+                        descripcion = $"Estado del ahorro: {a.estado}",
                         saldo = a.montoActual
                     }).ToList<object>();
 
