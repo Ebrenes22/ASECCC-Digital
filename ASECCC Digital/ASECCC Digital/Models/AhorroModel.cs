@@ -1,12 +1,28 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Web.Mvc;
 using ASECCC_Digital.Database;
+using ASECCC_Digital.Entities;
 
 namespace ASECCC_Digital.Models
 {
     public class AhorroModel
     {
+        #region Métodos para Asociado
+
+        public List<Ahorros> ObtenerAhorrosPorAsociado(int usuarioId)
+        {
+            using (var db = new ASECCC_DIGITALEntities())
+            {
+                return db.Ahorros
+                         .Include("CatalogoTipoAhorro")
+                         .Where(a => a.usuarioId == usuarioId && a.estado != "eliminado")
+                         .ToList();
+            }
+        }
+
+        #endregion
+
         #region Métodos para Administrador
 
         public object ConsultarAhorrosAsociado(string nombreAsociado)
@@ -18,14 +34,16 @@ namespace ASECCC_Digital.Models
                     return new { success = false, message = "Asociado no encontrado." };
 
                 var ahorros = context.Ahorros
-                    .Where(a => a.usuarioId == usuario.usuarioId)
+                    .Where(a => a.usuarioId == usuario.usuarioId && a.estado != "eliminado")
                     .Select(a => new
                     {
                         AhorroId = a.ahorroId,
                         TipoAhorro = a.CatalogoTipoAhorro.tipoAhorro,
+                        MontoInicial = a.montoInicial,
                         MontoActual = a.montoActual,
                         FechaInicio = a.fechaInicio,
                         FechaFin = a.fechaFin,
+                        Plazo = a.plazo,
                         Estado = a.estado
                     })
                     .ToList();
@@ -34,31 +52,29 @@ namespace ASECCC_Digital.Models
             }
         }
 
-        public object RegistrarAhorro(string nombreAsociado, string tipoAhorro, decimal monto, int plazo)
+        public object RegistrarAhorroPorId(int usuarioId, string tipoAhorro, decimal monto, int plazo)
         {
             using (var context = new ASECCC_DIGITALEntities())
             {
-                var usuario = context.Usuario.FirstOrDefault(u => u.nombreCompleto.Contains(nombreAsociado));
-                if (usuario == null)
-                    return new { success = false, message = "Asociado no encontrado." };
-
                 var tipoAhorroId = context.CatalogoTipoAhorro.FirstOrDefault(t => t.tipoAhorro == tipoAhorro)?.tipoAhorroId;
                 if (tipoAhorroId == null)
                     return new { success = false, message = "Tipo de ahorro no válido." };
 
                 var nuevoAhorro = new Ahorros
                 {
-                    usuarioId = usuario.usuarioId,
+                    usuarioId = usuarioId,
                     tipoAhorroId = tipoAhorroId.Value,
                     montoInicial = monto,
                     montoActual = monto,
                     fechaInicio = DateTime.Now,
+                    fechaFin = DateTime.Now.AddMonths(plazo),
                     plazo = plazo,
                     estado = "activo"
                 };
 
                 context.Ahorros.Add(nuevoAhorro);
                 context.SaveChanges();
+
                 return new { success = true, message = "Ahorro registrado correctamente." };
             }
         }
@@ -71,9 +87,29 @@ namespace ASECCC_Digital.Models
                 if (ahorro == null)
                     return new { success = false, message = "Ahorro no encontrado." };
 
-                ahorro.montoActual = nuevoMonto;
+                ahorro.montoInicial = nuevoMonto;
                 context.SaveChanges();
-                return new { success = true, message = "Monto del ahorro actualizado exitosamente." };
+                return new { success = true, message = "Monto inicial actualizado exitosamente." };
+            }
+        }
+
+        public object ObtenerHistorialAhorro(int ahorroId)
+        {
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                var historial = context.AhorroTransacciones
+                    .Where(t => t.ahorroId == ahorroId)
+                    .Select(t => new
+                    {
+                        Fecha = t.fechaTransaccion,
+                        Monto = t.monto,
+                        Tipo = t.tipoTransaccionId == 1 ? "Depósito" : "Retiro",
+                        Descripcion = t.descripcion
+                    })
+                    .OrderByDescending(t => t.Fecha)
+                    .ToList();
+
+                return new { success = true, data = historial };
             }
         }
 
@@ -89,9 +125,7 @@ namespace ASECCC_Digital.Models
 
                     var transacciones = context.AhorroTransacciones.Where(t => t.ahorroId == ahorroId).ToList();
                     if (transacciones.Any())
-                    {
                         context.AhorroTransacciones.RemoveRange(transacciones);
-                    }
 
                     context.Ahorros.Remove(ahorro);
                     context.SaveChanges();
@@ -104,6 +138,22 @@ namespace ASECCC_Digital.Models
                 }
             }
         }
+
+        public object FinalizarAhorro(int ahorroId)
+        {
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                var ahorro = context.Ahorros.Include("CatalogoTipoAhorro").FirstOrDefault(a => a.ahorroId == ahorroId);
+                if (ahorro == null)
+                    return new { success = false, message = "Ahorro no encontrado." };
+
+                if (ahorro.CatalogoTipoAhorro.tipoAhorro != "A la Vista")
+                    return new { success = false, message = "Solo se pueden finalizar ahorros de tipo A la Vista." };
+
+                return EliminarAhorro(ahorroId);
+            }
+        }
+
         #endregion
     }
 }

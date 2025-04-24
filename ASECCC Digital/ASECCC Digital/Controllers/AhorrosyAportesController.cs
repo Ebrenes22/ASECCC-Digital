@@ -1,134 +1,286 @@
-using ASECCC_Digital.Models;
 using ASECCC_Digital.Database;
 using ASECCC_Digital.Entities;
+using ASECCC_Digital.Models;
 using System;
-using System.Data.Entity;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using System.Collections.Generic;
 
 namespace ASECCC_Digital.Controllers
 {
-    public class AhorrosyAportesController : BaseController
+    public class AhorrosyAportesController : Controller
     {
-        protected override string GetCurrentModule()
+        private ASECCC_DIGITALEntities db = new ASECCC_DIGITALEntities();
+        private readonly AhorroModel ahorroModel = new AhorroModel();
+        private readonly AporteModel aporteModel = new AporteModel();
+
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            return "AhorroyAporte";
+            base.OnActionExecuting(filterContext);
+            ViewBag.CurrentModule = "AhorroyAporte";
         }
 
-        //Instancias de los modelos Ahorro y Aporte
-        private readonly AhorroModel ahorroM = new AhorroModel();
-        private readonly AporteModel aporteM = new AporteModel();
+        // Vistas
+        public ActionResult AhorroyAporte() => View();
 
-
-
-
+        [HttpGet]
         [Authorize]
-        public ActionResult AhorroyAporte()
+        public ActionResult ConsultarAhorrosAsociado()
         {
             return View();
         }
 
+        //
+        // A H O R R O S
+        //
 
-        public ActionResult GestionarAportes()
+        [HttpGet]
+        public JsonResult ObtenerAhorrosAsociado()
         {
-            return View();
+            try
+            {
+                int usuarioId = (int)Session["usuarioId"];
+                var lista = ahorroModel.ObtenerAhorrosPorAsociado(usuarioId);
+
+                var data = lista.Select(a => new
+                {
+                    AhorroId = a.ahorroId,
+                    TipoAhorro = a.CatalogoTipoAhorro.tipoAhorro,
+                    MontoInicial = a.montoInicial,
+                    MontoActual = a.montoActual,
+                    FechaInicio = a.fechaInicio,
+                    FechaFin = a.fechaFin,
+                    Plazo = a.plazo,
+                    Estado = a.estado
+                }).ToList();
+
+                return Json(new { success = true, data }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al consultar los ahorros: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
-        public ActionResult GestionarAhorrosAdmin()
+        [HttpPost]
+        public JsonResult RegistrarAhorro(string tipoAhorro, decimal monto, int plazo)
         {
-            return View();
+            try
+            {
+                int usuarioId = (int)Session["usuarioId"];
+                var resultado = ahorroModel.RegistrarAhorroPorId(usuarioId, tipoAhorro, monto, plazo);
+                return Json(resultado);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al registrar el ahorro: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult ModificarAhorro(int ahorroId, decimal nuevoMonto)
+        {
+            try
+            {
+                var resultado = ahorroModel.ModificarAhorro(ahorroId, nuevoMonto);
+                return Json(resultado);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al modificar el ahorro: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult EliminarAhorro(int ahorroId)
+        {
+            try
+            {
+                var resultado = ahorroModel.EliminarAhorro(ahorroId);
+                return Json(resultado);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al eliminar el ahorro: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult FinalizarAhorro(int ahorroId)
+        {
+            try
+            {
+                var resultado = ahorroModel.FinalizarAhorro(ahorroId);
+                return Json(resultado);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al finalizar el ahorro: " + ex.Message });
+            }
         }
 
 
         [HttpGet]
-        [Authorize]
-        public JsonResult ConsultarAportesAsociado(string nombreAsociado)
+        public JsonResult ObtenerHistorialTransacciones(int ahorroId)
         {
-            var resultado = aporteM.ObtenerAportesPorAsociado(nombreAsociado);
-            return Json(resultado, JsonRequestBehavior.AllowGet);
+            try
+            {
+                var resultado = ahorroModel.ObtenerHistorialAhorro(ahorroId);
+                return Json(resultado, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al obtener el historial: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        //
+        // A P O R T E S 
+        //
+
+        [HttpGet]
+        [Authorize]
+        public ActionResult ConsultarAportesAsociado()
+        {
+            int usuarioId = (int)Session["usuarioId"];
+            var resultado = aporteModel.AportesPorAsociado(usuarioId);
+
+            if ((bool)resultado.GetType().GetProperty("success").GetValue(resultado))
+            {
+                var data = resultado.GetType().GetProperty("data").GetValue(resultado) as List<Aporte>;
+                return View(data);
+            }
+
+            ViewBag.Mensaje = resultado.GetType().GetProperty("message").GetValue(resultado);
+            return View(new List<Aporte>());
+        }
+
+
+        [HttpGet]
+        public JsonResult ObtenerHistorialAporte(int aporteId)
+        {
+            try
+            {
+                var resultado = aporteModel.ObtenerHistorialAporte(aporteId);
+                return Json(resultado, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al obtener el historial del aporte: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
 
         [HttpPost]
-        public JsonResult RegistrarAporte(string nombreAsociado, string tipoAporte, decimal monto)
+        public JsonResult RegistrarAporte(string tipoAporte, decimal monto)
         {
-            var resultado = aporteM.RegistrarAporte(nombreAsociado, tipoAporte, monto);
-            return Json(resultado, JsonRequestBehavior.AllowGet);
+            try
+            {
+                int usuarioId = (int)Session["usuarioId"];
+                var resultado = aporteModel.RegistrarAporte(usuarioId, tipoAporte, monto);
+                return Json(resultado);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al registrar el aporte: " + ex.Message });
+            }
         }
-
 
         [HttpPost]
         public JsonResult ModificarAporte(int aporteId, decimal nuevoMonto)
         {
-            var resultado = aporteM.ModificarAporte(aporteId, nuevoMonto);
-            return Json(resultado, JsonRequestBehavior.AllowGet);
+            try
+            {
+                var resultado = aporteModel.ModificarAporte(aporteId, nuevoMonto);
+                return Json(resultado);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al modificar el aporte: " + ex.Message });
+            }
         }
 
         [HttpPost]
         public JsonResult EliminarAporte(int aporteId)
         {
-            var resultado = aporteM.EliminarAporte(aporteId);
+            try
+            {
+                var resultado = aporteModel.EliminarAporte(aporteId);
+                return Json(resultado);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al eliminar el aporte: " + ex.Message });
+            }
+        }
+
+        //Admin
+
+        [HttpGet]
+        [Authorize]
+        public ActionResult GestionarAhorrosAdmin()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult ConsultarAhorrosPorNombre(string nombreAsociado)
+        {
+            var resultado = ahorroModel.ConsultarAhorrosAsociado(nombreAsociado);
             return Json(resultado, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet]
+        public JsonResult ConsultarAportesPorNombre(string nombreAsociado)
+        {
+            var resultado = aporteModel.ConsultarAportesPorNombre(nombreAsociado);
+            return Json(resultado, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public ActionResult GestionarAportes()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult RegistrarAportePorNombre(string nombreAsociado, string tipoAporte, decimal monto)
+        {
+            try
+            {
+                var usuario = db.Usuario.FirstOrDefault(u => u.nombreCompleto.Contains(nombreAsociado));
+                if (usuario == null)
+                    return Json(new { success = false, message = "Asociado no encontrado." });
+
+                var resultado = aporteModel.RegistrarAporte(usuario.usuarioId, tipoAporte, monto);
+                return Json(resultado);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al registrar el aporte: " + ex.Message });
+            }
+        }
+
 
         [HttpGet]
         public JsonResult BuscarAsociados(string termino)
         {
             using (var context = new ASECCC_DIGITALEntities())
             {
-                var usuarioId = (int)Session["usuarioId"];
-                var ahorros = ahorroM.ConsultarAhorrosAsociado(usuarioId.ToString());
+                var asociados = context.Usuario
+                    .Where(u => u.nombreCompleto.Contains(termino))
+                    .Select(u => new
+                    {
+                        label = u.nombreCompleto,
+                        value = u.usuarioId
+                    }).ToList();
 
-                if (ahorros != null && ahorros.GetType().GetProperty("success") != null && (bool)ahorros.GetType().GetProperty("success").GetValue(ahorros))
-                {
-                    var asociados = context.Usuario
-                        .Where(u => u.nombreCompleto.Contains(termino))
-                        .Select(u => new { label = u.nombreCompleto, value = u.usuarioId })
-                        .Take(10)
-                        .ToList();
-
-                    return Json(asociados, JsonRequestBehavior.AllowGet);
-                }
+                return Json(asociados, JsonRequestBehavior.AllowGet);
             }
-            return Json(new List<object>(), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet]
-        public JsonResult ConsultarAhorrosAsociado(string nombreAsociado)
-        {
-            var resultado = ahorroM.ConsultarAhorrosAsociado(nombreAsociado);
-            return Json(resultado, JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost]
-        public JsonResult RegistrarAhorro(string nombreAsociado, string tipoAhorro, decimal monto, int plazo)
-        {
-            var resultado = ahorroM.RegistrarAhorro(nombreAsociado, tipoAhorro, monto, plazo);
-            return Json(resultado, JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet]
-        public JsonResult ObtenerHistorialAporte(int aporteId)
-        {
-            var resultado = aporteM.ObtenerHistorialAporte(aporteId);
-            return Json(resultado, JsonRequestBehavior.AllowGet);
         }
 
 
-        [HttpPost]
-        public JsonResult ModificarAhorro(int ahorroId, decimal nuevoMonto)
-        {
-            var resultado = ahorroM.ModificarAhorro(ahorroId, nuevoMonto);
-            return Json(resultado, JsonRequestBehavior.AllowGet);
-        }
-
-
-        [HttpPost]
-        public JsonResult EliminarAhorro(int ahorroId)
-        {
-            var resultado = ahorroM.EliminarAhorro(ahorroId);
-            return Json(resultado, JsonRequestBehavior.AllowGet);
-        }
     }
 }

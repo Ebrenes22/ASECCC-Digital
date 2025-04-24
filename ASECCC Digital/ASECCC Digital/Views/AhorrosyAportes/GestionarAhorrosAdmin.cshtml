@@ -45,6 +45,9 @@
 </div>
 
 <script>
+
+
+
     $(document).ready(function () {
         $("#asociado").autocomplete({
             source: function (request, response) {
@@ -75,7 +78,7 @@
         }
 
         $.ajax({
-            url: "/AhorrosyAportes/ConsultarAhorrosAsociado",
+            url: "/AhorrosyAportes/ConsultarAhorrosPorNombre",
             type: "GET",
             data: { nombreAsociado: asociado },
             success: function (response) {

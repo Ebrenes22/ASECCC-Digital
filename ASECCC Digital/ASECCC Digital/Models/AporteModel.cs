@@ -1,33 +1,35 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ASECCC_Digital.Database;
+using ASECCC_Digital.Entities;
 
 namespace ASECCC_Digital.Models
 {
     public class AporteModel
     {
-        #region Métodos para Administrador
-
-        public object ObtenerAportesPorAsociado(string nombreAsociado)
+        public object AportesPorAsociado(int usuarioId)
         {
             using (var context = new ASECCC_DIGITALEntities())
             {
                 try
                 {
-                    var usuario = context.Usuario.FirstOrDefault(u => u.nombreCompleto.Contains(nombreAsociado));
+                    var usuario = context.Usuario.FirstOrDefault(u => u.usuarioId == usuarioId);
                     if (usuario == null)
                         return new { success = false, message = "Asociado no encontrado." };
 
                     var aportes = context.Aportes
-                        .Where(a => a.usuarioId == usuario.usuarioId)
-                        .Select(a => new
+                        .Where(a => a.usuarioId == usuarioId)
+                        .OrderByDescending(a => a.fechaRegistro)
+                        .ToList()
+                        .Select(a => new ASECCC_Digital.Entities.Aporte
                         {
                             AporteId = a.aporteId,
+                            UsuarioId = (int)a.usuarioId,
                             TipoAporte = a.tipoAporte,
                             Monto = a.monto,
-                            FechaRegistro = a.fechaRegistro
-                        })
-                        .ToList();
+                            FechaRegistro = (DateTime)a.fechaRegistro
+                        }).ToList();
 
                     return new { success = true, data = aportes };
                 }
@@ -37,6 +39,8 @@ namespace ASECCC_Digital.Models
                 }
             }
         }
+
+
 
         public object ObtenerHistorialAporte(int aporteId)
         {
@@ -49,9 +53,8 @@ namespace ASECCC_Digital.Models
                         .OrderByDescending(t => t.fechaTransaccion)
                         .Select(t => new
                         {
-                            TransaccionId = t.transaccionAportesId,
-                            Monto = t.monto,
                             Fecha = t.fechaTransaccion,
+                            Monto = t.monto,
                             Descripcion = t.descripcion
                         })
                         .ToList();
@@ -66,17 +69,13 @@ namespace ASECCC_Digital.Models
         }
 
 
-        public object RegistrarAporte(string nombreAsociado, string tipoAporte, decimal monto)
+        public object RegistrarAporte(int usuarioId, string tipoAporte, decimal monto)
         {
             using (var context = new ASECCC_DIGITALEntities())
             {
-                var usuario = context.Usuario.FirstOrDefault(u => u.nombreCompleto.Contains(nombreAsociado));
-                if (usuario == null)
-                    return new { success = false, message = "Asociado no encontrado." };
-
                 var nuevoAporte = new Aportes
                 {
-                    usuarioId = usuario.usuarioId,
+                    usuarioId = usuarioId,
                     tipoAporte = tipoAporte,
                     monto = monto,
                     fechaRegistro = DateTime.Now
@@ -130,6 +129,31 @@ namespace ASECCC_Digital.Models
             }
         }
 
-        #endregion
+        //Admin
+
+        public object ConsultarAportesPorNombre(string nombreAsociado)
+        {
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                var usuario = context.Usuario.FirstOrDefault(u => u.nombreCompleto.Contains(nombreAsociado));
+                if (usuario == null)
+                    return new { success = false, message = "Asociado no encontrado." };
+
+                var aportes = context.Aportes
+                    .Where(a => a.usuarioId == usuario.usuarioId)
+                    .OrderByDescending(a => a.fechaRegistro)
+                    .Select(a => new
+                    {
+                        AporteId = a.aporteId,
+                        TipoAporte = a.tipoAporte,
+                        Monto = a.monto,
+                        FechaRegistro = a.fechaRegistro
+                    })
+                    .ToList();
+
+                return new { success = true, data = aportes };
+            }
+        }
+
     }
 }

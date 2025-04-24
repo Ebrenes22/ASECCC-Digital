@@ -1,52 +1,33 @@
-﻿@model IEnumerable<ASECCC_Digital.ViewModels.AhorroViewModel>
+﻿@model IEnumerable<ASECCC_Digital.Entities.Ahorro>
 
-@{ ViewBag.Title = "ConsultaAhorros";
+@{
+    ViewBag.Title = "ConsultaAhorros";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    @Html.Partial("_MenuModulos"); }
+    @Html.Partial("_MenuModulos");
+}
 
 <div class="container my-5">
     <h1 class="text-center mb-4">GESTION DE AHORROS</h1>
 
-    <!--para Crear Nuevo Ahorro -->
+    <div class="mb-4">
+        <label for="filtroTipoAhorro" class="form-label">Filtrar por Tipo de Ahorro:</label>
+        <select id="filtroTipoAhorro" class="form-select" onchange="filtrarAhorros()">
+            <option value="">Todos</option>
+            <option value="A la Vista">A la Vista</option>
+            <option value="Navideño">Navideño</option>
+            <option value="Marchamo">Marchamo</option>
+            <option value="Escolar">Escolar</option>
+        </select>
+    </div>
+
     <button class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#modalCrearAhorro">Crear Nuevo Ahorro</button>
 
-    <!-- Cards de Ahorros -->
     <div class="row d-flex justify-content-center flex-wrap" id="cardsAhorros">
-        @foreach (var ahorro in Model)
-        {
-            <div class="col-12 col-md-6 col-lg-4 mb-4 ahorro-card" data-tipo="@ahorro.TipoAhorro" data-id="@ahorro.AhorroId">
-
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(ahorro.TipoAhorro.ToLower())</h5>
-                        <p class="card-text">
-                            <strong>Fecha Inicio:</strong> @(ahorro.FechaInicio.ToString("yyyy-MM-dd"))<br>
-                            <strong>Fecha Fin:</strong> @(ahorro.FechaFin.ToString("yyyy-MM-dd"))<br>
-                            <strong>Capital:</strong> ₡@ahorro.MontoActual<br>
-                            <strong>Plazo:</strong> @(ahorro.Plazo.HasValue ? ahorro.Plazo + " semanas" : "N/A")<br>
-                            <strong>Estado:</strong> @ahorro.Estado
-                        </p>
-                        <button class="btn btn-info btn-sm" onclick="verDetalles(@ahorro.AhorroId)" data-bs-toggle="modal" data-bs-target="#modalDetallesAhorro">
-                            Ver Detalles
-                        </button>
-                        <button class="btn btn-warning btn-sm" onclick="modificarMonto(@ahorro.AhorroId)" data-bs-toggle="modal" data-bs-target="#modalModificarMonto">
-                            Modificar Monto
-                        </button>
-                        @if (ahorro.TipoAhorro != null && ahorro.TipoAhorro == "A la Vista")
-
-                            {
-                                <button class="btn btn-danger btn-sm" onclick="finalizarAhorro(@ahorro.AhorroId)" data-bs-toggle="modal" data-bs-target="#modalFinalizarAhorro">
-                                    Finalizar Ahorro
-                                    <div class="modal-body">
-                                    </div>
-                                </button>}
-                    </div>
-                </div>
-            </div>}
+        <!-- Cards serán cargadas dinámicamente -->
     </div>
 </div>
 
-<!-- Modal de Crear Nuevo Ahorro -->
+<!-- Modal para Crear Nuevo Ahorro -->
 <div class="modal fade" id="modalCrearAhorro" tabindex="-1" aria-labelledby="modalCrearAhorroLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -81,97 +62,41 @@
     </div>
 </div>
 
-
-<!-- Modal par Modificar Monto -->
-<div class="modal fade" id="modalModificarMonto" tabindex="-1" aria-labelledby="modalModificarMontoLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalModificarMontoLabel">Modificar Monto de Ahorro</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="modificarAhorroId">
-                <div class="mb-3">
-                    <label for="nuevoMonto" class="form-label">Nuevo Monto</label>
-                    <input type="number" class="form-control" id="nuevoMonto" min="1" required>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="modificarMontoAhorro()">Guardar Cambios</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Detalles del Ahorro -->
-<div class="modal fade" id="modalDetallesAhorro" tabindex="-1" aria-labelledby="modalDetallesAhorroLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalDetallesAhorroLabel">Detalles del Ahorro</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body" id="detallesAhorroBody">
-                <h5 id="nombreAhorro"></h5>
-                <h6 class="mt-4">Historial de Transacciones</h6>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Tipo Transacción</th>
-                            <th>Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historialTransacciones">
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
+    $(document).ready(function () {
+        cargarAhorros();
+    });
 
-    //Script para ver detalles y historial de transacciones
-    function verDetalles(ahorroId) {
-        const ahorro = document.querySelector(`[data-id='${ahorroId}']`);
-        const nombreAhorro = ahorro.querySelector('.card-title').innerText;
-        document.getElementById('nombreAhorro').innerText = nombreAhorro;
-
-        $.ajax({
-            url: '/AhorrosyAportes/ObtenerHistorialTransacciones',
-            type: 'GET',
-            data: { ahorroId: ahorroId },
-            success: function (response) {
-                const historialTransacciones = document.getElementById('historialTransacciones');
-                historialTransacciones.innerHTML = '';
-
-                if (response.success && response.data.length > 0) {
-                    response.data.forEach(transaccion => {
-                        historialTransacciones.innerHTML += `
-                            <tr>
-                                <td>${new Date(transaccion.Fecha).toLocaleDateString()}</td>
-                                <td>${transaccion.TipoTransaccion}</td>
-                                <td>${transaccion.Monto.toLocaleString('es-CR', { style: 'currency', currency: 'CRC' })}</td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    historialTransacciones.innerHTML = '<tr><td colspan="3" class="text-center">No hay transacciones registradas.</td></tr>';
-                }
-            },
-            error: function () {
-                alert('Error al obtener el historial de transacciones.');
+    function cargarAhorros() {
+        $.getJSON('/AhorrosyAportes/ObtenerAhorrosAsociado', function (response) {
+            if (response.success) {
+                let html = '';
+                response.data.forEach(ahorro => {
+                    html += `
+                        <div class="col-12 col-md-6 col-lg-4 mb-4 ahorro-card" data-tipo="${ahorro.TipoAhorro}" data-id="${ahorro.AhorroId}">
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-normal">${ahorro.TipoAhorro}</h5>
+                                    <p class="card-text">
+                                        <strong>Fecha:</strong> ${formatearFecha(ahorro.FechaInicio)}<br>
+                                        <strong>Monto Inicial:</strong> ${ahorro.MontoInicial.toLocaleString('es-CR')}<br>
+                                        <strong>Monto Actual:</strong> ${ahorro.MontoActual.toLocaleString('es-CR')}<br>
+                                        <strong>Plazo:</strong> ${ahorro.Plazo ?? 'N/A'} meses<br>
+                                        <strong>Estado:</strong> ${ahorro.Estado}
+                                    </p>
+                                    <button class="btn btn-info btn-sm text-white" onclick="verDetalles(${ahorro.AhorroId})" data-bs-toggle="modal" data-bs-target="#modalDetallesAhorro">Ver Detalles</button>
+                                    <button class="btn btn-warning btn-sm text-white" onclick="modificarMonto(${ahorro.AhorroId})" data-bs-toggle="modal" data-bs-target="#modalModificarMonto">Modificar Monto</button>
+                                    ${ahorro.TipoAhorro === 'A la Vista' ? `<button class="btn btn-danger btn-sm text-white" onclick="finalizarAhorro(${ahorro.AhorroId})">Finalizar Ahorro</button>` : ''}
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                $('#cardsAhorros').html(html);
+            } else {
+                $('#cardsAhorros').html('<div class="text-center">No se encontraron ahorros.</div>');
             }
         });
     }
-
-    //Script con la creacion del Ahorro
 
     function crearAhorro() {
         const tipo = document.getElementById('tipoAhorro').value;
@@ -180,84 +105,228 @@
 
         if (tipo && monto && plazo) {
             $.ajax({
-                url: '/AhorrosyAportes/CrearAhorro',
+                url: '/AhorrosyAportes/RegistrarAhorro',
                 type: 'POST',
                 data: {
-                    TipoAhorro: tipo,
-                    Monto: monto,
-                    Plazo: plazo
+                    tipoAhorro: tipo,
+                    monto: monto,
+                    plazo: plazo
                 },
                 success: function (response) {
                     if (response.success) {
-                        alert('Ahorro creado exitosamente.');
-                        location.reload();
+                        $('#modalCrearAhorro').modal('hide');
+                        cargarAhorros();
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Ahorro creado!',
+                            text: 'El ahorro se registró exitosamente.'
+                        });
                     } else {
-                        alert('Error al crear el ahorro: ' + response.message);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message
+                        });
                     }
                 },
                 error: function () {
-                    alert('Error al intentar crear el ahorro.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error en la solicitud AJAX al crear el ahorro.'
+                    });
                 }
             });
         } else {
-            alert('Por favor, completa todos los campos.');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Por favor, completa todos los campos.'
+            });
         }
     }
 
-    //Script con modificacion de Monto
+    function finalizarAhorro(ahorroId) {
+        if (!ahorroId) {
+            Swal.fire({
+                icon: 'error',
+                title: 'ID no válido',
+                text: 'No se pudo identificar el ahorro a finalizar.'
+            });
+            return;
+        }
 
-    function modificarMonto(ahorroId) {
-        document.getElementById('modificarAhorroId').value = ahorroId;
-    }
-
-    function modificarMontoAhorro() {
-        const ahorroId = document.getElementById('modificarAhorroId').value;
-        const nuevoMonto = document.getElementById('nuevoMonto').value;
-
-        $.ajax({
-            url: '/AhorrosyAportes/ModificarMonto',
-            type: 'POST',
-            data: {
-                AhorroId: ahorroId,
-                NuevoMonto: nuevoMonto
-            },
-            success: function (response) {
-                if (response.success) {
-                    alert('Monto modificado exitosamente.');
-                    location.reload();
-                } else {
-                    alert('Error al modificar el monto: ' + response.message);
-                }
-            },
-            error: function () {
-                alert('Error al intentar modificar el monto.');
+        Swal.fire({
+            title: '¿Estas seguro?',
+            text: 'Esta acción eliminara permanentemente el ahorro.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, finalizar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/AhorrosyAportes/FinalizarAhorro',
+                    type: 'POST',
+                    data: { ahorroId: ahorroId },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Ahorro Finalizado!',
+                                text: response.message || 'El ahorro fue eliminado exitosamente.'
+                            });
+                            cargarAhorros();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error al finalizar',
+                                text: response.message || 'No se pudo finalizar el ahorro.'
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error AJAX',
+                            text: 'Ocurrió un error al intentar finalizar el ahorro.'
+                        });
+                        console.error('Error AJAX:', error);
+                    }
+                });
             }
         });
     }
 
-    //Script para finalizar ahorro
+    function modificarMonto(ahorroId) {
+        const card = $(`.ahorro-card[data-id='${ahorroId}']`);
+        const montoTexto = card.find("p").html().match(/Monto Inicial:<\/strong>\s?([\d.,]+)/);
+        const montoActual = montoTexto ? parseFloat(montoTexto[1].replace(/\./g, '').replace(',', '.')) : 0;
 
-    function finalizarAhorro(ahorroId) {
-        if (confirm('¿Estás seguro de que deseas finalizar este ahorro?')) {
-            $.ajax({
-                url: '/AhorrosyAportes/FinalizarAhorro',
-                type: 'POST',
-                data: { ahorroId: ahorroId },
-                success: function (response) {
-                    if (response.success) {
-                        alert('Ahorro finalizado exitosamente.');
-                        location.reload();
-                    } else {
-                        alert('Error al finalizar el ahorro: ' + response.message);
-                    }
-                },
-                error: function () {
-                    alert('Error al intentar finalizar el ahorro.');
+        Swal.fire({
+            title: 'Modificar Monto Inicial',
+            html: `
+            <p class="mb-2">Este cambio solo afecta el <strong>monto inicial</strong> del ahorro.</p>
+            <input type="number" id="nuevoMonto" class="form-control" value="${montoActual}" min="1" style="margin-top:10px;">
+        `,
+            showCancelButton: true,
+            confirmButtonText: 'Guardar',
+            cancelButtonText: 'Cancelar',
+            preConfirm: () => {
+                const nuevoMonto = document.getElementById('nuevoMonto').value;
+                if (!nuevoMonto || nuevoMonto <= 0) {
+                    Swal.showValidationMessage('Debes ingresar un monto válido mayor a 0.');
                 }
-            });
-        }
+                return nuevoMonto;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/AhorrosyAportes/ModificarAhorro',
+                    type: 'POST',
+                    data: {
+                        ahorroId: ahorroId,
+                        nuevoMonto: result.value
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Monto actualizado!',
+                                text: response.message || 'El monto inicial fue modificado correctamente.'
+                            });
+                            cargarAhorros();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error AJAX',
+                            text: 'No se pudo modificar el monto.'
+                        });
+                    }
+                });
+            }
+        });
     }
+
+    function verDetalles(ahorroId) {
+        $.ajax({
+            url: '/AhorrosyAportes/ObtenerHistorialTransacciones',
+            type: 'GET',
+            data: { ahorroId: ahorroId },
+            success: function (response) {
+                if (response.success && response.data.length > 0) {
+                    let html = '<table class="table text-start"><thead><tr><th>Fecha</th><th>Monto</th><th>Tipo</th><th>Descripción</th></tr></thead><tbody>';
+                    response.data.forEach(t => {
+                        html += `<tr>
+                        <td>${formatearFecha(t.Fecha)}</td>
+                        <td>${t.Monto.toLocaleString('es-CR')}</td>
+                        <td>${t.Tipo}</td>
+                        <td>${t.Descripcion}</td>
+                    </tr>`;
+                    });
+                    html += '</tbody></table>';
+
+                    Swal.fire({
+                        title: 'Historial de Transacciones',
+                        html: html,
+                        width: '60%',
+                        confirmButtonText: 'Cerrar'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Sin transacciones',
+                        text: 'Este ahorro no tiene historial de movimientos.'
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo cargar el historial del ahorro.'
+                });
+            }
+        });
+    }
+
+    function filtrarAhorros() {
+        const filtro = document.getElementById("filtroTipoAhorro").value.toLowerCase();
+        $('.ahorro-card').each(function () {
+            const tipo = $(this).data('tipo').toLowerCase();
+            if (filtro === "" || tipo === filtro) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    }
+
+
+    function formatearFecha(fechaString) {
+        const match = /\/Date\((\d+)\)\//.exec(fechaString);
+        const timestamp = match ? parseInt(match[1]) : Date.parse(fechaString);
+        const fecha = new Date(timestamp);
+
+        if (isNaN(fecha)) return "Fecha inválida";
+
+        const dia = String(fecha.getDate()).padStart(2, '0');
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        const año = fecha.getFullYear();
+
+        return `${dia}/${mes}/${año}`;
+    }
+
 </script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

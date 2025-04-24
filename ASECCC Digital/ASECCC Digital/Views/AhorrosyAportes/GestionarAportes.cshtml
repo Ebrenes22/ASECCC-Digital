@@ -111,7 +111,7 @@
         }
 
         $.ajax({
-            url: "/AhorrosyAportes/ConsultarAportesAsociado",
+            url: "/AhorrosyAportes/ConsultarAportesPorNombre",
             type: "GET",
             data: { nombreAsociado: asociado },
             success: function (response) {
@@ -165,11 +165,11 @@
         }
 
         $.ajax({
-            url: "/AhorrosyAportes/RegistrarAporte",
+            url: "/AhorrosyAportes/RegistrarAportePorNombre",
             type: "POST",
             data: { nombreAsociado: nombreAsociado, tipoAporte: tipoAporte, monto: monto },
             success: function (response) {
-                Swal.fire("Éxito", response.message, "success");
+                Swal.fire("Exito", response.message, "success");
                 if (response.success) {
                     $("#modalRegistrarAporte").modal("hide");
                     consultarAportes();
@@ -193,7 +193,7 @@
                     type: "POST",
                     data: { aporteId: aporteId, nuevoMonto: result.value },
                     success: function (response) {
-                        Swal.fire("Éxito", response.message, "success");
+                        Swal.fire("Exito", response.message, "success");
                         if (response.success) {
                             consultarAportes();
                         }
@@ -209,7 +209,7 @@
             type: "POST",
             data: { aporteId: aporteId },
             success: function (response) {
-                Swal.fire("Éxito", response.message, "success");
+                Swal.fire("Exito", response.message, "success");
                 consultarAportes();
             }
         });
