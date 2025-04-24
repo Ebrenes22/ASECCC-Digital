@@ -1,26 +1,50 @@
-﻿@{
+@model IEnumerable<ASECCC_Digital.Entities.Aporte>
+
+@{
     ViewBag.Title = "ConsultaAportesAsociado";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
 }
 
 <div class="container my-5">
-    <h1 class="text-center mb-4">GESTION DE APORTES</h1>
+    <h1 class="text-center mb-4 fw-normal">GESTIÓN DE APORTES</h1>
 
-    <!-- Nombre del Asociado -->
     <div class="row mb-4">
         <div class="col-12">
-            <h3 id="nombreAsociadoTitulo" class="text-center"></h3>
+            <h3 class="text-center">Aportes del Asociado</h3>
         </div>
     </div>
 
-    <!-- Cards de Aportes -->
     <div class="row d-flex justify-content-center flex-wrap" id="cardsAportes">
-        <!-- Cards dinámicas generadas por JavaScript -->
+        @if (Model != null && Model.Any())
+        {
+            foreach (var aporte in Model)
+            {
+                <div class="col-12 col-md-6 col-lg-4 mb-4 aporte-card" data-id="@aporte.AporteId">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-normal">@aporte.TipoAporte</h5>
+                            <p class="card-text">
+                                <strong>Fecha:</strong> @(aporte.FechaRegistro != null ? string.Format("{0:yyyy-MM-dd}", aporte.FechaRegistro) : "-")<br>
+                                <strong>Monto:</strong> @aporte.Monto.ToString("C", System.Globalization.CultureInfo.CreateSpecificCulture("es-CR"))<br>
+                                <strong>Estado:</strong> Activo
+                            </p>
+                            <button class="btn btn-info btn-sm text-white" onclick="verHistorial(@aporte.AporteId)">
+                                <i class="bi bi-clock-history"></i> Ver Historial
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center">No se encontraron aportes.</div>
+        }
     </div>
 </div>
 
-<!-- Modal para Historial de Registro -->
+<!-- Modal para Historial -->
 <div class="modal fade" id="modalHistorialRegistro" tabindex="-1" aria-labelledby="modalHistorialRegistroLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -35,6 +59,7 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Monto</th>
+                                <th>Descripción</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -50,89 +75,68 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const asociados = [
-        { id: 1, nombre: 'Carlos Pérez', identificacion: '101010101' },
-        { id: 2, nombre: 'Ana Rodríguez', identificacion: '202020202' }
-    ];
-
-    const aportes = [
-        { id: 1, asociadoId: 1, tipo: 'Personal', monto: 50000, fecha: '2024-10-01', estado: 'Activo' },
-        { id: 2, asociadoId: 1, tipo: 'Patronal', monto: 200000, fecha: '2023-05-15', estado: 'Activo' },
-        { id: 3, asociadoId: 2, tipo: 'Personal', monto: 15000, fecha: '2024-11-10', estado: 'Inactivo' },
-        { id: 4, asociadoId: 2, tipo: 'Patronal', monto: 250000, fecha: '2022-02-20', estado: 'Inactivo' }
-    ];
-
-    const historialAbonos = {
-        1: [
-            { fecha: '2024-09-15', monto: 20000 },
-            { fecha: '2024-09-30', monto: 30000 }
-        ],
-        2: [
-            { fecha: '2023-06-01', monto: 100000 },
-            { fecha: '2023-06-15', monto: 100000 }
-        ]
-    };
-
-    // Mostrar los aportes del asociado
-    function mostrarAportes(asociadoId) {
-        const asociado = asociados.find(a => a.id === asociadoId);
-        document.getElementById('nombreAsociadoTitulo').textContent = `Aportes de ${asociado.nombre}`;
-
-        const aportesFiltrados = aportes.filter(aporte => aporte.asociadoId === asociado.id);
-        const cardsAportes = document.getElementById('cardsAportes');
-        cardsAportes.innerHTML = '';
-
-        if (aportesFiltrados.length === 0) {
-            cardsAportes.innerHTML = '<div class="col-12 text-center">No se encontraron aportes para este asociado.</div>';
-            return;
-        }
-
-        aportesFiltrados.forEach(aporte => {
-            const card = document.createElement('div');
-            card.classList.add('col-12', 'col-md-6', 'col-lg-4', 'mb-4');
-            card.innerHTML = `
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">${aporte.tipo}</h5>
-                        <p class="card-text">
-                            <strong>Fecha:</strong> ${aporte.fecha}<br>
-                            <strong>Monto:</strong> ${formatearMonto(aporte.monto)}<br>
-                            <strong>Estado:</strong> ${aporte.estado}
-                        </p>
-                        <button class="btn btn-info btn-sm" onclick="verHistorial(${aporte.id})" data-bs-toggle="modal" data-bs-target="#modalHistorialRegistro">
-                            <i class="bi bi-clock-history"></i> Ver Historial
-                        </button>
-                    </div>
-                </div>
-            `;
-            cardsAportes.appendChild(card);
-        });
-    }
-
-    function formatearMonto(monto) {
-        return monto.toLocaleString('es-CR', { style: 'currency', currency: 'CRC' });
-    }
 
     function verHistorial(aporteId) {
-        const tablaHistorial = document.querySelector('#tablaHistorial tbody');
-        tablaHistorial.innerHTML = '';
+        Swal.fire({
+            title: 'Cargando historial...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
 
-        if (!historialAbonos[aporteId] || historialAbonos[aporteId].length === 0) {
-            tablaHistorial.innerHTML = '<tr><td colspan="2" class="text-center">No hay historial de abonos para este aporte.</td></tr>';
-            return;
-        }
+        $.ajax({
+            url: '/AhorrosyAportes/ObtenerHistorialAporte',
+            type: 'GET',
+            data: { aporteId: aporteId },
+            success: function (response) {
+                Swal.close();
 
-        historialAbonos[aporteId].forEach(abono => {
-            const fila = document.createElement('tr');
-            fila.innerHTML = `
-                <td>${abono.fecha}</td>
-                <td>${formatearMonto(abono.monto)}</td>
-            `;
-            tablaHistorial.appendChild(fila);
+                if (response.success && response.data.length > 0) {
+                    const tablaHistorial = document.querySelector('#tablaHistorial tbody');
+                    tablaHistorial.innerHTML = '';
+
+                    response.data.forEach(function (item) {
+                        const fila = document.createElement('tr');
+                        fila.innerHTML = `
+                        <td>${formatearFecha(item.Fecha)}</td>
+                        <td>${item.Monto.toLocaleString('es-CR', { style: 'currency', currency: 'CRC' })}</td>
+                        <td>${item.Descripcion || '-'}</td>
+                    `;
+                        tablaHistorial.appendChild(fila);
+                    });
+
+                    const modal = new bootstrap.Modal(document.getElementById('modalHistorialRegistro'));
+                    modal.show();
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Sin transacciones',
+                        text: 'Este aporte no tiene transacciones registradas.'
+                    });
+                }
+            },
+            error: function () {
+                Swal.close();
+                Swal.fire("Error", "No se pudo cargar el historial del aporte.", "error");
+            }
         });
     }
 
-    mostrarAportes(1);
+    function formatearFecha(fechaJson) {
+        const match = /\d+/.exec(fechaJson);
+        const timestamp = match ? parseInt(match[0]) : Date.parse(fechaJson);
+        const fecha = new Date(timestamp);
+        const dia = String(fecha.getDate()).padStart(2, '0');
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        const año = fecha.getFullYear();
+        return `${dia}/${mes}/${año}`;
+    }
+
+
 </script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
