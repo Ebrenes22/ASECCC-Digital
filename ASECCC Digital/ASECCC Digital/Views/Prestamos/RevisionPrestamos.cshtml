@@ -22,7 +22,7 @@
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
                                 <strong>Solicitante:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
-                                <strong>Monto:</strong> @solicitud.MontoSolicitud<br />
+                                <strong>Monto:</strong> ₡@String.Format("{0:N2}", solicitud.MontoSolicitud)<br />
                                 <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
@@ -44,7 +44,7 @@
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
                                 <strong>Solicitante:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
-                                <strong>Monto:</strong> @solicitud.MontoSolicitud<br />
+                                <strong>Monto:</strong> ₡@String.Format("{0:N2}", solicitud.MontoSolicitud)<br />
                                 <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
@@ -66,7 +66,7 @@
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
                                 <strong>Nombre Completo:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
-                                <strong>Monto:</strong> @solicitud.MontoSolicitud<br />
+                                <strong>Monto:</strong> ₡@String.Format("{0:N2}", solicitud.MontoSolicitud)<br />
                                 <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
@@ -88,7 +88,7 @@
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
                                 <strong>Nombre Completo:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
-                                <strong>Monto:</strong> @solicitud.MontoSolicitud <br />
+                                <strong>Monto:</strong> ₡@String.Format("{0:N2}", solicitud.MontoSolicitud)<br />
                                 <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>

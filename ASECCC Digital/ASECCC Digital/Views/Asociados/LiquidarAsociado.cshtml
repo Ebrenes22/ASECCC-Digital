@@ -74,58 +74,89 @@
 
     <script>
         let usuarioId = null;
+        let tablaCuentas = null;
 
         function buscarAsociado() {
-            const buscarNombre = document.getElementById('buscarNombre').value.trim();
+            const buscarNombre = $('#buscarNombre').val().trim();
+            if (!buscarNombre) return;
 
-            if (buscarNombre) {
-                fetch('/Asociados/BuscarCuentasAsociado', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ buscarNombre })
+            fetch('/Asociados/BuscarCuentasAsociado', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ buscarNombre })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        usuarioId = data.usuarioId;
+                        $('#contenedorCuentas, #btnLiquidarSeleccionados').show();
+                        actualizarTabla(data.cuentas);
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'No encontrado', text: data.message });
+                    }
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            usuarioId = data.usuarioId;
-                            document.getElementById('contenedorCuentas').style.display = 'block';
-                            document.getElementById('btnLiquidarSeleccionados').style.display = 'block';
-                            actualizarTabla(data.cuentas);
-                        } else {
-                            Swal.fire({ icon: 'error', title: 'No encontrado', text: data.message });
-                        }
-                    })
-                    .catch(error => console.error('Error:', error));
-            }
+                .catch(err => console.error('Error:', err));
         }
 
         function actualizarTabla(datos) {
-            let tabla = $("#tablaCuentas").DataTable();
-            tabla.clear();
+            // Destruir instancia previa si existía
+            if (tablaCuentas) {
+                tablaCuentas.clear().destroy();
+            }
 
-            datos.forEach(item => {
-                tabla.row.add([
-                    `<input type="checkbox" class="cuentaCheckbox" data-id="${item.id}" data-tipo="${item.tipo}">`,
-                    item.tipo,
-                    item.descripcion,
-                    item.saldo
-                ]).draw();
+            // Inicializar DataTable sin el input de búsqueda global
+            tablaCuentas = $('#tablaCuentas').DataTable({
+                dom: 't<"bottom"i>',   // solo tabla + info en el bottom
+                paging: false,
+                searching: true,       // habilitado para poder usar column().search()
+                ordering: true,
+                info: true,
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/Spanish.json",
+                    paginate: { previous: "Anterior", next: "Siguiente" },
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    zeroRecords: "No se encontraron registros",
+                    infoEmpty: "No hay registros disponibles",
+                    infoFiltered: "(filtrado de _MAX_ registros en total)"
+                },
+                columns: [
+                    {
+                        data: null,
+                        orderable: false,
+                        render: (data, type, row) =>
+                            `<input type="checkbox" class="cuentaCheckbox" data-id="${row.id}" data-tipo="${row.tipo}">`
+                    },
+                    { data: "tipo", title: "Tipo" },
+                    { data: "descripcion", title: "Descripción" },
+                    { data: "saldo", title: "Saldo" }
+                ],
+                destroy: true
             });
+
+            // Volcar los datos
+            datos.forEach(item => tablaCuentas.row.add(item));
+            tablaCuentas.draw();
         }
 
         function liquidarSeleccionados() {
-            let seleccionados = [];
-            $(".cuentaCheckbox:checked").each(function () {
-                seleccionados.push({ cuentaId: $(this).data("id"), tipo: $(this).data("tipo") });
+            const seleccionados = [];
+            $('.cuentaCheckbox:checked').each(function () {
+                seleccionados.push({
+                    cuentaId: $(this).data('id'),
+                    tipo: $(this).data('tipo')
+                });
             });
 
-            if (seleccionados.length === 0) {
-                Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debe seleccionar al menos una cuenta para liquidar.' });
-                return;
+            if (!seleccionados.length) {
+                return Swal.fire({
+                    icon: 'warning',
+                    title: 'Atención',
+                    text: 'Seleccione al menos una cuenta para liquidar.'
+                });
             }
 
             Swal.fire({
-                title: "¿Está segura?",
+                title: "¿Está seguro?",
                 text: "Se liquidarán las cuentas seleccionadas.",
                 icon: "warning",
                 showCancelButton: true,
@@ -133,14 +164,14 @@
                 cancelButtonColor: "#3085d6",
                 confirmButtonText: "Sí, liquidar",
                 cancelButtonText: "Cancelar"
-            }).then((result) => {
+            }).then(result => {
                 if (result.isConfirmed) {
                     fetch('/Asociados/LiquidarCuentas', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ cuentas: seleccionados })
                     })
-                        .then(response => response.json())
+                        .then(res => res.json())
                         .then(data => {
                             if (data.success) {
                                 Swal.fire({
@@ -152,71 +183,52 @@
                                 Swal.fire({ icon: 'error', title: 'Error', text: data.message });
                             }
                         })
-                        .catch(error => console.error('Error:', error));
+                        .catch(err => console.error('Error:', err));
                 }
             });
         }
 
-        $(document).ready(function () {
-            let tabla = $("#tablaCuentas").DataTable({
-
-                dom: 't<"bottom"p>',
-                language: {
-                    url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json"
-                },
-                searching: true,
-                lengthChange: false,
-                pageLength: 10 
+        $(function () {
+            // Filtrar por tipo de cuenta usando column().search()
+            $('#tipoCuentaFiltro').on('change', function () {
+                const val = $(this).val();
+                tablaCuentas
+                    .column(1)
+                    .search(val === 'todas' ? '' : '^' + val + '$', true, false)
+                    .draw();
             });
 
-            // Filtrar por tipo de cuenta
-            $("#tipoCuentaFiltro").on("change", function () {
-                let tipo = $(this).val();
-                tabla.columns(1).search(tipo === "todas" ? "" : tipo).draw();
+            // Seleccionar/Deseleccionar todas
+            $('#selectAll').on('change', function () {
+                $('.cuentaCheckbox').prop('checked', this.checked);
             });
 
-            // Seleccionar/Deseleccionar todas las cuentas
-            $("#selectAll").on("change", function () {
-                $(".cuentaCheckbox").prop("checked", this.checked);
-            });
-        });
+            // Sugerencias dinámicas al escribir nombre
+            $('#buscarNombre').on('input', function () {
+                const txt = $(this).val().trim();
+                if (txt.length < 2) return $('#sugerenciasNombres').hide();
 
-        // Sugerencias dinámicas
-        $(document).ready(function () {
-            $("#buscarNombre").on("input", function () {
-                const texto = $(this).val().trim();
-                if (texto.length >= 2) {
-                    $.ajax({
-                        url: '/Asociados/BuscarSugerencias',
-                        method: 'GET',
-                        data: { texto },
-                        success: function (data) {
-                            let lista = $("#sugerenciasNombres").empty();
-                            if (data.length > 0) {
-                                data.forEach(nombre => {
-                                    lista.append(`<li class="list-group-item list-group-item-action">${nombre}</li>`);
-                                });
-                                lista.show();
-                            } else {
-                                lista.hide();
-                            }
-                        }
-                    });
-                } else {
-                    $("#sugerenciasNombres").hide();
-                }
+                $.get('/Asociados/BuscarSugerencias', { texto: txt }, function (data) {
+                    const ul = $('#sugerenciasNombres').empty();
+                    if (data.length) {
+                        data.forEach(n => ul.append(`<li class="list-group-item">${n}</li>`));
+                        ul.show();
+                    } else {
+                        ul.hide();
+                    }
+                });
             });
 
-            // Al hacer clic en una sugerencia
-            $("#sugerenciasNombres").on("click", "li", function () {
-                $("#buscarNombre").val($(this).text());
-                $("#sugerenciasNombres").hide();
+            // Seleccionar sugerencia
+            $('#sugerenciasNombres').on('click', 'li', function () {
+                $('#buscarNombre').val($(this).text());
+                $('#sugerenciasNombres').hide();
             });
 
-            // Ocultar lista al hacer clic fuera
-            $(document).on("click", function (e) {
-                if (!$(e.target).closest("#buscarNombre, #sugerenciasNombres").length) {
-                    $("#sugerenciasNombres").hide();
+            // Ocultar sugerencias al hacer clic fuera
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('#buscarNombre, #sugerenciasNombres').length) {
+                    $('#sugerenciasNombres').hide();
                 }
             });
         });
