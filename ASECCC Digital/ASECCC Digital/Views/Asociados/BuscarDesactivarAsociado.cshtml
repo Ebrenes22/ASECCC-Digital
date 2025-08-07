@@ -10,11 +10,9 @@
     <div class="card shadow-lg p-4 mx-auto" style="max-width: 800px;">
         <h1 class="text-center mb-4">DESACTIVAR ASOCIADO</h1>
 
-        <!-- Formulario de búsqueda -->
         @using (Html.BeginForm("BuscarAsociado", "Asociados", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "formBuscar", onsubmit = "return false;" }))
         {
             @Html.AntiForgeryToken()
-
             <div class="row g-3 mb-4">
                 <div class="col-12 position-relative">
                     @Html.LabelFor(model => model.NombreCompleto, "Buscar por Nombre", new { @class = "form-label fw-bold" })
@@ -27,38 +25,33 @@
             </div>
         }
 
-        <!-- Tabla de resultados -->
-        <div id="resultadosBusqueda" class="table-responsive" style="display: none;">
-            <h5 class="text-center">Resultados de Búsqueda</h5>
-            <table class="table table-bordered mt-3">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Nombre Completo</th>
-                        <th>Identificación</th>
-                        <th>Correo Electrónico</th>
-                        <th>Teléfono</th>
-                        <th>Estado</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaResultados">
-                    <!-- Resultados dinámicos -->
-                </tbody>
-            </table>
-        </div>
+        <div id="cardResultado" style="display: none;"></div>
 
-        <!-- Mensaje sin resultados -->
         <div id="sinResultados" class="text-center mt-3" style="display: none;">
             <p class="text-danger fw-bold">No se encontraron asociados que coincidan con los criterios de búsqueda.</p>
         </div>
     </div>
 </section>
 
+<!-- Modal Beneficiarios -->
+<div class="modal fade" id="modalBeneficiarios" tabindex="-1" aria-labelledby="modalBeneficiariosLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalBeneficiariosLabel">Beneficiarios del Asociado</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div id="contenidoBeneficiarios" class="table-responsive"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // Al buscar, construye el botón según el estado recibido
         function buscarAsociado() {
             const buscarNombre = $('#buscarNombre').val().trim();
             if (!buscarNombre) return alert('Por favor, ingrese un nombre.');
@@ -68,48 +61,45 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ buscarNombre })
             })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.success) {
-                        $('#resultadosBusqueda').hide();
-                        $('#sinResultados').show();
-                        return;
-                    }
-                    $('#sinResultados').hide();
-                    $('#resultadosBusqueda').show();
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    $('#cardResultado').hide();
+                    $('#sinResultados').show();
+                    return;
+                }
+                $('#sinResultados').hide();
+                $('#cardResultado').show();
 
-                    const estado = data.estado.trim().toLowerCase();
-                    const estadoCap = estado.charAt(0).toUpperCase() + estado.slice(1);
-                    const accion = estado === 'activo' ? 'Desactivar' : 'Activar';
-                    const btnClass = estado === 'activo' ? 'btn-danger' : 'btn-success';
+                const estado = data.estado.trim().toLowerCase();
+                const accion = estado === 'activo' ? 'Desactivar' : 'Activar';
+                const btnClass = estado === 'activo' ? 'btn-danger' : 'btn-success';
 
-                    $('#tablaResultados').html(`
-                    <tr>
-                        <td>${data.nombre}</td>
-                        <td>${data.identificacion}</td>
-                        <td>${data.correo}</td>
-                        <td>${data.telefono}</td>
-                        <td>${estadoCap}</td>
-                        <td>
-                          <button
-                            type="button"
-                            class="btn ${btnClass} btn-sm"
-                            onclick="togglearAsociado(${data.id}, '${estado}')">
-                            ${accion}
-                          </button>
-                        </td>
-                    </tr>
-                `);
-                })
-                .catch(err => console.error(err));
+                const card = `
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">${data.nombre}</h5>
+                            <p class="card-text mb-1"><strong>Identificación:</strong> ${data.identificacion}</p>
+                            <p class="card-text mb-1"><strong>Correo:</strong> ${data.correo}</p>
+                            <p class="card-text mb-1"><strong>Teléfono:</strong> ${data.telefono}</p>
+                            <p class="card-text mb-1"><strong>Estado:</strong> ${estado.charAt(0).toUpperCase() + estado.slice(1)}</p>
+                            <div class="d-flex gap-2 mt-3">
+                                <button class="btn ${btnClass}" onclick="togglearAsociado(${data.id}, '${estado}')">${accion}</button>
+                                <button class="btn btn-secondary" onclick="verBeneficiarios(${data.id})" data-bs-toggle="modal" data-bs-target="#modalBeneficiarios">Ver Beneficiarios</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $('#cardResultado').html(card);
+            })
+            .catch(err => console.error(err));
         }
 
-        // Función que despliega el confirm y hace el POST a ToggleEstadoAsociado
         function togglearAsociado(usuarioId, estadoActual) {
             const accion = estadoActual === 'activo' ? 'desactivar' : 'activar';
             Swal.fire({
-                title: `¿Estás seguro de realizar esta accion?`,
-                text: `Esta accion ${accion}a al asociado.`,
+                title: `¿Estás seguro?`,
+                text: `Esto ${accion}á al asociado.`,
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: estadoActual === 'activo' ? "#d33" : "#3085d6",
@@ -123,47 +113,66 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ usuarioId })
                 })
-                    .then(res => res.json())
-                    .then(res => {
-                        if (res.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: `Asociado ${accion === 'activar' ? 'Activado' : 'Desactivado'}`,
-                                confirmButtonColor: '#3085d6'
-                            }).then(() => buscarAsociado());
-                        } else {
-                            Swal.fire({ icon: 'error', title: 'Error', text: res.message });
-                        }
-                    })
-                    .catch(() => {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Ocurrio un problema al cambiar el estado del usuario.'
-                        });
-                    });
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success) {
+                        Swal.fire({ icon: 'success', title: `Asociado actualizado` }).then(() => buscarAsociado());
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: res.message });
+                    }
+                })
+                .catch(() => Swal.fire({ icon: 'error', title: 'Error', text: 'Error al cambiar el estado del usuario.' }));
             });
         }
 
-        // Sugerencias dinámicas
+        function verBeneficiarios(usuarioId) {
+            fetch(`/Perfil/ObtenerBeneficiarios?usuarioId=${usuarioId}`)
+                .then(res => res.json())
+                .then(data => {
+                    let html = '';
+                    if (data.success && data.beneficiarios.length > 0) {
+                        html += `
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Relación</th>
+                                <th>Porcentaje de Beneficio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.beneficiarios.map(b => `
+                                <tr>
+                                    <td>${b.nombreCompleto}</td>
+                                    <td>${b.relacion}</td>
+                                    <td>${b.porcentajeBeneficio}%</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                    } else {
+                        html = `<p class="text-center text-muted">No hay beneficiarios registrados.</p>`;
+                    }
+                    $('#contenidoBeneficiarios').html(html);
+                });
+        }
+
+
+        // Sugerencias
         $(document).ready(function () {
             $("#buscarNombre").on("input", function () {
                 const texto = $(this).val().trim();
                 if (texto.length >= 2) {
-                    $.ajax({
-                        url: '/Asociados/BuscarSugerencias',
-                        method: 'GET',
-                        data: { texto },
-                        success: function (data) {
-                            let lista = $("#sugerenciasNombres").empty();
-                            if (data.length > 0) {
-                                data.forEach(nombre => {
-                                    lista.append(`<li class="list-group-item list-group-item-action">${nombre}</li>`);
-                                });
-                                lista.show();
-                            } else {
-                                lista.hide();
-                            }
+                    $.get('/Asociados/BuscarSugerencias', { texto }, function (data) {
+                        let lista = $("#sugerenciasNombres").empty();
+                        if (data.length > 0) {
+                            data.forEach(nombre => {
+                                lista.append(`<li class="list-group-item list-group-item-action">${nombre}</li>`);
+                            });
+                            lista.show();
+                        } else {
+                            lista.hide();
                         }
                     });
                 } else {
@@ -171,13 +180,11 @@
                 }
             });
 
-            // Al hacer clic en una sugerencia
             $("#sugerenciasNombres").on("click", "li", function () {
                 $("#buscarNombre").val($(this).text());
                 $("#sugerenciasNombres").hide();
             });
 
-            // Ocultar lista al hacer clic fuera
             $(document).on("click", function (e) {
                 if (!$(e.target).closest("#buscarNombre, #sugerenciasNombres").length) {
                     $("#sugerenciasNombres").hide();

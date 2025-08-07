@@ -36,16 +36,10 @@ namespace ASECCC_Digital.Controllers
 
         // Obtener beneficiarios del usuario en sesión
         [HttpGet]
-        public JsonResult ObtenerBeneficiarios()
+        public JsonResult ObtenerBeneficiarios(int usuarioId)
         {
             try
             {
-                if (Session["usuarioId"] == null)
-                {
-                    return Json(new { success = false, message = "Usuario no autenticado." }, JsonRequestBehavior.AllowGet);
-                }
-
-                int usuarioId = (int)Session["usuarioId"];
                 var beneficiarios = beneficiariosM.ObtenerBeneficiarios(usuarioId);
 
                 if (beneficiarios == null || !beneficiarios.Any())
@@ -62,7 +56,7 @@ namespace ASECCC_Digital.Controllers
                         nombreCompleto = b.NombreCompleto,
                         relacion = b.Relacion,
                         porcentajeBeneficio = b.PorcentajeBeneficio
-                    })
+                    }).ToList()
                 }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
