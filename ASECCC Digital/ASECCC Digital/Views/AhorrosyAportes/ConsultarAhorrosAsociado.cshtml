@@ -82,9 +82,9 @@
                                         <strong>Monto Inicial:</strong> ${ahorro.MontoInicial.toLocaleString('es-CR')}<br>
                                         <strong>Monto Actual:</strong> ${ahorro.MontoActual.toLocaleString('es-CR')}<br>
                                         <strong>Plazo:</strong> ${ahorro.Plazo ?? 'N/A'} meses<br>
-                                        <strong>Estado:</strong> ${ahorro.Estado}
+                                        <strong>Estado:</strong> ${ahorro.Estado.charAt(0).toUpperCase() + ahorro.Estado.slice(1)}
                                     </p>
-                                    <button class="btn btn-info btn-sm text-white" onclick="verDetalles(${ahorro.AhorroId})" data-bs-toggle="modal" data-bs-target="#modalDetallesAhorro">Ver Detalles</button>
+                                    <button class="btn btn-info btn-sm text-white" onclick="verDetalles(${ahorro.AhorroId})" data-bs-toggle="modal" data-bs-target="#modalDetallesAhorro">Historial de movimientos</button>
                                     <button class="btn btn-warning btn-sm text-white" onclick="modificarMonto(${ahorro.AhorroId})" data-bs-toggle="modal" data-bs-target="#modalModificarMonto">Modificar Monto</button>
                                     ${ahorro.TipoAhorro === 'A la Vista' ? `<button class="btn btn-danger btn-sm text-white" onclick="finalizarAhorro(${ahorro.AhorroId})">Finalizar Ahorro</button>` : ''}
                                 </div>
@@ -114,27 +114,24 @@
                 },
                 success: function (response) {
                     if (response.success) {
-                        $('#modalCrearAhorro').modal('hide');
+                        const el = document.getElementById('modalCrearAhorro');
+                        const modal = bootstrap.Modal.getOrCreateInstance(el);
+                        modal.hide();
+                        document.body.classList.remove('modal-open');
+                        $('.modal-backdrop').remove();
+
+
+                        el.addEventListener('hidden.bs.modal', () => {
+                            $('#tipoAhorro').val('A la Vista');
+                            $('#montoAhorro').val('');
+                            $('#plazoAhorro').val('');
+                        }, { once: true });
+
                         cargarAhorros();
-                        Swal.fire({
-                            icon: 'success',
-                            title: '¡Ahorro creado!',
-                            text: 'El ahorro se registró exitosamente.'
-                        });
+                        Swal.fire({ icon: 'success', title: '¡Ahorro creado!', text: 'El ahorro se registró exitosamente.' });
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message
-                        });
+                        Swal.fire({ icon: 'error', title: 'Error', text: response.message });
                     }
-                },
-                error: function () {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Error en la solicitud AJAX al crear el ahorro.'
-                    });
                 }
             });
         } else {
