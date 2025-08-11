@@ -20,7 +20,6 @@
                         <th>Pago</th>
                         <th>Fecha</th>
                         <th>Monto</th>
-                        <th>Descripción</th>
                     </tr>
                 </thead>
                 <tbody id="cuotas-body">
@@ -104,7 +103,6 @@
                             <td>${cuota.TransaccionId}</td>
                             <td>${fechaTransaccion}</td>
                             <td>₡${cuota.Monto.toFixed(2)}</td>
-                            <td>${cuota.Descripcion}</td>
                         </tr>`;
                     tbody.append(rowHtml);
                 });

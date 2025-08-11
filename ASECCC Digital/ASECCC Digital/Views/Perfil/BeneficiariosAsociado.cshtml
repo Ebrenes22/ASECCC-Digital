@@ -80,7 +80,7 @@
         });
 
         function cargarBeneficiarios() {
-            $.get("/Perfil/ObtenerBeneficiarios", function (data) {
+            $.get("/Perfil/ObtenerBeneficiarios1", function (data) {
                 let contenedor = $("#contenedorBeneficiarios").empty();
                 if (data.success) {
                     data.beneficiarios.forEach(b => {

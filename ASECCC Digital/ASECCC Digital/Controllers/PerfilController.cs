@@ -65,7 +65,41 @@ namespace ASECCC_Digital.Controllers
             }
         }
 
+        [HttpGet]
+        public JsonResult ObtenerBeneficiarios1()
+        {
+            try
+            {
+                if (Session["usuarioId"] == null)
+                {
+                    return Json(new { success = false, message = "Usuario no autenticado." }, JsonRequestBehavior.AllowGet);
+                }
 
+                int usuarioId = (int)Session["usuarioId"];
+                var beneficiarios = beneficiariosM.ObtenerBeneficiarios(usuarioId);
+
+                if (beneficiarios == null || !beneficiarios.Any())
+                {
+                    return Json(new { success = false, message = "No hay beneficiarios registrados." }, JsonRequestBehavior.AllowGet);
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    beneficiarios = beneficiarios.Select(b => new
+                    {
+                        beneficiarioId = b.BeneficiarioId,
+                        nombreCompleto = b.NombreCompleto,
+                        relacion = b.Relacion,
+                        porcentajeBeneficio = b.PorcentajeBeneficio
+                    })
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error en el servidor: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
         // Registrar un nuevo beneficiario (Validando que el total de porcentaje no exceda 100%)
         [HttpPost]
