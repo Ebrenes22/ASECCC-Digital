@@ -99,17 +99,18 @@
                     let montoActual = formatMoneda(parseFloat(ahorro.MontoActual || 0));
 
                     let fila = `<tr>
-                        <td>${ahorro.TipoAhorro}</td>
-                        <td>${fechaInicio}</td>
-                        <td>${fechaFin}</td>
-                        <td>${montoInicial}</td>
-                        <td>${montoActual}</td>
-                        <td>${ahorro.Estado.charAt(0).toUpperCase() + ahorro.Estado.slice(1)}</td>
-                        <td>
-                            <button class='btn btn-warning btn-sm' onclick='modificarMonto(${ahorro.AhorroId}, ${ahorro.MontoActual})'>Editar</button>
-                            <button class='btn btn-danger btn-sm' onclick='eliminarAhorro(${ahorro.AhorroId})'>Eliminar</button>
-                        </td>
-                    </tr>`;
+                    <td>${ahorro.TipoAhorro}</td>
+                    <td>${fechaInicio}</td>
+                    <td>${fechaFin}</td>
+                    <td>${montoInicial}</td>
+                    <td>${montoActual}</td>
+                    <td>${ahorro.Estado.charAt(0).toUpperCase() + ahorro.Estado.slice(1)}</td>
+                    <td class="d-flex gap-2">
+                        <button class="btn btn-success btn-sm" onclick="agregarAbono(${ahorro.AhorroId})">Agregar abono</button>
+                        <button class="btn btn-info btn-sm text-white" onclick="verHistorial(${ahorro.AhorroId})">Historial</button>
+                        <button class="btn btn-danger btn-sm" onclick="eliminarAhorro(${ahorro.AhorroId})">Eliminar</button>
+                    </td>
+                </tr>`;
                     tablaBody.append(fila);
                 });
             }
@@ -128,31 +129,6 @@
         return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(valor);
     }
 
-    function modificarMonto(ahorroId, montoActual) {
-        Swal.fire({
-            title: "Modificar Monto Actual",
-            input: "number",
-            inputLabel: "Ingrese el nuevo abono:",
-            inputValue: montoActual,
-            inputPlaceholder: "Ingrese el nuevo abono",
-            showCancelButton: true,
-            confirmButtonText: "Guardar",
-            cancelButtonText: "Cancelar",
-            inputValidator: (value) => {
-                if (!value || isNaN(value) || value < 0) {
-                    return "Debe ingresar un monto válido (mayor o igual a 0).";
-                }
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                let nuevoMonto = parseFloat(result.value);
-                $.post("/AhorrosyAportes/ModificarAhorro", { ahorroId: ahorroId, nuevoMonto: nuevoMonto }, function (response) {
-                    Swal.fire("Exito", response.message, "success");
-                    consultarAhorros();
-                });
-            }
-        });
-    }
 
     function eliminarAhorro(ahorroId) {
         Swal.fire({
@@ -173,5 +149,151 @@
             }
         });
     }
+
+    function agregarAbono(ahorroId) {
+        Swal.fire({
+            title: "Agregar Abono",
+            input: "number",
+            inputLabel: "Ingrese el monto a abonar:",
+            showCancelButton: true,
+            confirmButtonText: "Guardar",
+            cancelButtonText: "Cancelar",
+            inputValidator: (value) => {
+                if (!value || value <= 0) return "Ingrese un monto valido";
+            }
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            $.ajax({
+                url: "/AhorrosyAportes/AgregarAbonoAhorro",
+                type: "POST",
+                data: { ahorroId: ahorroId, monto: result.value },
+                success: function (resp) {
+                    if (resp.success) {
+                        Swal.fire("Exito", resp.message || "Abono agregado correctamente.", "success")
+                            .then(() => {
+                                if (typeof consultarAhorros === "function") consultarAhorros();
+                            });
+                    } else {
+                        Swal.fire("Error", resp.message || "No se pudo agregar el abono.", "error");
+                    }
+                },
+                error: function () {
+                    Swal.fire("Error", "Fallo la solicitud al servidor.", "error");
+                }
+            });
+        });
+    }
+
+    function verHistorial(ahorroId) {
+        $.ajax({
+            url: "/AhorrosyAportes/ObtenerHistorialTransacciones",
+            type: "GET",
+            data: { ahorroId: ahorroId },
+            success: function (response) {
+                if (!response || response.success === false) {
+                    Swal.fire("Error", (response && response.message) ? response.message : "No se pudo cargar el historial.", "error");
+                    return;
+                }
+                const data = Array.isArray(response.data) ? response.data : [];
+                if (data.length === 0) {
+                    Swal.fire("Sin historial", "No hay transacciones registradas.", "info");
+                    return;
+                }
+
+                const toCRC = v => new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(v);
+                const fmtDate = f => {
+                    const m = /\/Date\((\d+)\)\//.exec(f);
+                    const ts = m ? parseInt(m[1], 10) : Date.parse(f);
+                    return isNaN(ts) ? "-" : new Date(ts).toLocaleDateString('es-CR');
+                };
+
+                data.sort((a, b) => {
+                    const A = /\/Date\((\d+)\)\//.exec(a.Fecha)?.[1] ?? Date.parse(a.Fecha) ?? 0;
+                    const B = /\/Date\((\d+)\)\//.exec(b.Fecha)?.[1] ?? Date.parse(b.Fecha) ?? 0;
+                    return B - A;
+                });
+
+                const pageSize = 11;
+                const totalPages = Math.ceil(data.length / pageSize);
+
+                let pagesHtml = "";
+                for (let p = 1; p <= totalPages; p++) {
+                    const start = (p - 1) * pageSize;
+                    const end = Math.min(start + pageSize, data.length);
+
+                    let table = `
+          <div class="hist-page" data-page="${p}" style="display:${p === 1 ? 'block' : 'none'};">
+            <table class="table table-bordered mb-2">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Monto</th>
+                </tr>
+              </thead>
+              <tbody>`;
+
+                    for (let i = start; i < end; i++) {
+                        const t = data[i];
+                        table += `
+            <tr>
+              <td>${fmtDate(t.Fecha)}</td>
+              <td>${toCRC(t.Monto)}</td>
+            </tr>`;
+                    }
+
+                    table += `
+              </tbody>
+            </table>
+            <div class="text-muted small text-center">Pagina ${p} de ${totalPages}</div>
+          </div>`;
+
+                    pagesHtml += table;
+                }
+
+                let pagerHtml = `<div id="hist-pager" class="d-flex flex-wrap gap-2 mt-3 justify-content-center">`;
+                for (let b = 1; b <= totalPages; b++) {
+                    pagerHtml += `<button type="button" class="btn btn-sm ${b === 1 ? 'btn-primary' : 'btn-outline-primary'} hist-btn" data-page="${b}">${b}</button>`;
+                }
+                pagerHtml += `</div>`;
+
+                const modalHtml = `<div id="hist-wrap">${pagesHtml}${pagerHtml}</div>`;
+
+                Swal.fire({
+                    title: 'Historial de Transacciones',
+                    html: modalHtml,
+                    width: '700px',
+                    didOpen: function () {
+                        const container = Swal.getHtmlContainer(); 
+                        const pager = container.querySelector('#hist-pager');
+
+                        pager.addEventListener('click', function (ev) {
+                            const btn = ev.target.closest('.hist-btn');
+                            if (!btn) return;
+
+                            const page = parseInt(btn.getAttribute('data-page'), 10);
+                            if (isNaN(page)) return;
+
+                            const pages = container.querySelectorAll('.hist-page');
+                            for (let i = 0; i < pages.length; i++) {
+                                pages[i].style.display = ((i + 1) === page) ? 'block' : 'none';
+                            }
+
+                            const buttons = pager.querySelectorAll('.hist-btn');
+                            for (let j = 0; j < buttons.length; j++) {
+                                buttons[j].className = 'btn btn-sm btn-outline-primary hist-btn';
+                            }
+                            btn.className = 'btn btn-sm btn-primary hist-btn';
+                        });
+                    }
+                });
+            },
+            error: function () {
+                Swal.fire("Error", "Fallo la solicitud al servidor.", "error");
+            }
+        });
+    }
+
+
 </script>
 

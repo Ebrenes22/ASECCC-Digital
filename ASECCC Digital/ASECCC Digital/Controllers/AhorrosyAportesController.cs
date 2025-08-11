@@ -34,6 +34,21 @@ namespace ASECCC_Digital.Controllers
         // A H O R R O S
         //
 
+        [HttpPost]
+        public JsonResult AgregarAbonoAhorro(int ahorroId, decimal monto, string descripcion = null)
+        {
+            try
+            {
+                var resultado = ahorroModel.AgregarAbonoAhorro(ahorroId, monto, descripcion);
+                return Json(resultado);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al agregar el abono: " + ex.Message });
+            }
+        }
+
+
         [HttpGet]
         public JsonResult ObtenerAhorrosAsociado()
         {
@@ -188,6 +203,21 @@ namespace ASECCC_Digital.Controllers
         }
 
         [HttpPost]
+        public JsonResult AgregarAporte(int aporteId, decimal monto, string descripcion = null)
+        {
+            try
+            {
+                var resultado = aporteModel.AgregarAporte(aporteId, monto, descripcion);
+                return Json(resultado);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al agregar el aporte: " + ex.Message });
+            }
+        }
+
+
+        [HttpPost]
         public JsonResult ModificarAporte(int aporteId, decimal nuevoMonto)
         {
             try
@@ -244,6 +274,7 @@ namespace ASECCC_Digital.Controllers
         {
             return View();
         }
+
 
         [HttpPost]
         public JsonResult RegistrarAportePorNombre(string nombreAsociado, string tipoAporte, decimal monto)

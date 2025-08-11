@@ -106,7 +106,7 @@
         let asociado = $("#asociado").val().trim();
 
         if (asociado === "") {
-            Swal.fire("Atención", "Por favor, ingrese el nombre del asociado.", "warning");
+            Swal.fire("Atencion", "Por favor, ingrese el nombre del asociado.", "warning");
             return;
         }
 
@@ -125,7 +125,6 @@
 
                 response.data.forEach(aporte => {
                     let fecha = "No disponible";
-
                     if (aporte.FechaRegistro) {
                         let match = aporte.FechaRegistro.match(/\d+/);
                         if (match) {
@@ -142,11 +141,12 @@
                     <td>${fecha}</td>
                     <td>${montoFormateado}</td>
                     <td>
-                        <button class='btn btn-warning btn-sm' onclick='editarAporte(${aporte.AporteId})'>Editar</button>
+                        <button class='btn btn-success btn-sm' onclick='agregarAporte(${aporte.AporteId})'>Agregar abono</button>
+                        <button class="btn btn-info btn-sm text-white" onclick='verHistorial(${aporte.AporteId})'>Historial</button>
                         <button class='btn btn-danger btn-sm' onclick='eliminarAporte(${aporte.AporteId})'>Eliminar</button>
                     </td>
                 </tr>`;
-
+             
                     tablaBody.append(fila);
                 });
 
@@ -154,13 +154,14 @@
         });
     }
 
+
     function registrarAporte() {
         let nombreAsociado = $("#nombreAsociado").val().trim();
         let tipoAporte = $("#tipoAporte").val();
         let monto = $("#montoAporte").val();
 
         if (nombreAsociado === "" || monto === "") {
-            Swal.fire("Atención", "Debe ingresar el nombre del asociado y el monto.", "warning");
+            Swal.fire("Atencion", "Debe ingresar el nombre del asociado y el monto.", "warning");
             return;
         }
 
@@ -178,20 +179,25 @@
         });
     }
 
-    function editarAporte(aporteId) {
+    function agregarAporte(aporteId) {
         Swal.fire({
-            title: "Editar Monto",
+            title: "Agregar Abono",
             input: "number",
-            inputLabel: "Ingrese el nuevo monto del aporte:",
+            inputLabel: "Ingrese el monto a agregar:",
             showCancelButton: true,
             confirmButtonText: "Guardar",
             cancelButtonText: "Cancelar",
+            inputValidator: (value) => {
+                if (!value || value <= 0) {
+                    return "Ingrese un monto válido";
+                }
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "/AhorrosyAportes/ModificarAporte",
+                    url: "/AhorrosyAportes/AgregarAporte",
                     type: "POST",
-                    data: { aporteId: aporteId, nuevoMonto: result.value },
+                    data: { aporteId: aporteId, monto: result.value },
                     success: function (response) {
                         Swal.fire("Exito", response.message, "success");
                         if (response.success) {
@@ -214,4 +220,110 @@
             }
         });
     }
+
+    function verHistorial(aporteId) {
+        $.ajax({
+            url: "/AhorrosyAportes/ObtenerHistorialAporte",
+            type: "GET",
+            data: { aporteId: aporteId },
+            success: function (response) {
+                if (!response || response.success === false) {
+                    Swal.fire("Error", (response && response.message) ? response.message : "No se pudo cargar el historial.", "error");
+                    return;
+                }
+                if (!response.data || response.data.length === 0) {
+                    Swal.fire("Sin historial", "No hay transacciones registradas.", "info");
+                    return;
+                }
+
+                function toCRC(v) {
+                    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(v);
+                }
+                function fmtDate(f) {
+                    var m = /\/Date\((\d+)\)\//.exec(f);
+                    var ts = m ? parseInt(m[1], 10) : Date.parse(f);
+                    if (isNaN(ts)) return "-";
+                    return new Date(ts).toLocaleDateString('es-CR');
+                }
+
+                var data = response.data;
+                var pageSize = 11;
+                var totalPages = Math.ceil(data.length / pageSize);
+
+                var pagesHtml = "";
+                for (var p = 1; p <= totalPages; p++) {
+                    var start = (p - 1) * pageSize;
+                    var end = Math.min(start + pageSize, data.length);
+
+                    var table =
+                        '<div class="hist-page" data-page="' + p + '" style="display:' + (p === 1 ? 'block' : 'none') + ';">' +
+                        '<table class="table table-bordered mb-2">' +
+                        '<thead>' +
+                        '<tr>' +
+                        '<th>Fecha</th>' +
+                        '<th>Monto</th>' +
+                        '</tr>' +
+                        '</thead>' +
+                        '<tbody>';
+
+                    for (var i = start; i < end; i++) {
+                        var t = data[i];
+                        table +=
+                            '<tr>' +
+                            '<td>' + fmtDate(t.Fecha) + '</td>' +
+                            '<td>' + toCRC(t.Monto) + '</td>' +
+                            '</tr>';
+                    }
+
+                    table +=
+                        '</tbody>' +
+                        '</table>' +
+                        '<div class="text-muted small text-center">Pagina ' + p + ' de ' + totalPages + '</div>' +
+                        '</div>';
+
+                    pagesHtml += table;
+                }
+
+                var pagerHtml = '<div id="hist-pager" class="d-flex flex-wrap gap-2 mt-3 justify-content-center">';
+                for (var b = 1; b <= totalPages; b++) {
+                    pagerHtml += '<button type="button" class="btn btn-sm ' + (b === 1 ? 'btn-primary' : 'btn-outline-primary') + ' hist-btn" data-page="' + b + '">' + b + '</button>';
+                }
+                pagerHtml += '</div>';
+
+                var modalHtml = '<div id="hist-wrap">' + pagesHtml + pagerHtml + '</div>';
+
+                Swal.fire({
+                    title: 'Historial de Transacciones',
+                    html: modalHtml,
+                    width: '700px',
+                    didOpen: function () {
+                        var pager = document.getElementById('hist-pager');
+                        pager.addEventListener('click', function (ev) {
+                            var btn = ev.target.closest('.hist-btn');
+                            if (!btn) return;
+
+                            var page = parseInt(btn.getAttribute('data-page'), 10);
+                            if (isNaN(page)) return;
+
+                            var pages = document.querySelectorAll('.hist-page');
+                            for (var i = 0; i < pages.length; i++) {
+                                pages[i].style.display = ((i + 1) === page) ? 'block' : 'none';
+                            }
+
+                            var buttons = pager.querySelectorAll('.hist-btn');
+                            for (var j = 0; j < buttons.length; j++) {
+                                buttons[j].className = 'btn btn-sm btn-outline-primary hist-btn';
+                            }
+                            btn.className = 'btn btn-sm btn-primary hist-btn';
+                        });
+                    }
+                });
+            },
+            error: function () {
+                Swal.fire("Error", "Fallo la solicitud al servidor.", "error");
+            }
+        });
+    }
+
+
 </script>

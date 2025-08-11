@@ -104,7 +104,6 @@ namespace ASECCC_Digital.Models
                         Fecha = t.fechaTransaccion,
                         Monto = t.monto,
                         Tipo = t.tipoTransaccionId == 1 ? "Depósito" : "Retiro",
-                        Descripcion = t.descripcion
                     })
                     .OrderByDescending(t => t.Fecha)
                     .ToList();
@@ -153,6 +152,45 @@ namespace ASECCC_Digital.Models
                 return EliminarAhorro(ahorroId);
             }
         }
+
+        public object AgregarAbonoAhorro(int ahorroId, decimal monto, string descripcion = null)
+        {
+            if (monto <= 0) return new { success = false, message = "Monto inválido." };
+
+            using (var context = new ASECCC_DIGITALEntities())
+            using (var tx = context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var ahorro = context.Ahorros.SingleOrDefault(a => a.ahorroId == ahorroId);
+                    if (ahorro == null)
+                        return new { success = false, message = "Ahorro no encontrado." };
+
+                    ahorro.montoActual += monto;
+
+
+                    context.AhorroTransacciones.Add(new AhorroTransacciones
+                    {
+                        ahorroId = ahorroId,
+                        tipoTransaccionId = 1, 
+                        monto = monto,
+                        fechaTransaccion = DateTime.Now,
+                        descripcion = string.IsNullOrWhiteSpace(descripcion) ? "Abono agregado" : descripcion
+                    });
+
+                    context.SaveChanges();
+                    tx.Commit();
+
+                    return new { success = true, message = "Abono agregado correctamente.", montoActual = ahorro.montoActual };
+                }
+                catch (Exception ex)
+                {
+                    tx.Rollback();
+                    return new { success = false, message = "Error al agregar el abono: " + ex.Message };
+                }
+            }
+        }
+
 
         #endregion
     }

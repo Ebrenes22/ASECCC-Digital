@@ -55,7 +55,6 @@ namespace ASECCC_Digital.Models
                         {
                             Fecha = t.fechaTransaccion,
                             Monto = t.monto,
-                            Descripcion = t.descripcion
                         })
                         .ToList();
 
@@ -83,9 +82,47 @@ namespace ASECCC_Digital.Models
 
                 context.Aportes.Add(nuevoAporte);
                 context.SaveChanges();
-                return new { success = true, message = "Aporte registrado correctamente." };
+                return new { success = true, message = "Abono registrado correctamente." };
             }
         }
+
+
+        public object AgregarAporte(int aporteId, decimal monto, string descripcion = null)
+        {
+            if (monto <= 0) return new { success = false, message = "Monto inválido." };
+
+            using (var context = new ASECCC_DIGITALEntities())
+            using (var tx = context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var aporte = context.Aportes.SingleOrDefault(a => a.aporteId == aporteId);
+                    if (aporte == null)
+                        return new { success = false, message = "Abono no encontrado." };
+
+                    aporte.monto += monto;
+
+                    context.AportesTransacciones.Add(new AportesTransacciones
+                    {
+                        aporteId = aporteId,
+                        monto = monto,
+                        fechaTransaccion = DateTime.Now,
+                        descripcion = string.IsNullOrWhiteSpace(descripcion) ? "Abono agregado" : descripcion
+                    });
+
+                    context.SaveChanges();
+                    tx.Commit();
+
+                    return new { success = true, message = "Abono agregado correctamente.", montoActual = aporte.monto };
+                }
+                catch (Exception ex)
+                {
+                    tx.Rollback();
+                    return new { success = false, message = "Error al agregar el abono: " + ex.Message };
+                }
+            }
+        }
+
 
         public object ModificarAporte(int aporteId, decimal nuevoMonto)
         {
@@ -130,6 +167,7 @@ namespace ASECCC_Digital.Models
         }
 
         //Admin
+
 
         public object ConsultarAportesPorNombre(string nombreAsociado)
         {
