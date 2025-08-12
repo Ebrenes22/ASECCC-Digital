@@ -23,6 +23,7 @@
                             <p class="card-text">
                                 <strong>Solicitante:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
                                 <strong>Monto:</strong> ₡@String.Format("{0:N2}", solicitud.MontoSolicitud)<br />
+                                <strong>Tipo:</strong> @((solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(0, 1).ToUpper() + (solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(1).ToLower())<br />
                                 <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
@@ -45,6 +46,7 @@
                             <p class="card-text">
                                 <strong>Solicitante:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
                                 <strong>Monto:</strong> ₡@String.Format("{0:N2}", solicitud.MontoSolicitud)<br />
+                                <strong>Tipo:</strong> @((solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(0, 1).ToUpper() + (solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(1).ToLower())<br />
                                 <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
@@ -67,6 +69,7 @@
                             <p class="card-text">
                                 <strong>Nombre Completo:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
                                 <strong>Monto:</strong> ₡@String.Format("{0:N2}", solicitud.MontoSolicitud)<br />
+                                <strong>Tipo:</strong> @((solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(0, 1).ToUpper() + (solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(1).ToLower())<br />
                                 <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
@@ -89,6 +92,7 @@
                             <p class="card-text">
                                 <strong>Nombre Completo:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
                                 <strong>Monto:</strong> ₡@String.Format("{0:N2}", solicitud.MontoSolicitud)<br />
+                                <strong>Tipo:</strong> @((solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(0, 1).ToUpper() + (solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(1).ToLower())<br />
                                 <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
@@ -102,7 +106,6 @@
 <!-- Incluir el partial del modal -->
 @Html.Partial("_SolicitudDetalles")
 
-<!-- Scripts (asegúrate de que se carguen en este orden) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -124,7 +127,7 @@
                     }
                     // Rellenar los campos del modal con los datos recibidos
                     $('#solicitud-id').val(data.SolicitudPrestamoId);
-                    $('usuario-id').val(data.UsuarioId);
+                    $('#usuario-id').val(data.UsuarioId); // CORREGIDO: Agregado #
                     $('#nombreCompleto').text(data.NombreCompleto || 'No disponible');
                     $('#estadoCivil').text(data.EstadoCivil || 'No disponible');
                     $('#pagaAlquiler').text(data.PagaAlquiler || 'No aplica');
@@ -143,8 +146,6 @@
                     $('#estadoTexto').val(data.EstadoSolicitud);
                     $('#montoSolicitud').val(data.MontoSolicitud || 'N/A');
 
-
-
                     // Mostrar el modal utilizando la API de Bootstrap 5
                     var modalEl = document.getElementById('solicitudDetallesModal');
                     var modal = new bootstrap.Modal(modalEl);
@@ -156,21 +157,20 @@
             });
         });
 
+        // 2) Botón Guardar estado: cierra el modal
+        $('#guardarEstado').click(function () {
+            // Aquí podrías hacer el AJAX de actualización si quieres
+            var modalEl = document.getElementById('solicitudDetallesModal');
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+        });
 
-    // 2) Botón Guardar estado: cierra el modal
-    $('#guardarEstado').click(function () {
-      // Aquí podrías hacer el AJAX de actualización si quieres
-      var modalEl = document.getElementById('solicitudDetallesModal');
-      var modal = bootstrap.Modal.getInstance(modalEl);
-      modal.hide();
+        // 3) Cuando el modal ya esté oculto (backdrop removido), redirige
+        var modalEl = document.getElementById('solicitudDetallesModal');
+        modalEl.addEventListener('hidden.bs.modal', function () {
+            window.location.href = '@Url.Action("RevisionPrestamos", "Prestamos")';
+        });
     });
-
-    // 3) Cuando el modal ya esté oculto (backdrop removido), redirige
-    var modalEl = document.getElementById('solicitudDetallesModal');
-    modalEl.addEventListener('hidden.bs.modal', function () {
-      window.location.href = '@Url.Action("RevisionPrestamos", "Prestamos")';
-    });
-  });
 </script>
 
 <style>

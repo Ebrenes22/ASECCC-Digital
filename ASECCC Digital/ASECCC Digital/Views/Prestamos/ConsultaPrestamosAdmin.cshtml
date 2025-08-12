@@ -1,158 +1,173 @@
-@{
-    ViewBag.Title = "ConsultaPrestamosAdmin";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    @Html.Partial("_MenuModulos");
-}
+    @{
+        ViewBag.Title = "ConsultaPrestamosAdmin";
+        Layout = "~/Views/Shared/_Layout.cshtml";
+        @Html.Partial("_MenuModulos");
+    }
 
-<div class="container my-5">
-    <h1 class="text-center mb-4">CONSULTA DE PRESTAMOS</h1>
+    <div class="container my-5">
+        <h1 class="text-center mb-4">CONSULTA DE PRESTAMOS</h1>
 
-    <!-- Filtros de búsqueda -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <label for="nombreAsociado" class="form-label">Nombre del Asociado</label>
-            <input type="text" id="nombreAsociado" class="form-control" placeholder="Ingrese el nombre del asociado">
+        <!-- Filtros de búsqueda -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <label for="nombreAsociado" class="form-label">Nombre del Asociado</label>
+                <input type="text" id="nombreAsociado" class="form-control" placeholder="Ingrese el nombre del asociado">
+            </div>
+            <div class="col-md-3">
+                <label for="tipoPrestamo" class="form-label">Tipo de Prestamo</label>
+                <select id="tipoPrestamo" class="form-select">
+                    <option value="">Seleccione un tipo de prestamo</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Urgente">Urgente</option>
+                    <option value="150%">150%</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="estadoPrestamo" class="form-label">Estado del Prestamo</label>
+                <select id="estadoPrestamo" class="form-select">
+                    <option value="">Seleccione el estado</option>
+                    <option value="activo">Activo</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button class="btn btn-primary" onclick="consultarPrestamos()">Consultar</button>
+            </div>
         </div>
-        <div class="col-md-3">
-            <label for="tipoPrestamo" class="form-label">Tipo de Prestamo</label>
-            <select id="tipoPrestamo" class="form-select">
-                <option value="">Seleccione un tipo de prestamo</option>
-                <option value="Personal">Personal</option>
-                <option value="Urgente">Urgente</option>
-                <option value="150%">150%</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label for="estadoPrestamo" class="form-label">Estado del Prestamo</label>
-            <select id="estadoPrestamo" class="form-select">
-                <option value="">Seleccione el estado</option>
-                <option value="activo">Activo</option>
-                <option value="cancelado">Cancelado</option>
-            </select>
-        </div>
-        <div class="col-md-3 d-flex align-items-end">
-            <button class="btn btn-primary" onclick="consultarPrestamos()">Consultar</button>
+
+        <!-- Tabla de préstamos -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre del Asociado</th>
+                    <th>Tipo de Prestamo</th>
+                    <th>Monto</th>
+                    <th>Estado</th>
+                    <th>Detalle de Pagos</th>
+                </tr>
+            </thead>
+            <tbody id="tablaPrestamos">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal para el historial de pagos -->
+    <div class="modal fade" id="modalHistorialPagos" tabindex="-1" aria-labelledby="modalHistorialLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalHistorialLabel">Historial de Pagos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Monto Abonado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historialPagos">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Tabla de préstamos -->
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nombre del Asociado</th>
-                <th>Tipo de Prestamo</th>
-                <th>Monto</th>
-                <th>Estado</th>
-                <th>Detalle de Pagos</th>
-            </tr>
-        </thead>
-        <tbody id="tablaPrestamos">
-        </tbody>
-    </table>
-</div>
+    <script>
 
-<!-- Modal para el historial de pagos -->
-<div class="modal fade" id="modalHistorialPagos" tabindex="-1" aria-labelledby="modalHistorialLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalHistorialLabel">Historial de Pagos</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Monto Abonado</th>
-                            <th>Saldo</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historialPagos">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-
-    function capitalize(str) {
-        if (!str) return str;
-        str = str.toString().toLowerCase();
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
-    function consultarPrestamos() {
-        fetch('@Url.Action("ObtenerPrestamosAdmin", "Prestamos")', { method: 'GET' })
-            .then(response => response.json())
-            .then(data => {
-                const nombreAsociado = document.getElementById('nombreAsociado').value.toLowerCase();
-                const tipoPrestamo = document.getElementById('tipoPrestamo').value;
-                const estadoPrestamo = document.getElementById('estadoPrestamo').value;
-
-                const prestamosFiltrados = data.filter(prestamo => {
-                    const nombreCoincide = prestamo.NombreAsociado?.toLowerCase().includes(nombreAsociado) ?? false;
-                    const tipoCoincide = tipoPrestamo ? prestamo.TipoPrestamo.toLowerCase() === tipoPrestamo.toLowerCase() : true;
-                    const estadoCoincide = estadoPrestamo ? prestamo.EstadoPrestamo.toLowerCase() === estadoPrestamo.toLowerCase() : true;
-                    return nombreCoincide && tipoCoincide && estadoCoincide;
-                });
-
-                renderizarPrestamos(prestamosFiltrados);
-            })
-            .catch(error => console.error('Error al obtener préstamos:', error));
-    }
-
-    function renderizarPrestamos(prestamos) {
-        const tablaPrestamos = document.getElementById('tablaPrestamos');
-        tablaPrestamos.innerHTML = '';
-
-        if (prestamos.length === 0) {
-            tablaPrestamos.innerHTML = '<tr><td colspan="5" class="text-center">No se encontraron prestamos.</td></tr>';
-            return;
+        function capitalize(str) {
+            if (!str) return str;
+            str = str.toString().toLowerCase();
+            return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
-        prestamos.forEach(prestamo => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${prestamo.NombreAsociado || 'No disponible'}</td>
-                <td>${capitalize(prestamo.TipoPrestamo) || 'No especificado'}</td>
-                <td>${formatearMonto(prestamo.MontoAprobado)}</td>
-                <td>${capitalize(prestamo.EstadoPrestamo) || 'No especificado'}</td>
-                <td><button class="btn btn-info" onclick="verHistorialPagos(${prestamo.PrestamoId})">Ver Historial</button></td>
-            `;
-            tablaPrestamos.appendChild(row);
-        });
-    }
+        function consultarPrestamos() {
+            fetch('@Url.Action("ObtenerPrestamosAdmin", "Prestamos")', { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    const nombreAsociado = document.getElementById('nombreAsociado').value.toLowerCase();
+                    const tipoPrestamo = document.getElementById('tipoPrestamo').value;
+                    const estadoPrestamo = document.getElementById('estadoPrestamo').value;
 
-    function formatearMonto(monto) {
-        return monto ? new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(monto) : '₡0.00';
-    }
-
-    function verHistorialPagos(prestamoId) {
-        fetch('@Url.Action("ObtenerHistorialPagos", "Prestamos")?id=' + prestamoId)
-            .then(response => response.json())
-            .then(data => {
-                const historialPagos = document.getElementById('historialPagos');
-                historialPagos.innerHTML = '';
-
-                if (data.length > 0) {
-                    data.forEach(pago => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${new Date(pago.Fecha).toLocaleDateString('es-CR')}</td>
-                            <td>${formatearMonto(pago.MontoAbonado)}</td>
-                            <td>${formatearMonto(pago.Saldo)}</td>
-                        `;
-                        historialPagos.appendChild(row);
+                    const prestamosFiltrados = data.filter(prestamo => {
+                        const nombreCoincide = prestamo.NombreAsociado?.toLowerCase().includes(nombreAsociado) ?? false;
+                        const tipoCoincide = tipoPrestamo ? prestamo.TipoPrestamo.toLowerCase() === tipoPrestamo.toLowerCase() : true;
+                        const estadoCoincide = estadoPrestamo ? prestamo.EstadoPrestamo.toLowerCase() === estadoPrestamo.toLowerCase() : true;
+                        return nombreCoincide && tipoCoincide && estadoCoincide;
                     });
-                } else {
-                    historialPagos.innerHTML = '<tr><td colspan="3" class="text-center">No se encontraron pagos.</td></tr>';
-                }
 
-                new bootstrap.Modal(document.getElementById('modalHistorialPagos')).show();
-            })
-            .catch(error => console.error('Error al obtener historial de pagos:', error));
-    }
-</script>
+                    renderizarPrestamos(prestamosFiltrados);
+                })
+                .catch(error => console.error('Error al obtener préstamos:', error));
+        }
+
+        function renderizarPrestamos(prestamos) {
+            const tablaPrestamos = document.getElementById('tablaPrestamos');
+            tablaPrestamos.innerHTML = '';
+
+            if (prestamos.length === 0) {
+                tablaPrestamos.innerHTML = '<tr><td colspan="5" class="text-center">No se encontraron prestamos.</td></tr>';
+                return;
+            }
+
+            prestamos.forEach(prestamo => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${prestamo.NombreAsociado || 'No disponible'}</td>
+                    <td>${capitalize(prestamo.TipoPrestamo) || 'No especificado'}</td>
+                    <td>${formatearMonto(prestamo.MontoAprobado)}</td>
+                    <td>${capitalize(prestamo.EstadoPrestamo) || 'No especificado'}</td>
+                    <td><button class="btn btn-info" onclick="verHistorialPagos(${prestamo.PrestamoId})">Ver Historial</button></td>
+                `;
+                tablaPrestamos.appendChild(row);
+            });
+        }
+
+        function formatearMonto(monto) {
+            return monto ? new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(monto) : '₡0.00';
+        }
+function verHistorialPagos(prestamoId) {
+    const url = '@Url.Action("ObtenerHistorialTransacciones", "Prestamos")?prestamoId=' + encodeURIComponent(prestamoId);
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error de red o servidor: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const historialPagosBody = document.getElementById('historialPagos');
+            historialPagosBody.innerHTML = '';
+
+            if (data.success === true && Array.isArray(data.transacciones) && data.transacciones.length > 0) {
+                data.transacciones.forEach(transaccion => {
+                    const row = document.createElement('tr');
+
+                    // La fecha ya viene lista desde el backend
+                    row.innerHTML = `
+                        <td>${transaccion.fechaPago || "Fecha Inválida"}</td>
+                        <td>${formatearMonto(transaccion.montoAbonado)}</td>
+                    `;
+                    historialPagosBody.appendChild(row);
+                });
+            } else {
+                const mensaje = data.message || data.error || "No se encontraron pagos para este préstamo.";
+                historialPagosBody.innerHTML = `<tr><td colspan="2" class="text-center">${mensaje}</td></tr>`;
+            }
+
+            new bootstrap.Modal('#modalHistorialPagos').show();
+        })
+        .catch(error => {
+            console.error('Error al obtener historial de pagos:', error);
+            const historialPagosBody = document.getElementById('historialPagos');
+            historialPagosBody.innerHTML = '<tr><td colspan="2" class="text-center text-danger">Error al cargar el historial de pagos.</td></tr>';
+            new bootstrap.Modal('#modalHistorialPagos').show();
+        });
+}
+
+
+
+    </script>

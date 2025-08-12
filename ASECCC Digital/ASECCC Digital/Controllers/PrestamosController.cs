@@ -191,7 +191,56 @@
             }
         }
 
-    
+        [HttpGet]
+        public ActionResult ObtenerHistorialTransacciones(int prestamoId)
+        {
+            try
+            {
+                using (var context = new Database.ASECCC_DIGITALEntities())
+                {
+                    // Primero obtenemos los datos crudos
+                    var transaccionesBD = context.PrestamosTransacciones
+                        .Where(pt => pt.prestamoId == prestamoId)
+                        .OrderByDescending(pt => pt.fechaPago)
+                        .ToList(); // ← Aquí ya ejecuta el SQL y pasa a memoria
+
+                    // Ahora sí podemos formatear la fecha
+                    var transacciones = transaccionesBD.Select(pt => new
+                    {
+                        pt.transaccionPrestamoId,
+                        pt.montoAbonado,
+                        fechaPago = pt.fechaPago.HasValue
+                            ? pt.fechaPago.Value.ToString("dd/MM/yyyy")
+                            : null
+                    }).ToList();
+
+                    if (!transacciones.Any())
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "No se encontraron transacciones para este préstamo."
+                        }, JsonRequestBehavior.AllowGet);
+                    }
+
+                    return Json(new
+                    {
+                        success = true,
+                        transacciones = transacciones
+                    }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    error = "Error al obtener el historial: " + ex.Message
+                }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
         #endregion
 
         #region   Vistas USUARIO

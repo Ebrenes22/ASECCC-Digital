@@ -4,6 +4,7 @@
     ViewBag.Title = "Estado de Cuenta";
     Layout = "~/Views/Shared/_Layout.cshtml";
     @Html.Partial("_MenuModulos");
+    DateTime fechaHoy = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Local);
 }
 
 <link href="~/assets/css/estadodecuenta.css" rel="stylesheet" />
@@ -223,7 +224,7 @@
         <div class="only-pdf-force" style="display: none; margin-top: 50px; font-size: 12px; text-align: center; border-top: 1px solid #ccc; padding-top: 15px;">
             <p><strong>Asociación Solidarista Cadena Comercial Cartaginesa</strong></p>
             <p>Cartago, Costa Rica · Tel: 2551-0782 · aseccc.cartago2009@gmail.com · www.asecccdigital.com</p>
-            <p>Estado generado el @DateTime.Now.ToString("dd/MM/yyyy")</p>
+            <p>Estado generado el @fechaHoy.ToString("dd/MM/yyyy")</p>
             <p style="font-style: italic;">Este documento es confidencial y exclusivo para el asociado.</p>
             <br /><br />
         </div>

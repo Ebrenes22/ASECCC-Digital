@@ -21,8 +21,7 @@
                 public decimal MontoAbonado { get; set; }  // Monto abonado en el pago
 
                 [Required(ErrorMessage = "La fecha de pago es requerida")]
-                [DataType(DataType.DateTime)]
-                [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy HH:mm:ss}", ApplyFormatInEditMode = true)]
+            
                 public DateTime FechaPago { get; set; }  // Fecha de la transacción del pago
 
                 // Propiedad de navegación hacia la entidad Prestamo

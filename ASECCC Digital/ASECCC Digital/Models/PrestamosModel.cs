@@ -65,6 +65,7 @@ namespace ASECCC_Digital.Models
                         SolicitudPrestamoId = s.solicitudPrestamoId,
                         UsuarioId = s.usuarioId,
                         MontoSolicitud = s.montoSolicitud,
+                        TipoPrestamo = s.tipoPrestamo,
                         EstadoSolicitud = s.estadoSolicitud,
                         FechaSolicitud = DbFunctions.TruncateTime(s.fechaSolicitud).Value,
                         // Proyectamos la información del usuario
@@ -302,6 +303,11 @@ namespace ASECCC_Digital.Models
                         fechaEnvio = DateTime.Now,
                         estado = "enviada"
                     };
+
+                    // 2. Notificaciones para todos los administradores
+                    var administradores = context.Usuario
+                        .Where(u => u.rol == "administrador" ) // Ajusta según cómo tengas definidos los roles
+                        .ToList();
 
                     context.Notificaciones.Add(notificacion);
                     int rowsAffected = context.SaveChanges();
