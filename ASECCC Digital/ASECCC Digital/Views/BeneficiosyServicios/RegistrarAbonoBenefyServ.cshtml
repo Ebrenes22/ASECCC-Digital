@@ -84,10 +84,8 @@
                     <table id="historialTable" class="table table-striped">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Monto Abonado</th>
                                 <th>Fecha</th>
-                                <th>Descripción</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -110,103 +108,121 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            // Inicializar DataTables para la tabla de cuentas
-            var accountsTable = $('#accountsTable').DataTable({
-                "pageLength": 10,
-                "lengthChange": false,
-                "language": {
-                    "paginate": { "previous": "Anterior", "next": "Siguiente" },
-                    "search": "Buscar:",
-                    "info": "Mostrando _START_ a _END_ de _TOTAL_ cuentas",
-                    "infoEmpty": "No hay cuentas disponibles",
-                    "emptyTable": "No hay cuentas registradas",
-                    "zeroRecords": "No se encontraron coincidencias"
-                }
-            });
+    $(document).ready(function () {
 
-            // Al cambiar la selección del dropdown de asociados, se consulta la lista de cuentas vía AJAX
-            $('#searchAssociated').on('change', function () {
-                var usuarioId = $(this).val();
-                if (usuarioId === "") {
-                    accountsTable.clear().draw();
-                    return;
-                }
-                $.ajax({
-                    url: '@Url.Action("ConsultarCuentasPorUsuario", "BeneficiosyServicios")',
-                    type: 'GET',
-                    data: { usuarioId: usuarioId },
-                    success: function (response) {
-                        if (response.success) {
-                            accountsTable.clear();
-                            $.each(response.cuentas, function (i, cuenta) {
-                                accountsTable.row.add([
-                                    cuenta.CuentaBeneficiosServiciosId,
-                                    cuenta.BeneficioServicio.Nombre,
-                                    new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(cuenta.MontoTotal),
-                                    new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(cuenta.MontoPendiente),
-                                    '<button type="button" class="btn btn-info btn-sm select-account" data-id="' + cuenta.CuentaBeneficiosServiciosId + '">Realizar Abono</button> ' +
-                                    '<button type="button" class="btn btn-secondary btn-sm view-history" data-id="' + cuenta.CuentaBeneficiosServiciosId + '">Historial</button>'
-                                ]).draw();
-                            });
-                        }
-                    },
-                    error: function () {
-                        alert('Error al consultar las cuentas del asociado.');
-                    }
-                });
-            });
+        // Función para parsear fechas que vienen de .NET o en ISO
+        function parseNetDate(input) {
+            if (!input) return null;
+            if (typeof input === "string") {
+                var m = /Date\((\d+)(?:[+-]\d+)?\)/.exec(input);
+                if (m) return new Date(parseInt(m[1], 10));
+                var d = new Date(input);
+                if (!isNaN(d)) return d;
+            }
+            try { return new Date(input); } catch { return null; }
+        }
 
-            // Al hacer clic en "Realizar Abono", se asigna el ID de la cuenta y se muestra el modal
-            $(document).on('click', '.select-account', function () {
-                var cuentaId = $(this).data('id');
-                $('#ModalCuentaId').val(cuentaId);
-                $('#modalRegistrarAbono').modal('show');
-            });
-
-            // Al hacer clic en "Historial", se consulta el historial vía AJAX y se muestra el modal
-            $(document).on('click', '.view-history', function () {
-                var cuentaId = $(this).data('id');
-                $.ajax({
-                    url: '@Url.Action("HistorialPagos", "Beneficio")',
-                    type: 'GET',
-                    data: { cuentaId: cuentaId },
-                    success: function (data) {
-                        if (data.success) {
-                            var tbody = $('#historialTable tbody');
-                            tbody.empty();
-                            $.each(data.registros, function (i, pago) {
-                                tbody.append(
-                                    '<tr>' +
-                                        '<td>' + pago.TransaccionId + '</td>' +
-                                        '<td>' + new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(pago.Monto) + '</td>' +
-                                        '<td>' + new Date(pago.FechaTransaccion).toLocaleDateString("es-CR") + '</td>' +
-                                        '<td>' + (pago.Descripcion || "") + '</td>' +
-                                    '</tr>'
-                                );
-                            });
-                            $('#modalHistorial').modal('show');
-                        }
-                    },
-                    error: function () {
-                        alert('Error al consultar el historial de pagos.');
-                    }
-                });
-            });
-
-            // Mostrar SweetAlert si hay mensaje de éxito
-            var successElement = document.getElementById("SuccessMessage");
-            var successMessage = successElement ? successElement.innerText.trim() : "";
-            if (successMessage) {
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Éxito!',
-                    text: successMessage,
-                    showConfirmButton: true
-                }).then(function () {
-                    window.location.href = '@Url.Action("RegistrarAbonoBenefyServ", "BeneficiosyServicios")';
-                });
+        // Inicializar DataTables para la tabla de cuentas
+        var accountsTable = $('#accountsTable').DataTable({
+            "pageLength": 10,
+            "lengthChange": false,
+            "language": {
+                "paginate": { "previous": "Anterior", "next": "Siguiente" },
+                "search": "Buscar:",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ cuentas",
+                "infoEmpty": "No hay cuentas disponibles",
+                "emptyTable": "No hay cuentas registradas",
+                "zeroRecords": "No se encontraron coincidencias"
             }
         });
+
+        // Al cambiar la selección del dropdown de asociados
+        $('#searchAssociated').on('change', function () {
+            var usuarioId = $(this).val();
+            if (usuarioId === "") {
+                accountsTable.clear().draw();
+                return;
+            }
+            $.ajax({
+                url: '@Url.Action("ConsultarCuentasPorUsuario", "BeneficiosyServicios")',
+                type: 'GET',
+                data: { usuarioId: usuarioId },
+                success: function (response) {
+                    if (response.success) {
+                        accountsTable.clear();
+                        $.each(response.cuentas, function (i, cuenta) {
+                            accountsTable.row.add([
+                                cuenta.CuentaBeneficiosServiciosId,
+                                cuenta.BeneficioServicio.Nombre,
+                                new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(cuenta.MontoTotal),
+                                new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(cuenta.MontoPendiente),
+                                '<button type="button" class="btn btn-info btn-sm select-account" data-id="' + cuenta.CuentaBeneficiosServiciosId + '">Realizar Abono</button> ' +
+                                '<button type="button" class="btn btn-secondary btn-sm view-history" data-id="' + cuenta.CuentaBeneficiosServiciosId + '">Historial</button>'
+                            ]).draw();
+                        });
+                    }
+                },
+                error: function () {
+                    alert('Error al consultar las cuentas del asociado.');
+                }
+            });
+        });
+
+        // Al hacer clic en "Realizar Abono"
+        $(document).on('click', '.select-account', function () {
+            var cuentaId = $(this).data('id');
+            $('#ModalCuentaId').val(cuentaId);
+            $('#modalRegistrarAbono').modal('show');
+        });
+
+        // Al hacer clic en "Historial"
+        $(document).on('click', '.view-history', function () {
+            var cuentaId = $(this).data('id');
+            $.ajax({
+                url: '@Url.Action("HistorialPagos", "BeneficiosyServicios")',
+                type: 'GET',
+                data: { cuentaId: cuentaId },
+                success: function (data) {
+                    if (data.success) {
+                        var registros = data.registros || data.data || [];
+                        var tbody = $('#historialTable tbody');
+                        tbody.empty();
+
+                        $.each(registros, function (i, pago) {
+                            var d = parseNetDate(pago.FechaTransaccion);
+                            var fechaStr = d ? d.toLocaleDateString("es-CR", { year: "numeric", month: "2-digit", day: "2-digit" }) : "";
+
+                            tbody.append(
+                                '<tr>' +
+                                    '<td>' + new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(pago.Monto) + '</td>' +
+                                    '<td>' + fechaStr + '</td>' +
+                                '</tr>'
+                            );
+                        });
+
+                        $('#modalHistorial').modal('show');
+                    }
+                },
+                error: function () {
+                    alert('Error al consultar el historial de pagos.');
+                }
+            });
+        });
+
+        // SweetAlert si hay mensaje de éxito
+        var successElement = document.getElementById("SuccessMessage");
+        var successMessage = successElement ? successElement.innerText.trim() : "";
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: successMessage,
+                showConfirmButton: true
+            }).then(function () {
+                window.location.href = '@Url.Action("RegistrarAbonoBenefyServ", "BeneficiosyServicios")';
+            });
+        }
+    });
     </script>
 }
+

@@ -17,7 +17,6 @@
             <table class="table table-striped text-center" id="cuotas-table">
                 <thead class="table-dark">
                     <tr>
-                        <th>Pago</th>
                         <th>Fecha</th>
                         <th>Monto</th>
                     </tr>
@@ -100,7 +99,6 @@
 
                     var rowHtml = `
                         <tr>
-                            <td>${cuota.TransaccionId}</td>
                             <td>${fechaTransaccion}</td>
                             <td>₡${cuota.Monto.toFixed(2)}</td>
                         </tr>`;
