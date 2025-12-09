@@ -1,3 +1,4 @@
+
 @{
     ViewBag.Title = "ConsultaPrestamoAsociado";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -75,42 +76,88 @@
 
 <script>
     function consultarPrestamos() {
-        const tipoPrestamo = document.getElementById('tipoPrestamo').value;
-        const estadoPrestamo = document.getElementById('estadoPrestamo').value;
-
         mostrarSpinner(true);
         limpiarMensajes();
 
-        if (tipoPrestamo && !['Personal', 'Urgente', '150%'].includes(tipoPrestamo)) {
-            mostrarMensaje("Tipo de prestamo no valido", "danger");
-            mostrarSpinner(false);
-            return;
-        }
-
-        if (estadoPrestamo && !['activo', 'cancelado'].includes(estadoPrestamo)) {
-            mostrarMensaje("Estado de prestamo no valido", "danger");
-            mostrarSpinner(false);
-            return;
-        }
+        const tipoPrestamo = document.getElementById('tipoPrestamo').value;
+        const estadoPrestamo = document.getElementById('estadoPrestamo').value;
 
         fetch('@Url.Action("ObtenerPrestamosAsociado", "Prestamos")', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ tipoPrestamo, estadoPrestamo })
         })
         .then(r => r.ok ? r.json() : Promise.reject(`Error del servidor: ${r.status}`))
         .then(data => {
-            if (!Array.isArray(data)) throw new Error("Formato de datos invalido.");
-            data.length ? renderizarPrestamos(data) : mostrarMensaje("No se encontraron prestamos.", "info");
+            if (!Array.isArray(data)) throw new Error("Formato de datos inválido.");
+            data.length ? renderizarPrestamos(data) : mostrarMensaje("No se encontraron préstamos.", "info");
         })
         .catch(err => {
             console.error(err);
-            mostrarMensaje(`Ocurrio un error: ${err}`, "danger");
+            mostrarMensaje(`Ocurrió un error: ${err}`, "danger");
         })
         .finally(() => mostrarSpinner(false));
+    }
+
+    function renderizarPrestamos(prestamos) {
+        const contenedor = document.getElementById('contenedorPrestamos');
+        contenedor.innerHTML = prestamos.map(prestamo => {
+            const tipoPrestamoCapitalizado = capitalizeFirstLetter(prestamo.TipoPrestamo || "Desconocido");
+
+            return `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">${tipoPrestamoCapitalizado}</h5>
+                            <p class="card-text">
+                                <strong>Fecha de Solicitud:</strong> ${formatearFecha(prestamo.FechaSolicitud)}<br>
+                                <strong>Monto Aprobado:</strong> ${formatearMonto(prestamo.MontoAprobado)}<br>
+                                <strong>Plazo:</strong> ${prestamo.Plazo || "N/D"}<br>
+                                <strong>Cuota Semanal:</strong> ${formatearMonto(prestamo.CuotaSemanal)}<br>
+                                <strong>Saldo Pendiente:</strong> ${formatearMonto(prestamo.SaldoPendiente)}<br>
+                                <strong>Estado:</strong> ${prestamo.EstadoPrestamo || "N/D"}
+                            </p>
+                            <button class="btn btn-sm btn-outline-primary" onclick="verHistorialPagos(${prestamo.PrestamoId})">
+                                <i class="bi bi-clock-history"></i> Ver Historial de Pagos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function verHistorialPagos(prestamoId) {
+        const url = '@Url.Action("ObtenerHistorialTransacciones", "Prestamos")?prestamoId=' + encodeURIComponent(prestamoId);
+
+        fetch(url)
+            .then(r => r.ok ? r.json() : Promise.reject(`Error del servidor: ${r.status}`))
+            .then(data => {
+                const tbody = document.getElementById('historialPagos');
+                tbody.innerHTML = '';
+
+                if (data.success && Array.isArray(data.transacciones) && data.transacciones.length) {
+                    tbody.innerHTML = data.transacciones.map(t => `
+                        <tr>
+                            <td>${t.fechaPago || "Fecha inválida"}</td>
+                            <td>${formatearMonto(t.montoAbonado)}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="2" class="text-center">${data.message || "No se encontraron pagos."}</td></tr>`;
+                }
+
+                new bootstrap.Modal(document.getElementById('modalHistorialPagos')).show();
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('historialPagos').innerHTML = `
+                    <tr><td colspan="2" class="text-center text-danger">Error al cargar el historial de pagos.</td></tr>
+                `;
+                new bootstrap.Modal(document.getElementById('modalHistorialPagos')).show();
+            });
     }
 
     function mostrarSpinner(mostrar) {
@@ -137,41 +184,9 @@
         document.getElementById('mensajesContainer').innerHTML = '';
     }
 
-    function renderizarPrestamos(prestamos) {
-        const contenedor = document.getElementById('contenedorPrestamos');
-        contenedor.innerHTML = prestamos.map(prestamo => {
-            // Capitalizar la primera letra del tipo de préstamo
-            const tipoPrestamoCapitalizado = capitalizeFirstLetter(prestamo.TipoPrestamo || "Desconocido");
-
-            return `
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">${tipoPrestamoCapitalizado}</h5>
-                            <p class="card-text">
-                                <strong>Fecha de Solicitud:</strong> ${prestamo.FechaSolicitud || "N/D"}<br>
-                                <strong>Monto Aprobado:</strong> ${formatearMonto(prestamo.MontoAprobado)}<br>
-                                <strong>Plazo:</strong> ${prestamo.Plazo || "N/D"}<br>
-                                <strong>Cuota Semanal:</strong> ${formatearMonto(prestamo.CuotaSemanal)}<br>
-                                <strong>Saldo Pendiente:</strong> ${formatearMonto(prestamo.SaldoPendiente)}<br>
-                                <strong>Estado:</strong> ${prestamo.EstadoPrestamo || "N/D"}
-                            </p>
-                            <button class="btn btn-sm btn-outline-primary" onclick="verHistorialPagos(${prestamo.prestamoId})">
-                                <i class="bi bi-clock-history"></i> Ver Historial de Pagos
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    // Función para capitalizar la primera letra de una cadena
     function capitalizeFirstLetter(text) {
-        if (!text) return text; // Si el texto es nulo o vacío, devolverlo como está
-        return text.charAt(0).toUpperCase() + text.slice(1);
+        return !text ? text : text.charAt(0).toUpperCase() + text.slice(1);
     }
-
 
     function formatearMonto(monto) {
         const num = parseFloat(monto);
@@ -182,34 +197,21 @@
         });
     }
 
-    function verHistorialPagos(prestamoId) {
-        const url = '@Url.Action("ObtenerHistorialTransacciones", "Prestamos")?prestamoId=' + encodeURIComponent(prestamoId);
+    function formatearFecha(fechaJsonNet) {
+        if (!fechaJsonNet) return "N/D";
 
-        fetch(url)
-            .then(r => r.ok ? r.json() : Promise.reject(`Error del servidor: ${r.status}`))
-            .then(data => {
-                const tbody = document.getElementById('historialPagos');
-                tbody.innerHTML = '';
-
-                if (data.success && Array.isArray(data.transacciones) && data.transacciones.length) {
-                    tbody.innerHTML = data.transacciones.map(t => `
-                        <tr>
-                            <td>${t.fechaPago || "Fecha invalida"}</td>
-                            <td>${formatearMonto(t.montoAbonado)}</td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = `<tr><td colspan="2" class="text-center">${data.message || "No se encontraron pagos."}</td></tr>`;
-                }
-
-                new bootstrap.Modal(document.getElementById('modalHistorialPagos')).show();
-            })
-            .catch(err => {
-                console.error(err);
-                document.getElementById('historialPagos').innerHTML = `
-                    <tr><td colspan="2" class="text-center text-danger">Error al cargar el historial de pagos.</td></tr>
-                `;
-                new bootstrap.Modal(document.getElementById('modalHistorialPagos')).show();
+        try {
+            const timestamp = parseInt(fechaJsonNet.replace(/\/Date\((\d+)\)\//, "$1"));
+            const fecha = new Date(timestamp);
+            return fecha.toLocaleDateString('es-CR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
             });
+        } catch (error) {
+            console.error("Error al formatear fecha:", error);
+            return "Fecha inválida";
+        }
     }
+
 </script>

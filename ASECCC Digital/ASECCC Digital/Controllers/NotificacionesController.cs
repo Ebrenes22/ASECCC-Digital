@@ -18,8 +18,8 @@ namespace ASECCC_Digital.Controllers
         }
 
         //Instancias de modelos Usuario  y Notificaciones
-         private UsuariosModel usuarioM = new UsuariosModel();
-         private NotificacionModel notificacionN = new NotificacionModel();
+        private UsuariosModel usuarioM = new UsuariosModel();
+        private NotificacionModel notificacionN = new NotificacionModel();
 
 
         //--------VISTAS ADMIN--------------//
@@ -67,26 +67,53 @@ namespace ASECCC_Digital.Controllers
         {
             try
             {
-                List<int> destinatariosList = null;
-
-                if (tipoNotificacion.ToLower() == "personalizada")
+                if (tipoNotificacion.Equals("masiva", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (!string.IsNullOrEmpty(destinatarios))
-                    {
-                        destinatariosList = destinatarios
-                            .Split(',')
-                            .Select(id => int.Parse(id.Trim()))
-                            .ToList();
-                    }
-                    else
-                    {
-                        return Json(new { success = false, mensaje = "Debe especificar al menos un destinatario para la notificación personalizada." });
-                    }
+                    notificacionN.EnviarNotificacion("masiva", asunto, mensaje, null);
+                    return Json(new { success = true, mensaje = "Notificación masiva enviada." });
                 }
 
-                notificacionN.EnviarNotificacion(tipoNotificacion, asunto, mensaje, destinatariosList);
+                if (!tipoNotificacion.Equals("personalizada", StringComparison.OrdinalIgnoreCase))
+                    return Json(new { success = false, mensaje = "Tipo de notificación inválido." });
 
-                return Json(new { success = true, mensaje = "Notificación enviada exitosamente." });
+                if (string.IsNullOrWhiteSpace(destinatarios))
+                    return Json(new { success = false, mensaje = "Ingrese al menos un nombre de destinatario." });
+
+                var nombres = destinatarios
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => s.Trim())
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                if (nombres.Count == 0)
+                    return Json(new { success = false, mensaje = "No se detectaron nombres válidos." });
+
+                using (var context = new ASECCC_DIGITALEntities())
+                {
+                    var usuarios = context.Usuario
+                        .Where(u => u.estadoAfiliacion.ToLower() == "activo")
+                        .Where(u => nombres.Contains(u.nombreCompleto))
+                        .Select(u => new { u.usuarioId, u.nombreCompleto })
+                        .ToList();
+
+                    var ids = usuarios.Select(u => u.usuarioId).ToList();
+                    if (ids.Count == 0)
+                        return Json(new { success = false, mensaje = "No se encontraron usuarios activos con esos nombres." });
+
+                    notificacionN.EnviarNotificacion("personalizada", asunto, mensaje, ids);
+
+                    var nombresEncontrados = usuarios.Select(u => u.nombreCompleto)
+                                                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                                                     .ToList();
+                    var noEncontrados = nombres.Except(nombresEncontrados, StringComparer.OrdinalIgnoreCase).ToList();
+
+                    var msg = $"Notificación enviada a {ids.Count} usuario(s).";
+                    if (noEncontrados.Count > 0)
+                        msg += $" No encontrados: {string.Join(", ", noEncontrados)}.";
+
+                    return Json(new { success = true, mensaje = msg });
+                }
             }
             catch (Exception ex)
             {
@@ -96,43 +123,44 @@ namespace ASECCC_Digital.Controllers
 
 
 
+
         //--------VISTAS ASOCIADOS--------------//
 
         public ActionResult NotificacionUsuario()
         {
-            var notificaciones =notificacionN.ObtenerNotificacionesPersonalizadas();
+            var notificaciones = notificacionN.ObtenerNotificacionesPersonalizadas();
             return View(notificaciones);
         }
 
-[HttpGet]
-public JsonResult ObtenerNotificacionesNoLeidas()
-{
-    try
-    {
-        int usuarioId = Convert.ToInt32(Session["usuarioId"]);
-        var modelo = new NotificacionModel();
-
-        var generales = modelo.ObtenerNoLeidasGenerales();
-        var personalizadas = modelo.ObtenerNoLeidasPorUsuario(usuarioId);
-
-        var resultado = generales
-            .Concat(personalizadas)
-            .OrderByDescending(n => n.fechaEnvio)
-            .Select(n => new
+        [HttpGet]
+        public JsonResult ObtenerNotificacionesNoLeidas()
+        {
+            try
             {
-                n.notificacionId,
-                n.titulo,
-                fecha = n.fechaEnvio.HasValue ? n.fechaEnvio.Value.ToString("dd-MM-yyyy HH:mm") : ""
-            })
-            .ToList();
+                int usuarioId = Convert.ToInt32(Session["usuarioId"]);
+                var modelo = new NotificacionModel();
 
-        return Json(resultado, JsonRequestBehavior.AllowGet);
-    }
-    catch (Exception ex)
-    {
-        return Json(new { error = true, message = ex.Message }, JsonRequestBehavior.AllowGet);
-    }
-}
+                var generales = modelo.ObtenerNoLeidasGenerales();
+                var personalizadas = modelo.ObtenerNoLeidasPorUsuario(usuarioId);
+
+                var resultado = generales
+                    .Concat(personalizadas)
+                    .OrderByDescending(n => n.fechaEnvio)
+                    .Select(n => new
+                    {
+                        n.notificacionId,
+                        n.titulo,
+                        fecha = n.fechaEnvio.HasValue ? n.fechaEnvio.Value.ToString("dd-MM-yyyy HH:mm") : ""
+                    })
+                    .ToList();
+
+                return Json(resultado, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = true, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
 
         [HttpPost]

@@ -1,22 +1,22 @@
-﻿    using ASECCC_Digital.Models;
-    using ASECCC_Digital.ViewModels;
-    using ASECCC_Digital.Database;
-    using ASECCC_Digital.Entities;
-    using System;
-    using System.Collections.Generic;
-    using System.Web.Mvc;
-    using System.Threading.Tasks;
-    using System.Linq;
-    using System.Web.Util;
+﻿using ASECCC_Digital.Models;
+using ASECCC_Digital.ViewModels;
+using ASECCC_Digital.Database;
+using ASECCC_Digital.Entities;
+using System;
+using System.Collections.Generic;
+using System.Web.Mvc;
+using System.Threading.Tasks;
+using System.Linq;
+using System.Web.Util;
 
-    namespace ASECCC_Digital.Controllers
+namespace ASECCC_Digital.Controllers
+{
+    public class PrestamosController : BaseController
     {
-        public class PrestamosController : BaseController
-        {    
 
         protected override string GetCurrentModule()
         {
-            return "Prestamos"; 
+            return "Prestamos";
         }
 
         //Instancia del modelo prestamos
@@ -27,11 +27,11 @@
         [Authorize]
 
         public ActionResult Prestamo()
-            {
-                // Llamar a un método de prestamoM para obtener los datos necesarios
-                //var prestamos = prestamoM.ObtenerListaPrestamosAdmin();
-                return View();  // Pasar el modelo a la vista
-            }
+        {
+            // Llamar a un método de prestamoM para obtener los datos necesarios
+            //var prestamos = prestamoM.ObtenerListaPrestamosAdmin();
+            return View();  // Pasar el modelo a la vista
+        }
 
 
         [HttpGet]
@@ -74,7 +74,7 @@
                 TempData["MensajeError"] = "Error al registrar el abono.";
             }
 
-            return RedirectToAction("RegistrarAbonos" );
+            return RedirectToAction("RegistrarAbonos");
         }
 
 
@@ -180,7 +180,7 @@
                     }
 
 
-                    }
+                }
 
                 return Json(new { success = true });
             }
@@ -343,7 +343,7 @@
 
 
 
-        }
+    }
     #endregion
 
 }

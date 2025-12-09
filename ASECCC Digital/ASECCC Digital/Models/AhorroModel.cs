@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Data.Entity; // ← LÍNEA AGREGADA
 using ASECCC_Digital.Database;
 using ASECCC_Digital.Entities;
 
@@ -34,6 +35,7 @@ namespace ASECCC_Digital.Models
                     return new { success = false, message = "Asociado no encontrado." };
 
                 var ahorros = context.Ahorros
+                    .Include("CatalogoTipoAhorro") // ← AGREGADO PARA CONSISTENCIA
                     .Where(a => a.usuarioId == usuario.usuarioId && a.estado != "eliminado")
                     .Select(a => new
                     {
@@ -133,7 +135,11 @@ namespace ASECCC_Digital.Models
                 }
                 catch (Exception ex)
                 {
-                    return new { success = false, message = "Error al eliminar el ahorro: " + ex.Message };
+                    return new
+                    {
+                        success = false,
+                        message = "Error al eliminar el ahorro: " + (ex.InnerException?.Message ?? ex.Message)
+                    };
                 }
             }
         }
@@ -153,12 +159,13 @@ namespace ASECCC_Digital.Models
             }
         }
 
+
         public object AgregarAbonoAhorro(int ahorroId, decimal monto, string descripcion = null)
         {
-            if (monto <= 0) return new { success = false, message = "Monto inválido." };
+            if (monto <= 0)
+                return new { success = false, message = "Monto inválido." };
 
             using (var context = new ASECCC_DIGITALEntities())
-            using (var tx = context.Database.BeginTransaction())
             {
                 try
                 {
@@ -166,31 +173,41 @@ namespace ASECCC_Digital.Models
                     if (ahorro == null)
                         return new { success = false, message = "Ahorro no encontrado." };
 
+                    if (ahorro.estado != "activo")
+                        return new { success = false, message = "No se puede agregar abono a un ahorro inactivo o eliminado." };
+
                     ahorro.montoActual += monto;
 
-
-                    context.AhorroTransacciones.Add(new AhorroTransacciones
+                    var transaccion = new AhorroTransacciones
                     {
                         ahorroId = ahorroId,
-                        tipoTransaccionId = 1, 
+                        tipoTransaccionId = 1, // Asegúrate que exista en catálogo
                         monto = monto,
                         fechaTransaccion = DateTime.Now,
                         descripcion = string.IsNullOrWhiteSpace(descripcion) ? "Abono agregado" : descripcion
-                    });
+                    };
 
+                    context.AhorroTransacciones.Add(transaccion);
                     context.SaveChanges();
-                    tx.Commit();
 
-                    return new { success = true, message = "Abono agregado correctamente.", montoActual = ahorro.montoActual };
+                    return new
+                    {
+                        success = true,
+                        message = "Abono agregado correctamente.",
+                        montoActual = ahorro.montoActual
+                    };
                 }
                 catch (Exception ex)
                 {
-                    tx.Rollback();
-                    return new { success = false, message = "Error al agregar el abono: " + ex.Message };
+                    var baseEx = ex.GetBaseException();
+                    return new
+                    {
+                        success = false,
+                        message = "Error al agregar el abono: " + baseEx.Message
+                    };
                 }
             }
         }
-
 
         #endregion
     }

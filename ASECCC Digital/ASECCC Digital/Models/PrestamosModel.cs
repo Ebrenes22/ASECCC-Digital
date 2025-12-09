@@ -47,7 +47,7 @@ namespace ASECCC_Digital.Models
                     return context.SaveChanges() > 0;
                 }
             }
-            catch (Exception )
+            catch (Exception)
             {
                 // Opcional: registrar el error para depuración.
                 return false;
@@ -65,7 +65,6 @@ namespace ASECCC_Digital.Models
                         SolicitudPrestamoId = s.solicitudPrestamoId,
                         UsuarioId = s.usuarioId,
                         MontoSolicitud = s.montoSolicitud,
-                        TipoPrestamo = s.tipoPrestamo,
                         EstadoSolicitud = s.estadoSolicitud,
                         FechaSolicitud = DbFunctions.TruncateTime(s.fechaSolicitud).Value,
                         // Proyectamos la información del usuario
@@ -107,12 +106,38 @@ namespace ASECCC_Digital.Models
 
                 Usuario = (dbSolicitud.Usuario != null ? new Entities.Usuario
                 {
-                    
+
                     NombreCompleto = dbSolicitud.Usuario.nombreCompleto,
                     UsuarioId = dbSolicitud.Usuario.usuarioId // Puedes mapear otras propiedades si las necesitas
                 } : null)
             };
         }
+
+        public List<PrestamoTransaccion> ObtenerHistorialTransacciones(int prestamoId)
+        {
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                var transaccionesDb = context.PrestamosTransacciones
+                    .Where(t => t.prestamoId == prestamoId)
+                    .OrderBy(t => t.fechaPago)
+                    .ToList();
+
+                // Convertir manualmente a la entidad lógica
+                var transacciones = transaccionesDb.Select(t => new PrestamoTransaccion
+                {
+                    TransaccionPrestamoId = t.transaccionPrestamoId,
+                    PrestamoId = (int)t.prestamoId,
+                    MontoAbonado = t.montoAbonado,
+                    FechaPago = (DateTime)t.fechaPago
+                }).ToList();
+
+                return transacciones;
+            }
+        }
+
+
+
+
 
 
         public SolicitudPrestamoViewModel ObtenerSolicitudPorId(int id)
@@ -184,6 +209,35 @@ namespace ASECCC_Digital.Models
             }
         }
 
+        public List<PrestamoDetalleViewModel> ObtenerPrestamosPorUsuarioId(int usuarioId, string tipoPrestamo, string estadoPrestamo)
+        {
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                var query = context.Prestamos.Where(p => p.usuarioId == usuarioId);
+
+                if (!string.IsNullOrEmpty(tipoPrestamo))
+                {
+                    query = query.Where(p => p.tipoPrestamo == tipoPrestamo);
+                }
+
+                if (!string.IsNullOrEmpty(estadoPrestamo))
+                {
+                    query = query.Where(p => p.estadoPrestamo == estadoPrestamo);
+                }
+
+                return query.Select(p => new PrestamoDetalleViewModel
+                {
+                    PrestamoId = p.prestamoId,
+                    MontoAprobado = p.montoAprobado,
+                    Plazo = p.plazo,
+                    CuotaSemanal = p.cuotaSemanal,
+                    TipoPrestamo = p.tipoPrestamo,
+                    EstadoPrestamo = p.estadoPrestamo,
+                    FechaSolicitud = (DateTime)p.fechaSolicitud,
+                    SaldoPendiente = p.saldoPendiente
+                }).ToList();
+            }
+        }
 
         //Metodo para registrar los abonos a los prestamos 
         public bool RegistrarAbono(PrestamoTransaccionViewModel model)
@@ -304,11 +358,6 @@ namespace ASECCC_Digital.Models
                         estado = "enviada"
                     };
 
-                    // 2. Notificaciones para todos los administradores
-                    var administradores = context.Usuario
-                        .Where(u => u.rol == "administrador" ) // Ajusta según cómo tengas definidos los roles
-                        .ToList();
-
                     context.Notificaciones.Add(notificacion);
                     int rowsAffected = context.SaveChanges();
 
@@ -323,7 +372,7 @@ namespace ASECCC_Digital.Models
         }
 
 
-                public List<object> ObtenerPrestamosParaAdmin()
+        public List<object> ObtenerPrestamosParaAdmin()
         {
             using (var context = new ASECCC_DIGITALEntities()) // Conexión a la base de datos
             {
@@ -339,7 +388,7 @@ namespace ASECCC_Digital.Models
                                         MontoAprobado = prestamo.montoAprobado,
                                         EstadoPrestamo = prestamo.estadoPrestamo
                                     })
-                              .ToList<object>(); 
+                              .ToList<object>();
             }
         }
 
@@ -363,3 +412,5 @@ namespace ASECCC_Digital.Models
 
     }
 }
+
+

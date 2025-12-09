@@ -21,7 +21,7 @@
                         </div>
                         <div class="col-md-12">
                             <label for="destinatarios" class="form-label">Destinatarios</label>
-                            <input type="text" class="form-control" id="destinatarios" name="destinatarios" placeholder="Ingrese IDs separados por comas" disabled>
+                            <input type="text" class="form-control" id="destinatarios" name="destinatarios" placeholder="Ingrese nombres completos separados por comas" disabled>
                             <small class="text-muted">Este campo solo se habilitará para notificaciones personalizadas.</small>
                         </div>
                         <div class="col-md-12">
@@ -99,7 +99,7 @@
                 }
             },
             error: function () {
-                Swal.close(); 
+                Swal.close();
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
