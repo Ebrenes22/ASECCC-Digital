@@ -92,7 +92,7 @@
         .then(r => r.ok ? r.json() : Promise.reject(`Error del servidor: ${r.status}`))
         .then(data => {
             if (!Array.isArray(data)) throw new Error("Formato de datos inválido.");
-            data.length ? renderizarPrestamos(data) : mostrarMensaje("No se encontraron préstamos.", "info");
+            data.length ? renderizarPrestamos(data) : mostrarMensaje("No se encontraron prestamos.", "info");
         })
         .catch(err => {
             console.error(err);
@@ -117,7 +117,7 @@
                                 <strong>Plazo:</strong> ${prestamo.Plazo || "N/D"}<br>
                                 <strong>Cuota Semanal:</strong> ${formatearMonto(prestamo.CuotaSemanal)}<br>
                                 <strong>Saldo Pendiente:</strong> ${formatearMonto(prestamo.SaldoPendiente)}<br>
-                                <strong>Estado:</strong> ${prestamo.EstadoPrestamo || "N/D"}
+                                <strong>Estado:</strong> ${capitalizar(prestamo.EstadoPrestamo)}
                             </p>
                             <button class="btn btn-sm btn-outline-primary" onclick="verHistorialPagos(${prestamo.PrestamoId})">
                                 <i class="bi bi-clock-history"></i> Ver Historial de Pagos
@@ -197,21 +197,51 @@
         });
     }
 
-    function formatearFecha(fechaJsonNet) {
-        if (!fechaJsonNet) return "N/D";
+    function formatearFecha(fecha) {
+        if (!fecha) return "N/D";
 
         try {
-            const timestamp = parseInt(fechaJsonNet.replace(/\/Date\((\d+)\)\//, "$1"));
-            const fecha = new Date(timestamp);
-            return fecha.toLocaleDateString('es-CR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+            let date;
+
+            // ✔ JSON.NET /Date(1234567890)/
+            if (typeof fecha === "string" && fecha.includes("/Date")) {
+                const timestamp = parseInt(fecha.match(/\d+/)[0]);
+                date = new Date(timestamp);
+            }
+            // ✔ ISO string: 2025-09-15T00:00:00
+            else if (typeof fecha === "string") {
+                date = new Date(fecha);
+            }
+            // ✔ Timestamp numérico
+            else if (typeof fecha === "number") {
+                date = new Date(fecha);
+            }
+            // ❌ Formato desconocido
+            else {
+                return "Fecha inválida";
+            }
+
+            if (isNaN(date.getTime())) return "Fecha inválida";
+
+            return new Date(
+                date.getUTCFullYear(),
+                date.getUTCMonth(),
+                date.getUTCDate()
+            ).toLocaleDateString("es-CR", {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
             });
+
         } catch (error) {
-            console.error("Error al formatear fecha:", error);
+            console.error("Error al formatear fecha:", error, fecha);
             return "Fecha inválida";
         }
     }
+    function capitalizar(texto) {
+        if (!texto) return "N/D";
+        return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+    }
+
 
 </script>
