@@ -184,10 +184,20 @@ namespace ASECCC_Digital.Controllers
 
                 return Json(new { success = true });
             }
-            catch (Exception ex)
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             {
-                // Manejar errores (podrías registrar el error, etc.)
-                return Json(new { success = false, error = ex.Message });
+                foreach (var entityErrors in ex.EntityValidationErrors)
+                {
+                    foreach (var validationError in entityErrors.ValidationErrors)
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            $"Entidad: {entityErrors.Entry.Entity.GetType().Name} | " +
+                            $"Propiedad: {validationError.PropertyName} | " +
+                            $"Error: {validationError.ErrorMessage}"
+                        );
+                    }
+                }
+                throw;
             }
         }
 

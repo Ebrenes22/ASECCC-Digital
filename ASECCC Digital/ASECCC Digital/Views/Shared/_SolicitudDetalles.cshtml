@@ -96,6 +96,7 @@
                             <input type="text"
                                    class="form-control form-control-sm bg-light text-muted"
                                    id="tipoPrestamoTexto"
+                                   name="tipoPrestamo"
                                    readonly />
                         </div>
                         <div class="col-6">
@@ -156,11 +157,13 @@
 
         var datos = {
             id: $('#solicitud-id').val(),
+            tipoPrestamo: $('#tipoPrestamoTexto').val(),
             montoSolicitud: $('#montoSolicitud').val(),
             plazoMeses: $('#plazoMeses').val(),
             cuotaSemanalSolicitud: $('#cuotaSemanalSolicitud').val(),
             estadoSolicitud: $('#estadoSelect').val()
         };
+
 
         if (!datos.estadoSolicitud) {
             Swal.fire('Atención', 'Debe seleccionar el estado.', 'warning');
@@ -180,4 +183,5 @@
                 Swal.fire('Error', 'Error de comunicación con el servidor.', 'error');
             });
     });
+
 </script>

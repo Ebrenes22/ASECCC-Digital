@@ -21,9 +21,11 @@
                         <div class="card-body">
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
-                                <strong>Solicitante:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
+                                <strong>Solicitante:</strong>
+                                <span style="display:block">
+                                    @(solicitud.Usuario?.NombreCompleto ?? "N/A")
+                                </span>
                                 <strong>Monto:</strong> ₡@String.Format("{0:N2}", solicitud.MontoSolicitud)<br />
-                                <strong>Tipo:</strong> @((solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(0, 1).ToUpper() + (solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(1).ToLower())<br />
                                 <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
@@ -44,9 +46,11 @@
                         <div class="card-body">
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
-                                <strong>Solicitante:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
+                                <strong>Solicitante:</strong>
+                                <span style="display:block">
+                                    @(solicitud.Usuario?.NombreCompleto ?? "N/A")
+                                </span>
                                 <strong>Monto:</strong> ₡@String.Format("{0:N2}", solicitud.MontoSolicitud)<br />
-                                <strong>Tipo:</strong> @((solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(0, 1).ToUpper() + (solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(1).ToLower())<br />
                                 <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
@@ -67,9 +71,11 @@
                         <div class="card-body">
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
-                                <strong>Nombre Completo:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
+                                <strong>Solicitante:</strong>
+                                <span style="display:block">
+                                    @(solicitud.Usuario?.NombreCompleto ?? "N/A")
+                                </span>
                                 <strong>Monto:</strong> ₡@String.Format("{0:N2}", solicitud.MontoSolicitud)<br />
-                                <strong>Tipo:</strong> @((solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(0, 1).ToUpper() + (solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(1).ToLower())<br />
                                 <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
@@ -90,9 +96,11 @@
                         <div class="card-body">
                             <h6 class="card-title">Solicitud #@solicitud.SolicitudPrestamoId</h6>
                             <p class="card-text">
-                                <strong>Nombre Completo:</strong> @(solicitud.Usuario?.NombreCompleto ?? "N/A")<br />
+                                <strong>Solicitante:</strong>
+                                <span style="display:block">
+                                    @(solicitud.Usuario?.NombreCompleto ?? "N/A")
+                                </span>
                                 <strong>Monto:</strong> ₡@String.Format("{0:N2}", solicitud.MontoSolicitud)<br />
-                                <strong>Tipo:</strong> @((solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(0, 1).ToUpper() + (solicitud.TipoPrestamo ?? "NO DEFINIDO").Substring(1).ToLower())<br />
                                 <strong>Fecha:</strong> @solicitud.FechaSolicitud.ToString("dd/MM/yyyy")
                             </p>
                         </div>
@@ -139,7 +147,7 @@
                     $('#nombreDeudor').text(data.NombreDeudor || 'No aplica');
                     $('#totalPrestamo').text(data.TotalPrestamo || 'No aplica');
                     $('#saldoPrestamo').text(data.SaldoPrestamo || 'No aplica');
-                    $('#tipoPrestamoTexto').text(data.TipoPrestamo || 'No especificado');
+                    $('#tipoPrestamoTexto').val(data.TipoPrestamo || 'No especificado');
                     $('#plazoMeses').val(data.PlazoMeses || 'N/A');
                     $('#cuotaSemanalSolicitud').val(data.CuotaSemanalSolicitud || 'N/A');
                     $('#propositoPrestamo').text(data.PropositoPrestamo || 'Sin especificar');
@@ -171,6 +179,8 @@
             window.location.href = '@Url.Action("RevisionPrestamos", "Prestamos")';
         });
     });
+
+
 </script>
 
 <style>
