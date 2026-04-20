@@ -150,7 +150,7 @@ namespace ASECCC_Digital.Models
                         cuentaBeneficiosServiciosId = abono.CuentaBeneficiosServiciosId,
                         monto = abono.Monto,
                         // Puedes usar la fecha actual o el valor que venga en el objeto
-                        fechaTransaccion = abono.FechaTransaccion, // o DateTime.Now,
+                        fechaTransaccion = DateTime.Now,
                         descripcion = abono.Descripcion
                     };
 
@@ -246,6 +246,7 @@ namespace ASECCC_Digital.Models
             using (var context = new Database.ASECCC_DIGITALEntities())
             {
                 return context.Usuario
+                    .OrderBy(u=> u.nombreCompleto)
                     .Select(u => new Usuario
                     {
                         UsuarioId = u.usuarioId,

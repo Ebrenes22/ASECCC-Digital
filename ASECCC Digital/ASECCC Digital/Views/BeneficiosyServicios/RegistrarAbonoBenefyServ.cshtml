@@ -9,7 +9,7 @@
 <div class="container my-4">
     <h1 class="text-center">REGISTRAR ABONO A BENEFICIO Y SERVICIO</h1>
 
-    <!-- Dropdown para seleccionar el asociado -->
+    <!-- Dropdown -->
     <div class="row mb-3">
         <div class="col-12 col-md-6 offset-md-3">
             <select id="searchAssociated" class="form-control">
@@ -22,8 +22,17 @@
         </div>
     </div>
 
-    <!-- Tabla de Cuentas del Asociado (se llenará vía AJAX) -->
-    <div id="accountsContainer" class="table-responsive mb-4">
+    <!-- Título dinámico -->
+    <div class="row mb-2">
+        <div class="col-12 text-center">
+            <h4 id="selectedUserTitle"
+                class="fw-bold  border-bottom pb-2"
+                style="display:none;"></h4>
+        </div>
+    </div>
+
+    <!-- Tabla cuentas -->
+    <div class="table-responsive mb-4">
         <table id="accountsTable" class="table table-bordered">
             <thead>
                 <tr>
@@ -34,50 +43,64 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
-                @* Las filas se cargarán vía AJAX al seleccionar un asociado *@
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 </div>
 
-<!-- Modal para Registrar Abono -->
-<div class="modal fade" id="modalRegistrarAbono" tabindex="-1" aria-labelledby="modalRegistrarAbonoLabel" aria-hidden="true">
+<!-- Modal Registrar Abono -->
+<div class="modal fade" id="modalRegistrarAbono" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            @using (Html.BeginForm("RegistrarAbono", "BeneficiosyServicios", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+            @using (Html.BeginForm("RegistrarAbono", "BeneficiosyServicios", FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
+
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalRegistrarAbonoLabel">Registrar Abono</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <h5 class="modal-title">Registrar Abono</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
-                    <!-- Campo oculto para almacenar el ID de la cuenta seleccionada -->
-                    <input type="hidden" id="ModalCuentaId" name="CuentaBeneficiosServiciosId" value="" />
-                    <!-- Campo para ingresar el monto abonado -->
+                    <input type="hidden"
+                           id="ModalCuentaId"
+                           name="CuentaBeneficiosServiciosId" />
+
                     <div class="mb-3">
-                        <label for="MontoAbonado" class="form-label">Monto Abonado</label>
-                        <input type="number" step="0.01" id="MontoAbonado" name="Monto" class="form-control" required />
+                        <label class="form-label">Monto Abonado</label>
+                        <input type="number"
+                               step="0.01"
+                               min="0.01"
+                               name="Monto"
+                               class="form-control"
+                               required />
                         @Html.ValidationMessage("Monto", "", new { @class = "text-danger" })
                     </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Registrar Abono</button>
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                            class="btn btn-success">
+                        Registrar Abono
+                    </button>
                 </div>
             }
         </div>
     </div>
 </div>
 
-<!-- Modal para Mostrar Historial de Pagos -->
-<div class="modal fade" id="modalHistorial" tabindex="-1" aria-labelledby="modalHistorialLabel" aria-hidden="true">
+<!-- Modal Historial -->
+<div class="modal fade" id="modalHistorial" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalHistorialLabel">Historial de Pagos</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <h5 class="modal-title">Historial de Pagos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="table-responsive">
@@ -88,141 +111,154 @@
                                 <th>Fecha</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @* Se llenará vía AJAX al solicitar el historial *@
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cerrar
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- DataTables y jQuery (si no están ya incluidos en el Layout) -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+<link rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 
-@section Scripts {
+@if (TempData["SuccessMessage"] != null)
+{
     <script>
-    $(document).ready(function () {
-
-        // Función para parsear fechas que vienen de .NET o en ISO
-        function parseNetDate(input) {
-            if (!input) return null;
-            if (typeof input === "string") {
-                var m = /Date\((\d+)(?:[+-]\d+)?\)/.exec(input);
-                if (m) return new Date(parseInt(m[1], 10));
-                var d = new Date(input);
-                if (!isNaN(d)) return d;
-            }
-            try { return new Date(input); } catch { return null; }
-        }
-
-        // Inicializar DataTables para la tabla de cuentas
-        var accountsTable = $('#accountsTable').DataTable({
-            "pageLength": 10,
-            "lengthChange": false,
-            "language": {
-                "paginate": { "previous": "Anterior", "next": "Siguiente" },
-                "search": "Buscar:",
-                "info": "Mostrando _START_ a _END_ de _TOTAL_ cuentas",
-                "infoEmpty": "No hay cuentas disponibles",
-                "emptyTable": "No hay cuentas registradas",
-                "zeroRecords": "No se encontraron coincidencias"
-            }
-        });
-
-        // Al cambiar la selección del dropdown de asociados
-        $('#searchAssociated').on('change', function () {
-            var usuarioId = $(this).val();
-            if (usuarioId === "") {
-                accountsTable.clear().draw();
-                return;
-            }
-            $.ajax({
-                url: '@Url.Action("ConsultarCuentasPorUsuario", "BeneficiosyServicios")',
-                type: 'GET',
-                data: { usuarioId: usuarioId },
-                success: function (response) {
-                    if (response.success) {
-                        accountsTable.clear();
-                        $.each(response.cuentas, function (i, cuenta) {
-                            accountsTable.row.add([
-                                cuenta.CuentaBeneficiosServiciosId,
-                                cuenta.BeneficioServicio.Nombre,
-                                new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(cuenta.MontoTotal),
-                                new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(cuenta.MontoPendiente),
-                                '<button type="button" class="btn btn-info btn-sm select-account" data-id="' + cuenta.CuentaBeneficiosServiciosId + '">Realizar Abono</button> ' +
-                                '<button type="button" class="btn btn-secondary btn-sm view-history" data-id="' + cuenta.CuentaBeneficiosServiciosId + '">Historial</button>'
-                            ]).draw();
-                        });
-                    }
-                },
-                error: function () {
-                    alert('Error al consultar las cuentas del asociado.');
-                }
-            });
-        });
-
-        // Al hacer clic en "Realizar Abono"
-        $(document).on('click', '.select-account', function () {
-            var cuentaId = $(this).data('id');
-            $('#ModalCuentaId').val(cuentaId);
-            $('#modalRegistrarAbono').modal('show');
-        });
-
-        // Al hacer clic en "Historial"
-        $(document).on('click', '.view-history', function () {
-            var cuentaId = $(this).data('id');
-            $.ajax({
-                url: '@Url.Action("HistorialPagos", "BeneficiosyServicios")',
-                type: 'GET',
-                data: { cuentaId: cuentaId },
-                success: function (data) {
-                    if (data.success) {
-                        var registros = data.registros || data.data || [];
-                        var tbody = $('#historialTable tbody');
-                        tbody.empty();
-
-                        $.each(registros, function (i, pago) {
-                            var d = parseNetDate(pago.FechaTransaccion);
-                            var fechaStr = d ? d.toLocaleDateString("es-CR", { year: "numeric", month: "2-digit", day: "2-digit" }) : "";
-
-                            tbody.append(
-                                '<tr>' +
-                                    '<td>' + new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(pago.Monto) + '</td>' +
-                                    '<td>' + fechaStr + '</td>' +
-                                '</tr>'
-                            );
-                        });
-
-                        $('#modalHistorial').modal('show');
-                    }
-                },
-                error: function () {
-                    alert('Error al consultar el historial de pagos.');
-                }
-            });
-        });
-
-        // SweetAlert si hay mensaje de éxito
-        var successElement = document.getElementById("SuccessMessage");
-        var successMessage = successElement ? successElement.innerText.trim() : "";
-        if (successMessage) {
+        document.addEventListener("DOMContentLoaded", function () {
             Swal.fire({
                 icon: 'success',
                 title: '¡Éxito!',
-                text: successMessage,
-                showConfirmButton: true
-            }).then(function () {
-                window.location.href = '@Url.Action("RegistrarAbonoBenefyServ", "BeneficiosyServicios")';
+                text: '@TempData["SuccessMessage"]',
+                confirmButtonText: 'Aceptar'
             });
-        }
-    });
+        });
     </script>
 }
 
+@section Scripts {
+    <script>
+$(document).ready(function () {
+
+    function parseNetDate(input) {
+        if (!input) return null;
+        var m = /Date\((\d+)\)/.exec(input);
+        if (m) return new Date(parseInt(m[1], 10));
+        var d = new Date(input);
+        return isNaN(d) ? null : d;
+    }
+
+    var accountsTable = $('#accountsTable').DataTable({
+
+        pageLength: 10,
+        lengthChange: false,
+        columnDefs: [
+            {
+                targets: 0,      // Primera columna (Cuenta ID)
+                visible: false,  // La oculta
+                searchable: false
+            }
+        ]
+    });
+
+    $('#searchAssociated').on('change', function () {
+
+        var usuarioId = $(this).val();
+        var nombreUsuario = $("#searchAssociated option:selected").text();
+
+        if (usuarioId === "") {
+            accountsTable.clear().draw();
+            $("#selectedUserTitle").hide().text("");
+            return;
+        }
+
+        $("#selectedUserTitle")
+            .text("Abono a : " + nombreUsuario)
+            .show();
+
+        $.get('@Url.Action("ConsultarCuentasPorUsuario", "BeneficiosyServicios")',
+            { usuarioId: usuarioId },
+            function (response) {
+
+                if (response.success) {
+
+                    accountsTable.clear();
+
+                    $.each(response.cuentas, function (i, cuenta) {
+
+                        accountsTable.row.add([
+                            cuenta.CuentaBeneficiosServiciosId,
+                            cuenta.BeneficioServicio.Nombre,
+                            new Intl.NumberFormat("es-CR",
+                                { style: "currency", currency: "CRC" })
+                                .format(cuenta.MontoTotal),
+                            new Intl.NumberFormat("es-CR",
+                                { style: "currency", currency: "CRC" })
+                                .format(cuenta.MontoPendiente),
+                            '<button type="button" class="btn btn-info btn-sm select-account" data-id="' +
+                            cuenta.CuentaBeneficiosServiciosId +
+                            '">Realizar Abono</button> ' +
+                            '<button type="button" class="btn btn-secondary btn-sm view-history" data-id="' +
+                            cuenta.CuentaBeneficiosServiciosId +
+                            '">Historial</button>'
+                        ]).draw();
+
+                    });
+                }
+            });
+    });
+
+    $(document).on('click', '.select-account', function () {
+        var cuentaId = $(this).data('id');
+        $('#ModalCuentaId').val(cuentaId);
+        $('#modalRegistrarAbono').modal('show');
+    });
+
+    $(document).on('click', '.view-history', function () {
+
+        var cuentaId = $(this).data('id');
+
+        $.get('@Url.Action("HistorialPagos", "BeneficiosyServicios")',
+            { cuentaId: cuentaId },
+            function (data) {
+
+                if (data.success) {
+
+                    var tbody = $('#historialTable tbody');
+                    tbody.empty();
+
+                    $.each(data.registros, function (i, pago) {
+
+                        var d = parseNetDate(pago.FechaTransaccion);
+                        var fechaStr = d ?
+                            d.toLocaleDateString("es-CR") : "";
+
+                        tbody.append(
+                            '<tr>' +
+                            '<td>' +
+                            new Intl.NumberFormat("es-CR",
+                                { style: "currency", currency: "CRC" })
+                                .format(pago.Monto) +
+                            '</td>' +
+                            '<td>' + fechaStr + '</td>' +
+                            '</tr>'
+                        );
+                    });
+
+                    $('#modalHistorial').modal('show');
+                }
+            });
+    });
+
+});
+    </script>
+}

@@ -29,8 +29,12 @@
         </button>
     </div>
 
+    <h4 id="tituloAportes" style="display:none;">
+        Aportes de <strong id="nombreAsociadoTitulo"></strong>
+    </h4>
+
     <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-        <table class="table table-bordered table-sm" id="tablaAportes" style="font-size: 14px;">
+        <table class="table table-bordered table-sm" id="tablaAportes">
             <thead class="table-light">
                 <tr>
                     <th>Tipo de Aporte</th>
@@ -44,43 +48,68 @@
     </div>
 </div>
 
-<!-- Modal para Registrar Aporte -->
-<div class="modal fade" id="modalRegistrarAporte" tabindex="-1" aria-labelledby="modalRegistrarAporteLabel" aria-hidden="true">
+<!-- Modal -->
+<div class="modal fade" id="modalRegistrarAporte" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalRegistrarAporteLabel">Registrar Nuevo Aporte</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <h5 class="modal-title">Registrar Nuevo Aporte</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+
             <div class="modal-body">
                 <form id="formRegistrarAporte">
                     <div class="mb-3">
-                        <label for="nombreAsociado" class="form-label">Nombre del Asociado</label>
+                        <label class="form-label">Nombre del Asociado</label>
                         <input type="text" id="nombreAsociado" class="form-control" readonly>
                     </div>
+
                     <div class="mb-3">
-                        <label for="tipoAporte" class="form-label">Tipo de Aporte</label>
+                        <label class="form-label">Tipo de Aporte</label>
                         <select id="tipoAporte" class="form-select">
                             <option value="Personal">Personal</option>
                             <option value="Patronal">Patronal</option>
                         </select>
                     </div>
+
                     <div class="mb-3">
-                        <label for="montoAporte" class="form-label">Monto</label>
-                        <input type="number" id="montoAporte" class="form-control" placeholder="Ingrese el monto del aporte">
+                        <label class="form-label">Monto</label>
+                        <input type="number" id="montoAporte" class="form-control">
                     </div>
                 </form>
             </div>
+
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="registrarAporte()">Registrar</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-primary" onclick="registrarAporte()">Registrar</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+
+    function formatearFecha(fecha) {
+
+        if (!fecha) return "-";
+
+        // Formato .NET: /Date(123456789)/
+        let match = /\/Date\((\d+)\)\//.exec(fecha);
+        if (match) {
+            return new Date(parseInt(match[1])).toLocaleDateString('es-CR');
+        }
+
+        // Formato ISO u otros
+        let date = new Date(fecha);
+        if (!isNaN(date.getTime())) {
+            return date.toLocaleDateString('es-CR');
+        }
+
+        return "-";
+    }
+
     $(document).ready(function () {
+
         $("#asociado").autocomplete({
             source: function (request, response) {
                 $.ajax({
@@ -95,18 +124,22 @@
             },
             minLength: 2,
             select: function (event, ui) {
+
                 $("#asociado").val(ui.item.label);
                 $("#nombreAsociado").val(ui.item.label);
+
                 return false;
             }
         });
+
     });
 
     function consultarAportes() {
+
         let asociado = $("#asociado").val().trim();
 
         if (asociado === "") {
-            Swal.fire("Atencion", "Por favor, ingrese el nombre del asociado.", "warning");
+            Swal.fire("Atención", "Ingrese el nombre del asociado.", "warning");
             return;
         }
 
@@ -115,215 +148,161 @@
             type: "GET",
             data: { nombreAsociado: asociado },
             success: function (response) {
+
                 let tablaBody = $("#tablaAportes tbody");
                 tablaBody.empty();
 
+                $("#nombreAsociadoTitulo").text(asociado);
+                $("#tituloAportes").show();
+
                 if (!response.success || response.data.length === 0) {
-                    tablaBody.append("<tr><td colspan='4' class='text-center'>No se encontraron aportes para este asociado.</td></tr>");
+                    tablaBody.append("<tr><td colspan='4' class='text-center'>No se encontraron aportes.</td></tr>");
                     return;
                 }
 
                 response.data.forEach(aporte => {
-                    let fecha = "No disponible";
-                    if (aporte.FechaRegistro) {
-                        let match = aporte.FechaRegistro.match(/\d+/);
-                        if (match) {
-                            let timestamp = parseInt(match[0]);
-                            let fechaObj = new Date(timestamp);
-                            fecha = fechaObj.toLocaleDateString('es-CR');
-                        }
-                    }
 
-                    let montoFormateado = new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(aporte.Monto);
+                    let fecha = formatearFecha(aporte.FechaRegistro);
 
-                    let fila = `<tr>
-                    <td>${aporte.TipoAporte}</td>
-                    <td>${fecha}</td>
-                    <td>${montoFormateado}</td>
-                    <td>
-                        <button class='btn btn-success btn-sm' onclick='agregarAporte(${aporte.AporteId})'>Agregar abono</button>
-                        <button class="btn btn-info btn-sm text-white" onclick='verHistorial(${aporte.AporteId})'>Historial</button>
-                        <button class='btn btn-danger btn-sm' onclick='eliminarAporte(${aporte.AporteId})'>Eliminar</button>
-                    </td>
-                </tr>`;
-             
-                    tablaBody.append(fila);
+                    let monto = new Intl.NumberFormat('es-CR', {
+                        style: 'currency',
+                        currency: 'CRC'
+                    }).format(aporte.Monto);
+
+                    tablaBody.append(`
+                    <tr>
+                        <td>${aporte.TipoAporte}</td>
+                        <td>${fecha}</td>
+                        <td>${monto}</td>
+                        <td>
+                            <button class='btn btn-success btn-sm' onclick='agregarAporte(${aporte.AporteId})'>Abonar</button>
+                            <button class="btn btn-info btn-sm text-white" onclick='verHistorial(${aporte.AporteId})'>Historial</button>
+                            <button class='btn btn-danger btn-sm' onclick='eliminarAporte(${aporte.AporteId})'>Eliminar</button>
+                        </td>
+                    </tr>
+                `);
                 });
 
             }
         });
     }
 
-
     function registrarAporte() {
+
         let nombreAsociado = $("#nombreAsociado").val().trim();
-        let tipoAporte = $("#tipoAporte").val();
+        let tipo = $("#tipoAporte").val();
         let monto = $("#montoAporte").val();
 
         if (nombreAsociado === "" || monto === "") {
-            Swal.fire("Atencion", "Debe ingresar el nombre del asociado y el monto.", "warning");
+            Swal.fire("Atención", "Complete todos los campos.", "warning");
             return;
         }
 
-        $.ajax({
-            url: "/AhorrosyAportes/RegistrarAportePorNombre",
-            type: "POST",
-            data: { nombreAsociado: nombreAsociado, tipoAporte: tipoAporte, monto: monto },
-            success: function (response) {
-                Swal.fire("Exito", response.message, "success");
-                if (response.success) {
-                    $("#modalRegistrarAporte").modal("hide");
-                    consultarAportes();
-                }
-            }
-        });
-    }
+        $.post("/AhorrosyAportes/RegistrarAportePorNombre", {
+            nombreAsociado: nombreAsociado,
+            tipoAporte: tipo,
+            monto: monto
+        }, function (res) {
 
-    function agregarAporte(aporteId) {
-        Swal.fire({
-            title: "Agregar Abono",
-            input: "number",
-            inputLabel: "Ingrese el monto a agregar:",
-            showCancelButton: true,
-            confirmButtonText: "Guardar",
-            cancelButtonText: "Cancelar",
-            inputValidator: (value) => {
-                if (!value || value <= 0) {
-                    return "Ingrese un monto válido";
-                }
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: "/AhorrosyAportes/AgregarAporte",
-                    type: "POST",
-                    data: { aporteId: aporteId, monto: result.value },
-                    success: function (response) {
-                        Swal.fire("Exito", response.message, "success");
-                        if (response.success) {
-                            consultarAportes();
-                        }
-                    }
-                });
-            }
-        });
-    }
+            Swal.fire("Resultado", res.message, res.success ? "success" : "error");
 
-    function eliminarAporte(aporteId) {
-        $.ajax({
-            url: "/AhorrosyAportes/EliminarAporte",
-            type: "POST",
-            data: { aporteId: aporteId },
-            success: function (response) {
-                Swal.fire("Exito", response.message, "success");
+            if (res.success) {
+                $("#modalRegistrarAporte").modal("hide");
                 consultarAportes();
             }
         });
     }
 
-    function verHistorial(aporteId) {
-        $.ajax({
-            url: "/AhorrosyAportes/ObtenerHistorialAporte",
-            type: "GET",
-            data: { aporteId: aporteId },
-            success: function (response) {
-                if (!response || response.success === false) {
-                    Swal.fire("Error", (response && response.message) ? response.message : "No se pudo cargar el historial.", "error");
-                    return;
-                }
-                if (!response.data || response.data.length === 0) {
-                    Swal.fire("Sin historial", "No hay transacciones registradas.", "info");
-                    return;
-                }
+    function agregarAporte(id) {
 
-                function toCRC(v) {
-                    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(v);
-                }
-                function fmtDate(f) {
-                    var m = /\/Date\((\d+)\)\//.exec(f);
-                    var ts = m ? parseInt(m[1], 10) : Date.parse(f);
-                    if (isNaN(ts)) return "-";
-                    return new Date(ts).toLocaleDateString('es-CR');
-                }
+        Swal.fire({
+            title: "Agregar Abono",
+            input: "number",
+            showCancelButton: true,
+            inputValidator: v => !v || v <= 0 ? "Monto inválido" : null
+        }).then(r => {
 
-                var data = response.data;
-                var pageSize = 11;
-                var totalPages = Math.ceil(data.length / pageSize);
+            if (!r.isConfirmed) return;
 
-                var pagesHtml = "";
-                for (var p = 1; p <= totalPages; p++) {
-                    var start = (p - 1) * pageSize;
-                    var end = Math.min(start + pageSize, data.length);
+            $.post("/AhorrosyAportes/AgregarAporte", {
+                aporteId: id,
+                monto: r.value
+            }, function (res) {
 
-                    var table =
-                        '<div class="hist-page" data-page="' + p + '" style="display:' + (p === 1 ? 'block' : 'none') + ';">' +
-                        '<table class="table table-bordered mb-2">' +
-                        '<thead>' +
-                        '<tr>' +
-                        '<th>Fecha</th>' +
-                        '<th>Monto</th>' +
-                        '</tr>' +
-                        '</thead>' +
-                        '<tbody>';
+                Swal.fire("Resultado", res.message, res.success ? "success" : "error");
 
-                    for (var i = start; i < end; i++) {
-                        var t = data[i];
-                        table +=
-                            '<tr>' +
-                            '<td>' + fmtDate(t.Fecha) + '</td>' +
-                            '<td>' + toCRC(t.Monto) + '</td>' +
-                            '</tr>';
-                    }
-
-                    table +=
-                        '</tbody>' +
-                        '</table>' +
-                        '<div class="text-muted small text-center">Pagina ' + p + ' de ' + totalPages + '</div>' +
-                        '</div>';
-
-                    pagesHtml += table;
-                }
-
-                var pagerHtml = '<div id="hist-pager" class="d-flex flex-wrap gap-2 mt-3 justify-content-center">';
-                for (var b = 1; b <= totalPages; b++) {
-                    pagerHtml += '<button type="button" class="btn btn-sm ' + (b === 1 ? 'btn-primary' : 'btn-outline-primary') + ' hist-btn" data-page="' + b + '">' + b + '</button>';
-                }
-                pagerHtml += '</div>';
-
-                var modalHtml = '<div id="hist-wrap">' + pagesHtml + pagerHtml + '</div>';
-
-                Swal.fire({
-                    title: 'Historial de Transacciones',
-                    html: modalHtml,
-                    width: '700px',
-                    didOpen: function () {
-                        var pager = document.getElementById('hist-pager');
-                        pager.addEventListener('click', function (ev) {
-                            var btn = ev.target.closest('.hist-btn');
-                            if (!btn) return;
-
-                            var page = parseInt(btn.getAttribute('data-page'), 10);
-                            if (isNaN(page)) return;
-
-                            var pages = document.querySelectorAll('.hist-page');
-                            for (var i = 0; i < pages.length; i++) {
-                                pages[i].style.display = ((i + 1) === page) ? 'block' : 'none';
-                            }
-
-                            var buttons = pager.querySelectorAll('.hist-btn');
-                            for (var j = 0; j < buttons.length; j++) {
-                                buttons[j].className = 'btn btn-sm btn-outline-primary hist-btn';
-                            }
-                            btn.className = 'btn btn-sm btn-primary hist-btn';
-                        });
-                    }
-                });
-            },
-            error: function () {
-                Swal.fire("Error", "Fallo la solicitud al servidor.", "error");
-            }
+                if (res.success) consultarAportes();
+            });
         });
     }
 
+    function eliminarAporte(id) {
+
+        Swal.fire({
+            title: "¿Eliminar?",
+            icon: "warning",
+            showCancelButton: true
+        }).then(r => {
+
+            if (!r.isConfirmed) return;
+
+            $.post("/AhorrosyAportes/EliminarAporte", {
+                aporteId: id
+            }, function (res) {
+
+                Swal.fire("Resultado", res.message, res.success ? "success" : "error");
+
+                if (res.success) consultarAportes();
+            });
+        });
+    }
+
+    function verHistorial(id) {
+
+        $.get("/AhorrosyAportes/ObtenerHistorialAporte", { aporteId: id }, function (res) {
+
+            if (!res.success || res.data.length === 0) {
+                Swal.fire("Info", "Sin historial", "info");
+                return;
+            }
+
+            let html = `
+            <div style="max-height:300px; overflow-y:auto;">
+                <table class="table table-bordered table-sm mb-0">
+                    <thead class="table-light sticky-top">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+            res.data.forEach(x => {
+                html += `
+                <tr>
+                    <td>${formatearFecha(x.Fecha)}</td>
+                    <td>${new Intl.NumberFormat('es-CR', {
+                    style: 'currency',
+                    currency: 'CRC'
+                }).format(x.Monto)}</td>
+                </tr>
+            `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+            Swal.fire({
+                title: "Historial de Aportes",
+                html: html,
+                width: 600
+            });
+
+        });
+    }
 
 </script>

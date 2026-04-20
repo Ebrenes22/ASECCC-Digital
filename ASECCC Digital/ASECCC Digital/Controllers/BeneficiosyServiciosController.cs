@@ -199,6 +199,7 @@ namespace ASECCC_Digital.Controllers
             if (ModelState.IsValid)
             {
                 bool registrado = beneficioServicioM.RegistrarAbono(abono);
+
                 if (registrado)
                 {
                     TempData["SuccessMessage"] = "El abono se ha registrado exitosamente.";
@@ -213,9 +214,16 @@ namespace ASECCC_Digital.Controllers
             {
                 TempData["ErrorMessage"] = "Por favor, revise los datos ingresados.";
             }
-            
-            return View("RegistrarAbonoBenefyServ");
+
+            // 🔥 AQUÍ estaba el problema
+            var viewModel = new BeneficioServicioViewModel
+            {
+                Usuarios = beneficioServicioM.ConsultarUsuarios()
+            };
+
+            return View("RegistrarAbonoBenefyServ", viewModel);
         }
+
 
         public ActionResult HistorialPagos(int cuentaId)
         {

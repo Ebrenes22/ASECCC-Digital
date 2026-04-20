@@ -67,7 +67,7 @@ namespace ASECCC_Digital.Models
                     usuarioId = usuarioId,
                     tipoAhorroId = tipoAhorroId.Value,
                     montoInicial = monto,
-                    montoActual = monto,
+                    montoActual = 0,
                     fechaInicio = DateTime.Now,
                     fechaFin = DateTime.Now.AddMonths(plazo),
                     plazo = plazo,

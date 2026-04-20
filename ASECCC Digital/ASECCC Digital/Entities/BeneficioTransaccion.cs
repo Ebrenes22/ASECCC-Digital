@@ -16,10 +16,10 @@ namespace ASECCC_Digital.Entities
 
         [Required(ErrorMessage = "El monto es requerido")]
         [Column(TypeName = "decimal(10,2)")]
-        [Range(-100000, 100000, ErrorMessage = "Monto fuera de rango")]
+        [Range(0.01, 100000000, ErrorMessage = "Monto fuera de rango")]
         public decimal Monto { get; set; } // Monto de la transacción.
 
-        [Required(ErrorMessage = "La fecha de transacción es requerida")]
+       
         [DataType(DataType.DateTime)]
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy HH:mm:ss}", ApplyFormatInEditMode = true)]
         public DateTime FechaTransaccion { get; set; } = DateTime.Now;  // Fecha y hora de la transacción, por defecto es la fecha actual.

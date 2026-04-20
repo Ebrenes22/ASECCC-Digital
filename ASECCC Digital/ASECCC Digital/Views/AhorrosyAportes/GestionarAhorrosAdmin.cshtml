@@ -25,6 +25,10 @@
         </button>
     </div>
 
+    <h4 id="tituloAhorros" style="display:none;">
+        Ahorros de <strong id="nombreAsociadoTitulo"></strong>
+    </h4>
+
     <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
         <table class="table table-bordered table-sm" id="tablaAhorros" style="font-size: 14px;">
             <thead class="table-light">
@@ -46,8 +50,6 @@
 
 <script>
 
-
-
     $(document).ready(function () {
         $("#asociado").autocomplete({
             source: function (request, response) {
@@ -64,24 +66,34 @@
             minLength: 2,
             select: function (event, ui) {
                 $("#asociado").val(ui.item.label);
+
+                // Guardar nombre seleccionado
+                $("#asociado").data("nombre", ui.item.label);
+
                 return false;
             }
         });
     });
 
     function consultarAhorros() {
-        let asociado = $("#asociado").val().trim();
 
-        if (asociado === "") {
+        let nombreAsociado = $("#asociado").data("nombre") || $("#asociado").val().trim();
+
+        if (nombreAsociado === "") {
             Swal.fire("Atencion", "Por favor, ingrese el nombre del asociado.", "warning");
             return;
         }
 
+       
+        $("#nombreAsociadoTitulo").text(nombreAsociado);
+        $("#tituloAhorros").show();
+
         $.ajax({
             url: "/AhorrosyAportes/ConsultarAhorrosPorNombre",
             type: "GET",
-            data: { nombreAsociado: asociado },
+            data: { nombreAsociado: nombreAsociado },
             success: function (response) {
+
                 let tablaBody = $("#tablaAhorros tbody");
                 tablaBody.empty();
 
@@ -91,7 +103,6 @@
                 }
 
                 response.data.forEach(ahorro => {
-                    console.log("Datos recibidos:", ahorro);
 
                     let fechaInicio = formatFecha(ahorro.FechaInicio);
                     let fechaFin = formatFecha(ahorro.FechaFin);
@@ -111,6 +122,7 @@
                         <button class="btn btn-danger btn-sm" onclick="eliminarAhorro(${ahorro.AhorroId})">Eliminar</button>
                     </td>
                 </tr>`;
+
                     tablaBody.append(fila);
                 });
             }
