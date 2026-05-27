@@ -57,35 +57,6 @@ Azure SQL Database
 GitHub
 GitHub Actions (CI/CD)
 
-Arquitectura del Proyecto
-ASECCC Digital
-│
-├── Controllers/
-│   ├── Administracion
-│   ├── Prestamos
-│   ├── Ahorros
-│   ├── Aportes
-│   └── Usuarios
-│
-├── Models/
-│   ├── Servicios
-│   ├── ViewModels
-│   └── LogicaNegocio
-│
-├── Identity/
-│   ├── Entidades
-│   └── ModelosBD
-│
-├── Views/
-│   ├── Administracion
-│   ├── Prestamos
-│   ├── EstadoCuenta
-│   └── Usuarios
-│
-├── Scripts/
-├── Content/
-└── App_Data/
-
 Roles del Sistema
 
 Administrador
