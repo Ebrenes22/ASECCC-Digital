@@ -149,6 +149,27 @@ namespace ASECCC_Digital.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult SolicitarRetiro(int ahorroId, decimal montoRetiro)
+        {
+            int usuarioId = Convert.ToInt32(Session["UsuarioId"]);
+
+            var model = new AhorroModel();
+
+            bool resultado = model.SolicitarRetiro(
+                ahorroId,
+                montoRetiro,
+                usuarioId);
+
+            return Json(new
+            {
+                success = resultado,
+                message = resultado
+                    ? "Solicitud enviada correctamente."
+                    : "No fue posible registrar la solicitud."
+            });
+        }
+
 
         //
         // A P O R T E S 

@@ -22,6 +22,59 @@ namespace ASECCC_Digital.Models
             }
         }
 
+         public bool SolicitarRetiro(int ahorroId,decimal montoRetiro,int usuarioSolicitanteId)
+        {
+            using (var db = new ASECCC_DIGITALEntities())
+            {
+                try
+                {
+                    var usuario = db.Usuario
+                        .FirstOrDefault(x => x.usuarioId == usuarioSolicitanteId);
+
+                    if (usuario == null)
+                        return false;
+
+                    var ahorro = db.Ahorros
+                        .FirstOrDefault(x => x.ahorroId == ahorroId);
+
+                    if (ahorro == null)
+                        return false;
+
+                    if (ahorro.tipoAhorroId != 1)
+                        return false;
+
+                    if (montoRetiro <= 0 || montoRetiro > ahorro.montoActual)
+                        return false;
+
+                    var administradores = db.Usuario
+                        .Where(x => x.rol == "Administrador")
+                        .ToList();
+
+                    foreach (var admin in administradores)
+                    {
+                        db.Notificaciones.Add(new Notificaciones
+                        {
+                            usuarioId = admin.usuarioId,
+                            titulo = "Solicitud de Retiro",
+                            contenido =
+                                $"El asociado {usuario.nombreCompleto} ha solicitado un retiro de ₡{montoRetiro:N2} de un ahorro A la Vista.",
+                            tipo = "Personalizada",
+                            fechaEnvio = DateTime.Now,
+                            estado = "enviada"
+                        });
+                    }
+
+                    db.SaveChanges();
+
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
         #endregion
 
         #region Métodos para Administrador
@@ -158,7 +211,6 @@ namespace ASECCC_Digital.Models
                 return EliminarAhorro(ahorroId);
             }
         }
-
 
         public object AgregarAbonoAhorro(int ahorroId, decimal monto, string descripcion = null)
         {

@@ -71,29 +71,64 @@
         $.getJSON('/AhorrosyAportes/ObtenerAhorrosAsociado', function (response) {
             if (response.success) {
                 let html = '';
+
                 response.data.forEach(ahorro => {
+
                     html += `
-                        <div class="col-12 col-md-6 col-lg-4 mb-4 ahorro-card" data-tipo="${ahorro.TipoAhorro}" data-id="${ahorro.AhorroId}">
-                            <div class="card shadow-sm">
-                                <div class="card-body">
-                                    <h5 class="card-title fw-normal text-capitalize">${ahorro.TipoAhorro}</h5>
-                                    <p class="card-text">
-                                        <strong>Fecha:</strong> ${formatearFecha(ahorro.FechaInicio)}<br>
-                                        <strong>Monto Inicial:</strong> ${ahorro.MontoInicial.toLocaleString('es-CR')}<br>
-                                        <strong>Monto Actual:</strong> ${ahorro.MontoActual.toLocaleString('es-CR')}<br>
-                                        <strong>Plazo:</strong> ${ahorro.Plazo ?? 'N/A'} meses<br>
-                                        <strong>Estado:</strong> ${ahorro.Estado.charAt(0).toUpperCase() + ahorro.Estado.slice(1)}
-                                    </p>
-                                    <button class="btn btn-info btn-sm text-white" onclick="verDetalles(${ahorro.AhorroId})" data-bs-toggle="modal" data-bs-target="#modalDetallesAhorro">Historial de movimientos</button>
-                                    <button class="btn btn-warning btn-sm text-white" onclick="modificarMonto(${ahorro.AhorroId})" data-bs-toggle="modal" data-bs-target="#modalModificarMonto">Modificar Monto</button>
-                                    ${ahorro.TipoAhorro === 'A la Vista' ? `<button class="btn btn-danger btn-sm text-white" onclick="finalizarAhorro(${ahorro.AhorroId})">Finalizar Ahorro</button>` : ''}
-                                </div>
+                    <div class="col-12 col-md-6 col-lg-4 mb-4 ahorro-card"
+                         data-tipo="${ahorro.TipoAhorro}"
+                         data-id="${ahorro.AhorroId}">
+
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+
+                                <h5 class="card-title fw-normal text-capitalize">
+                                    ${ahorro.TipoAhorro}
+                                </h5>
+
+                                <p class="card-text">
+                                    <strong>Fecha:</strong> ${formatearFecha(ahorro.FechaInicio)}<br>
+                                    <strong>Monto Inicial:</strong> ${ahorro.MontoInicial.toLocaleString('es-CR')}<br>
+                                    <strong>Monto Actual:</strong> ${ahorro.MontoActual.toLocaleString('es-CR')}<br>
+                                    <strong>Plazo:</strong> ${ahorro.Plazo ?? 'N/A'} meses<br>
+                                    <strong>Estado:</strong> ${ahorro.Estado.charAt(0).toUpperCase() + ahorro.Estado.slice(1)}
+                                </p>
+
+                                <button class="btn btn-info btn-sm text-white me-1 mb-1"
+                                        onclick="verDetalles(${ahorro.AhorroId})">
+                                    Historial de movimientos
+                                </button>
+
+                                <button class="btn btn-warning btn-sm text-white me-1 mb-1"
+                                        onclick="modificarMonto(${ahorro.AhorroId})">
+                                    Modificar Monto
+                                </button>
+
+                                ${ahorro.TipoAhorro?.trim().toLowerCase() === 'a la vista' ? `
+                                    <button class="btn btn-success btn-sm text-white me-1 mb-1"
+                                            onclick="solicitarRetiro(${ahorro.AhorroId},${ahorro.MontoActual})">
+                                        Solicitar Retiro
+                                    </button>
+
+                                    <button class="btn btn-danger btn-sm text-white mb-1"
+                                            onclick="finalizarAhorro(${ahorro.AhorroId})">
+                                        Finalizar Ahorro
+                                    </button>
+                                ` : ''}
+
                             </div>
-                        </div>`;
+                        </div>
+
+                    </div>`;
                 });
+
                 $('#cardsAhorros').html(html);
+
             } else {
-                $('#cardsAhorros').html('<div class="text-center">No se encontraron ahorros.</div>');
+
+                $('#cardsAhorros').html(
+                    '<div class="text-center">No se encontraron ahorros.</div>'
+                );
             }
         });
     }
@@ -189,6 +224,106 @@
                             text: 'Ocurrió un error al intentar finalizar el ahorro.'
                         });
                         console.error('Error AJAX:', error);
+                    }
+                });
+            }
+        });
+    }
+
+    function solicitarRetiro(ahorroId, montoActual) {
+
+        Swal.fire({
+            title: 'Solicitud de Retiro',
+            html: `
+            <div class="text-start">
+                <p>
+                    <strong>Saldo disponible:</strong><br>
+                    ₡${montoActual.toLocaleString('es-CR')}
+                </p>
+
+                <label class="form-label">Monto a retirar</label>
+
+                <input id="montoRetiro"
+                       type="number"
+                       class="form-control"
+                       min="1"
+                       max="${montoActual}"
+                       placeholder="Ingrese el monto">
+            </div>
+        `,
+            showCancelButton: true,
+            confirmButtonText: 'Enviar Solicitud',
+            cancelButtonText: 'Cancelar',
+
+            preConfirm: () => {
+
+                const montoRetiro = parseFloat(
+                    document.getElementById('montoRetiro').value
+                );
+
+                if (isNaN(montoRetiro)) {
+                    Swal.showValidationMessage(
+                        'Debe ingresar un monto.'
+                    );
+                    return false;
+                }
+
+                if (montoRetiro <= 0) {
+                    Swal.showValidationMessage(
+                        'El monto debe ser mayor a cero.'
+                    );
+                    return false;
+                }
+
+                if (montoRetiro > montoActual) {
+                    Swal.showValidationMessage(
+                        'El monto solicitado supera el saldo disponible.'
+                    );
+                    return false;
+                }
+
+                return montoRetiro;
+            }
+
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    url: '/AhorrosyAportes/SolicitarRetiro',
+                    type: 'POST',
+                    data: {
+                        ahorroId: ahorroId,
+                        montoRetiro: result.value
+                    },
+
+                    success: function (response) {
+
+                        if (response.success) {
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Solicitud enviada',
+                                text: response.message
+                            });
+
+                        } else {
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message
+                            });
+                        }
+                    },
+
+                    error: function () {
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error al procesar la solicitud.'
+                        });
                     }
                 });
             }
