@@ -93,21 +93,66 @@
 </script>
 
 <style>
-    /* Ajustar ancho de las columnas */
-    th:nth-child(3), td:nth-child(3) { /* Fecha y Hora */
-        width: 180px; /* Aumenta el espacio */
-        text-align: center;
+    #tablaNotificaciones {
+        width: 100% !important;
+        table-layout: auto;
     }
 
-    th:nth-child(2), td:nth-child(2) { /* Mensaje */
-        width: 300px; /* Reduce el espacio */
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis; /* Agrega puntos suspensivos si el texto es muy largo */
+        #tablaNotificaciones th,
+        #tablaNotificaciones td {
+            vertical-align: middle;
+        }
+
+            /* Título */
+            #tablaNotificaciones th:nth-child(1),
+            #tablaNotificaciones td:nth-child(1) {
+                width: 20%;
+            }
+
+            /* Mensaje */
+            #tablaNotificaciones th:nth-child(2),
+            #tablaNotificaciones td:nth-child(2) {
+                width: 40%;
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            /* Fecha */
+            #tablaNotificaciones th:nth-child(3),
+            #tablaNotificaciones td:nth-child(3) {
+                width: 15%;
+                text-align: center;
+                white-space: nowrap;
+            }
+
+            /* Estado */
+            #tablaNotificaciones th:nth-child(4),
+            #tablaNotificaciones td:nth-child(4) {
+                width: 10%;
+                text-align: center;
+            }
+
+            /* Acción */
+            #tablaNotificaciones th:nth-child(5),
+            #tablaNotificaciones td:nth-child(5) {
+                width: 15%;
+                text-align: center;
+            }
+
+        #tablaNotificaciones tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+    .badge {
+        font-size: 0.85rem;
+        padding: 6px 10px;
     }
 
-    /* Ajustar tamaño del texto en mensaje */
-    td:nth-child(2) {
-        font-size: 14px;
+    .ver-notificacion {
+        min-width: 80px;
+    }
+
+    .dataTables_wrapper {
+        margin-top: 15px;
     }
 </style>

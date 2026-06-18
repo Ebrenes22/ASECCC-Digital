@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Data.Entity; // ← LÍNEA AGREGADA
+using System.Data.Entity; 
 using ASECCC_Digital.Database;
 using ASECCC_Digital.Entities;
 
@@ -58,7 +58,7 @@ namespace ASECCC_Digital.Models
                             titulo = "Solicitud de Retiro",
                             contenido =
                                 $"El asociado {usuario.nombreCompleto} ha solicitado un retiro de ₡{montoRetiro:N2} de un ahorro A la Vista.",
-                            tipo = "Personalizada",
+                            tipo = "General",
                             fechaEnvio = DateTime.Now,
                             estado = "enviada"
                         });
@@ -72,6 +72,63 @@ namespace ASECCC_Digital.Models
                 {
                     return false;
                 }
+            }
+        }
+
+        public object RetirarAhorro(int ahorroId, decimal monto)
+        {
+            using (var db = new ASECCC_DIGITALEntities())
+            {
+                var ahorro = db.Ahorros
+                    .FirstOrDefault(a => a.ahorroId == ahorroId);
+
+                if (ahorro == null)
+                {
+                    return new
+                    {
+                        success = false,
+                        message = "No se encontró el ahorro."
+                    };
+                }
+
+                if (monto <= 0)
+                {
+                    return new
+                    {
+                        success = false,
+                        message = "El monto debe ser mayor que cero."
+                    };
+                }
+
+                if (monto > ahorro.montoActual)
+                {
+                    return new
+                    {
+                        success = false,
+                        message = "El monto supera el saldo disponible."
+                    };
+                }
+
+                ahorro.montoActual -= monto;
+
+                AhorroTransacciones transaccion = new AhorroTransacciones
+                {
+                    ahorroId = ahorroId,
+                    tipoTransaccionId = 1,
+                    monto = monto,
+                    fechaTransaccion = DateTime.Now,    
+                    descripcion = "Retiro"
+                };
+
+                db.AhorroTransacciones.Add(transaccion);
+
+                db.SaveChanges();
+
+                return new
+                {
+                    success = true,
+                    message = "Retiro realizado correctamente."
+                };
             }
         }
 
@@ -159,6 +216,7 @@ namespace ASECCC_Digital.Models
                         Fecha = t.fechaTransaccion,
                         Monto = t.monto,
                         Tipo = t.tipoTransaccionId == 1 ? "Depósito" : "Retiro",
+                        Descripcion = t.descripcion
                     })
                     .OrderByDescending(t => t.Fecha)
                     .ToList();

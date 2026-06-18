@@ -170,6 +170,14 @@ namespace ASECCC_Digital.Controllers
             });
         }
 
+        [HttpPost]
+        public JsonResult RetirarAhorro(int ahorroId, decimal monto)
+        {
+            var resultado = ahorroModel.RetirarAhorro(ahorroId, monto);
+
+            return Json(resultado);
+        }
+
 
         //
         // A P O R T E S 

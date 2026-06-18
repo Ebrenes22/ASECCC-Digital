@@ -117,46 +117,14 @@
                     <td>${montoActual}</td>
                     <td>${ahorro.Estado.charAt(0).toUpperCase() + ahorro.Estado.slice(1)}</td>
                     <td class="d-flex gap-2">
-                        <button class="btn btn-success btn-sm" onclick="agregarAbono(${ahorro.AhorroId})">Agregar abono</button>
+                        <button class="btn btn-primary btn-sm" onclick="agregarAbono(${ahorro.AhorroId})">Agregar abono</button>
+                        <button class="btn btn-success btn-sm" onclick="retiro(${ahorro.AhorroId}, ${parseFloat(ahorro.MontoActual || 0)})">Retiro</button>
                         <button class="btn btn-info btn-sm text-white" onclick="verHistorial(${ahorro.AhorroId})">Historial</button>
                         <button class="btn btn-danger btn-sm" onclick="eliminarAhorro(${ahorro.AhorroId})">Eliminar</button>
                     </td>
                 </tr>`;
 
                     tablaBody.append(fila);
-                });
-            }
-        });
-    }
-
-    function formatFecha(fecha) {
-        if (!fecha) return "No disponible";
-        let match = fecha.match(/\d+/);
-        if (!match) return "No disponible";
-        let timestamp = parseInt(match[0]);
-        return new Date(timestamp).toLocaleDateString('es-CR');
-    }
-
-    function formatMoneda(valor) {
-        return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(valor);
-    }
-
-
-    function eliminarAhorro(ahorroId) {
-        Swal.fire({
-            title: "Esta seguro",
-            text: "Esta accion no se puede deshacer.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Si, eliminar",
-            cancelButtonText: "Cancelar"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.post("/AhorrosyAportes/EliminarAhorro", { ahorroId: ahorroId }, function (response) {
-                    Swal.fire("Eliminado", response.message, "success");
-                    consultarAhorros();
                 });
             }
         });
@@ -194,6 +162,78 @@
                     Swal.fire("Error", "Fallo la solicitud al servidor.", "error");
                 }
             });
+        });
+    }
+
+    function retiro(ahorroId, montoActual) {
+
+        Swal.fire({
+            title: "Retiro de Ahorro",
+            input: "number",
+            inputLabel: `Saldo disponible: ${formatMoneda(montoActual)}`,
+            inputAttributes: {
+                min: 0.01,
+                max: montoActual,
+                step: "0.01"
+            },
+            showCancelButton: true,
+            confirmButtonText: "Retirar",
+            cancelButtonText: "Cancelar",
+            inputValidator: (value) => {
+
+                if (!value || parseFloat(value) <= 0) {
+                    return "Ingrese un monto válido";
+                }
+
+                if (parseFloat(value) > montoActual) {
+                    return "El monto no puede superar el saldo disponible";
+                }
+
+                return null;
+            }
+        }).then((result) => {
+
+            if (!result.isConfirmed)
+                return;
+
+            $.ajax({
+                url: "/AhorrosyAportes/RetirarAhorro",
+                type: "POST",
+                data: {
+                    ahorroId: ahorroId,
+                    monto: result.value
+                },
+                success: function (resp) {
+
+                    if (resp.success) {
+
+                        Swal.fire(
+                            "Éxito",
+                            resp.message,
+                            "success"
+                        ).then(() => {
+                            consultarAhorros();
+                        });
+
+                    } else {
+
+                        Swal.fire(
+                            "Error",
+                            resp.message,
+                            "error"
+                        );
+                    }
+                },
+                error: function () {
+
+                    Swal.fire(
+                        "Error",
+                        "Ocurrió un error al procesar el retiro.",
+                        "error"
+                    );
+                }
+            });
+
         });
     }
 
@@ -241,6 +281,7 @@
                 <tr>
                   <th>Fecha</th>
                   <th>Monto</th>
+                  <th>Descripcion</th>
                 </tr>
               </thead>
               <tbody>`;
@@ -251,6 +292,7 @@
             <tr>
               <td>${fmtDate(t.Fecha)}</td>
               <td>${toCRC(t.Monto)}</td>
+              <td>${t.Descripcion || '-'}</td>
             </tr>`;
                     }
 
@@ -276,7 +318,7 @@
                     html: modalHtml,
                     width: '700px',
                     didOpen: function () {
-                        const container = Swal.getHtmlContainer(); 
+                        const container = Swal.getHtmlContainer();
                         const pager = container.querySelector('#hist-pager');
 
                         pager.addEventListener('click', function (ev) {
@@ -306,6 +348,37 @@
         });
     }
 
+    function eliminarAhorro(ahorroId) {
+        Swal.fire({
+            title: "Esta seguro",
+            text: "Esta accion no se puede deshacer.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Si, eliminar",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post("/AhorrosyAportes/EliminarAhorro", { ahorroId: ahorroId }, function (response) {
+                    Swal.fire("Eliminado", response.message, "success");
+                    consultarAhorros();
+                });
+            }
+        });
+    }
+
+    function formatFecha(fecha) {
+        if (!fecha) return "No disponible";
+        let match = fecha.match(/\d+/);
+        if (!match) return "No disponible";
+        let timestamp = parseInt(match[0]);
+        return new Date(timestamp).toLocaleDateString('es-CR');
+    }
+
+    function formatMoneda(valor) {
+        return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(valor);
+    }
 
 </script>
 
