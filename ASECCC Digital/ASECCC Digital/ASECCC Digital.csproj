@@ -254,7 +254,9 @@
     <Content Include="assets\img\logos\ASECCC_LOGO3.1.png" />
     <Content Include="assets\img\logos\ASECCC_LOGO_1.png" />
     <Content Include="assets\img\logos\ASECCC_LOGO_2.png" />
+    <Content Include="assets\img\logos\ASECCC_LOGO_4.png" />
     <Content Include="assets\img\logos\favicon-32x32.png" />
+    <Content Include="assets\img\wallpaper\background-solid.png" />
     <Content Include="assets\img\wallpaper\wp3404276.jpg" />
     <Content Include="assets\js\Asociados\BuscarDesactivarAsociado.js" />
     <Content Include="assets\js\busquedaAsociado.js" />
