@@ -262,6 +262,7 @@
     <Content Include="assets\js\busquedaAsociado.js" />
     <Content Include="assets\js\revisionPrestamos.js" />
     <Content Include="assets\js\solicitudPrestamo.js" />
+    <Content Include="Content\Asociados\login.css" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-grid.rtl.css" />
@@ -395,6 +396,7 @@
     <None Include="Properties\PublishProfiles\aseccc - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\aseccc - Web Deploy1.pubxml" />
     <None Include="Properties\PublishProfiles\asecccdigital - Web Deploy.pubxml" />
+    <Content Include="Scripts\Asociados\login.js" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -482,6 +484,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="assets\js\NewFolder1\" />
     <Folder Include="docs\cambios\ahorros\admin\" />
     <Folder Include="docs\cambios\ahorros\asociado\" />
     <Folder Include="docs\cambios\aportes\admin\" />
