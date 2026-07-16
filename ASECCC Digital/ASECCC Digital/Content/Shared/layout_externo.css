@@ -1,0 +1,228 @@
+﻿html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    color: #1f2937;
+    background: linear-gradient(135deg, rgba(240, 246, 255, 0.96), rgba(223, 238, 250, 0.94)), url("~/Assets/img/wallpaper/background-solid.png") center/cover no-repeat;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+a {
+    color: #0563bb;
+}
+
+    a:hover,
+    a:focus {
+        color: #034f96;
+    }
+
+.external-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.external-header {
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(209, 213, 219, 0.72);
+    background: rgba(255, 255, 255, 0.93);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.external-nav {
+    height: 70px;
+    display: flex;
+    align-items: center;
+}
+
+.external-brand {
+    display: inline-flex;
+    align-items: center;
+    color: #111827;
+    text-decoration: none;
+}
+
+    .external-brand:hover,
+    .external-brand:focus {
+        color: #111827;
+        text-decoration: none;
+    }
+
+    .external-brand img {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        margin-right: 10px;
+    }
+
+.external-brand-title {
+    display: block;
+    color: #111827;
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.external-brand-subtitle {
+    display: block;
+    margin-top: 2px;
+    color: #6b7280;
+    font-size: 0.78rem;
+    line-height: 1.2;
+}
+
+.external-content {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.external-content-inner {
+    width: 100%;
+}
+
+.external-footer {
+    flex-shrink: 0;
+    border-top: 1px solid rgba(209, 213, 219, 0.78);
+    background: rgba(255, 255, 255, 0.94);
+}
+
+.external-footer-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    padding: 12px 0;
+}
+
+.external-footer-copy h4 {
+    margin: 0 0 4px;
+    color: #111827;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.external-footer-copy p {
+    max-width: 650px;
+    margin: 0 auto;
+    color: #6b7280;
+    font-size: 0.82rem;
+    line-height: 1.35;
+}
+.external-footer-meta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.external-contact-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 7px 12px;
+    border: 1px solid #dbeafe;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1f4f83;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+    .external-contact-item i {
+        color: #0563bb;
+        font-size: 0.9rem;
+    }
+
+a.external-contact-item:hover {
+    color: #034f96;
+    background: #dbeafe;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.external-credits {
+    border-top: 1px solid #eef2f7;
+    padding: 8px 0 10px;
+    color: #8a94a6;
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+@media (max-width: 767.98px) {
+    body {
+        overflow-y: auto;
+    }
+
+    .external-page {
+        min-height: 100vh;
+    }
+
+    .external-content {
+        overflow: visible;
+        align-items: flex-start;
+    }
+
+    .external-nav {
+        height: 60px;
+        justify-content: center;
+    }
+
+    .external-brand img {
+        width: 42px;
+        height: 42px;
+        margin-right: 8px;
+    }
+
+    .external-brand-title {
+        font-size: 0.9rem;
+    }
+
+    .external-brand-subtitle {
+        font-size: 0.7rem;
+    }
+
+    .external-footer-main {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+
+    .external-footer-copy h4 {
+        font-size: 0.85rem;
+    }
+
+    .external-footer-copy p {
+        max-width: 95%;
+        font-size: 0.72rem;
+        line-height: 1.25;
+    }
+
+    .external-footer-meta {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .external-contact-item {
+        width: 100%;
+        max-width: 300px;
+        font-size: 0.75rem;
+        padding: 6px 10px;
+    }
+
+    .external-credits {
+        padding: 6px 0 8px;
+        font-size: 0.7rem;
+    }
+}
