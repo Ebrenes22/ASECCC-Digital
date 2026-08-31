@@ -1,8 +1,8 @@
 ﻿using ASECCC_Digital.Database;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using static ASECCC_Digital.Controllers.AsociadosController;
 
 namespace ASECCC_Digital.Models
 {
@@ -12,22 +12,21 @@ namespace ASECCC_Digital.Models
         {
             using (var context = new ASECCC_DIGITALEntities())
             {
-                // Verifica si hay algún usuario con la misma identificación
-                return context.Usuario.Any(u => u.identificacion == identificacion);
+                return context.Usuario
+                    .AsNoTracking()
+                    .Any(u => u.identificacion == identificacion);
             }
         }
 
         public bool RegistrarAsociado(Entities.Usuario usuario)
         {
-            int rowsAffected;
-
-            var hashedContrasena = BCrypt.Net.BCrypt.HashPassword(usuario.Contrasena);
-
             try
             {
-                using (var context = new Database.ASECCC_DIGITALEntities())
+                var hashedContrasena = BCrypt.Net.BCrypt.HashPassword(usuario.Contrasena);
+
+                using (var context = new ASECCC_DIGITALEntities())
                 {
-                    var tabladb = new Database.Usuario
+                    var usuarioDb = new Database.Usuario
                     {
                         nombreCompleto = usuario.NombreCompleto,
                         correoElectronico = usuario.CorreoElectronico,
@@ -41,94 +40,124 @@ namespace ASECCC_Digital.Models
                         estadoAfiliacion = "activo",
                         fechaIngreso = DateTime.Now
                     };
-                    context.Usuario.Add(tabladb);
-                    rowsAffected = context.SaveChanges();
-                    return rowsAffected > 0;
+
+                    context.Usuario.Add(usuarioDb);
+
+                    return context.SaveChanges() > 0;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-            
+                Trace.TraceError(
+                    $"Error al registrar asociado. Identificación: {usuario?.Identificacion}. Error: {ex}"
+                );
+
                 return false;
             }
         }
 
         public Entities.Usuario Login(string identificacion, string contrasena)
         {
-            using (var context = new Database.ASECCC_DIGITALEntities())
+            Database.Usuario usuarioDb;
+
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                usuarioDb = context.Usuario
+                    .AsNoTracking()
+                    .FirstOrDefault(u => u.identificacion == identificacion);
+            }
+
+            if (usuarioDb == null)
+            {
+                return null;
+            }
+
+            if (string.Equals(
+                usuarioDb.estadoAfiliacion,
+                "inactivo",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            bool isValidPassword;
+
+            try
+            {
+                isValidPassword = BCrypt.Net.BCrypt.Verify(
+                    contrasena,
+                    usuarioDb.contrasena
+                );
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError(
+                    $"Error al verificar contraseña. Identificación: {identificacion}. Error: {ex}"
+                );
+
+                return null;
+            }
+
+            if (!isValidPassword)
+            {
+                return null;
+            }
+
+            return new Entities.Usuario
+            {
+                UsuarioId = usuarioDb.usuarioId,
+                NombreCompleto = usuarioDb.nombreCompleto,
+                Identificacion = usuarioDb.identificacion,
+                FechaNacimiento = usuarioDb.fechaNacimiento,
+                CorreoElectronico = usuarioDb.correoElectronico,
+                Telefono = usuarioDb.telefono,
+                Direccion = usuarioDb.direccion,
+                TipoIdentificacion = usuarioDb.tipoIdentificacion,
+                EstadoAfiliacion = usuarioDb.estadoAfiliacion,
+                Rol = usuarioDb.rol
+            };
+        }
+
+        public Database.Usuario BuscarUsuarioPorNombre(string nombre)
+        {
+            using (var context = new ASECCC_DIGITALEntities())
             {
                 var usuarioDb = context.Usuario
-                   .FirstOrDefault(u => u.identificacion == identificacion);
+                    .AsNoTracking()
+                    .FirstOrDefault(u => u.nombreCompleto.Contains(nombre));
 
                 if (usuarioDb == null)
                 {
-                    //No se encontro usuario con esa identificacion
                     return null;
                 }
-                if (usuarioDb.estadoAfiliacion == "inactivo")
+
+                return new Database.Usuario
                 {
-                    //Usuario inactivo
-                    return null;
-                }
-                // Verificar la contraseña con BCrypt   
-                bool isValidPassword = BCrypt.Net.BCrypt.Verify(contrasena, usuarioDb.contrasena);
-                if (!isValidPassword)
-                {
-                    // Contraseña inválida
-                    return null;
-                }
-                var user = new Entities.Usuario
-                {
-                    UsuarioId = usuarioDb.usuarioId,
-                    NombreCompleto = usuarioDb.nombreCompleto,
-                    Identificacion = usuarioDb.identificacion,
-                    FechaNacimiento = usuarioDb.fechaNacimiento,
-                    CorreoElectronico = usuarioDb.correoElectronico,
-                    Telefono = usuarioDb.telefono,
-                    Direccion = usuarioDb.direccion,
-                    TipoIdentificacion = usuarioDb.tipoIdentificacion,
-                    EstadoAfiliacion = usuarioDb.estadoAfiliacion,
-                    Rol = usuarioDb.rol
+                    usuarioId = usuarioDb.usuarioId,
+                    nombreCompleto = usuarioDb.nombreCompleto,
+                    identificacion = usuarioDb.identificacion,
+                    fechaNacimiento = usuarioDb.fechaNacimiento,
+                    correoElectronico = usuarioDb.correoElectronico,
+                    telefono = usuarioDb.telefono,
+                    direccion = usuarioDb.direccion,
+                    tipoIdentificacion = usuarioDb.tipoIdentificacion,
+                    estadoAfiliacion = usuarioDb.estadoAfiliacion,
+                    rol = usuarioDb.rol
                 };
-
-                return user;
-
-            }
-        }
-
-        // Método para buscar un usuario por nombre
-        public Database.Usuario BuscarUsuarioPorNombre(string nombre)
-        {
-            using (var context = new Database.ASECCC_DIGITALEntities())
-            {
-                var usuarioDb = context.Usuario
-                    .FirstOrDefault(u => u.nombreCompleto.Contains(nombre));
-
-                if (usuarioDb != null)
-                {
-                    return new Database.Usuario
-                    {
-                        usuarioId = usuarioDb.usuarioId,
-                        nombreCompleto = usuarioDb.nombreCompleto,
-                        identificacion = usuarioDb.identificacion,
-                        fechaNacimiento = usuarioDb.fechaNacimiento,
-                        correoElectronico = usuarioDb.correoElectronico,
-                        telefono = usuarioDb.telefono,
-                        direccion = usuarioDb.direccion,
-                        tipoIdentificacion = usuarioDb.tipoIdentificacion,
-                        estadoAfiliacion = usuarioDb.estadoAfiliacion,
-                        rol = usuarioDb.rol
-                    };
-                }
-                return null; // Si no se encuentra el usuario
             }
         }
 
         public List<string> ObtenerSugerenciasNombre(string texto)
         {
+            if (string.IsNullOrWhiteSpace(texto))
+            {
+                return new List<string>();
+            }
+
             using (var context = new ASECCC_DIGITALEntities())
             {
                 return context.Usuario
+                    .AsNoTracking()
                     .Where(u => u.nombreCompleto.Contains(texto))
                     .Select(u => u.nombreCompleto)
                     .Distinct()
@@ -137,124 +166,172 @@ namespace ASECCC_Digital.Models
             }
         }
 
-
-        public bool ActualizarAsociado(Entities.Usuario usuario, bool actualizarRol = false)
+        public bool ActualizarAsociado(
+            Entities.Usuario usuario,
+            bool actualizarRol = false)
         {
-            using (var context = new Database.ASECCC_DIGITALEntities())
+            try
             {
-                var usuarioDb = context.Usuario.Find(usuario.UsuarioId);
-
-                if (usuarioDb != null)
+                using (var context = new ASECCC_DIGITALEntities())
                 {
+                    var usuarioDb = context.Usuario.Find(usuario.UsuarioId);
+
+                    if (usuarioDb == null)
+                    {
+                        return false;
+                    }
+
                     if (actualizarRol)
                     {
-                        // Solo actualizar el rol si actualizarRol es true
                         usuarioDb.rol = usuario.Rol;
                     }
                     else
                     {
-                        // Actualizar solo la información personal
                         usuarioDb.correoElectronico = usuario.CorreoElectronico;
                         usuarioDb.telefono = usuario.Telefono;
                         usuarioDb.direccion = usuario.Direccion;
                         usuarioDb.nombreCompleto = usuario.NombreCompleto;
                         usuarioDb.fechaNacimiento = usuario.FechaNacimiento;
                         usuarioDb.identificacion = usuario.Identificacion;
-
                     }
 
-                    context.SaveChanges();
-                    return true;
+                    return context.SaveChanges() > 0;
                 }
-                return false; // Si no se encuentra el usuario
             }
-        }
-
-
-        public bool DesactivarAsociado(int usuarioId)
-        {
-            using (var context = new Database.ASECCC_DIGITALEntities())
+            catch (Exception ex)
             {
-                var usuario = context.Usuario.Find(usuarioId);
+                Trace.TraceError(
+                    $"Error al actualizar asociado. UsuarioId: {usuario?.UsuarioId}. Error: {ex}"
+                );
 
-                if (usuario != null)
-                {
-                    usuario.estadoAfiliacion = usuario.estadoAfiliacion
-                        .Equals("activo", StringComparison.OrdinalIgnoreCase)
-                        ? "inactivo"
-                        : "activo";
-                    context.SaveChanges();
-                    return true;
-                }
                 return false;
             }
         }
 
-        public (List<object> cuentas, int usuarioId) BuscarCuentasAsociado(string nombre)
+        public bool DesactivarAsociado(int usuarioId)
         {
-            using (var context = new Database.ASECCC_DIGITALEntities())
+            try
             {
-                var usuarioDb = context.Usuario.FirstOrDefault(u => u.nombreCompleto == nombre);
+                using (var context = new ASECCC_DIGITALEntities())
+                {
+                    var usuario = context.Usuario.Find(usuarioId);
+
+                    if (usuario == null)
+                    {
+                        return false;
+                    }
+
+                    usuario.estadoAfiliacion =
+                        string.Equals(
+                            usuario.estadoAfiliacion,
+                            "activo",
+                            StringComparison.OrdinalIgnoreCase)
+                            ? "inactivo"
+                            : "activo";
+
+                    return context.SaveChanges() > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError(
+                    $"Error al cambiar estado del asociado. UsuarioId: {usuarioId}. Error: {ex}"
+                );
+
+                return false;
+            }
+        }
+
+        public (List<object> cuentas, int usuarioId) BuscarCuentasAsociado(
+            string nombre)
+        {
+            using (var context = new ASECCC_DIGITALEntities())
+            {
+                var usuarioDb = context.Usuario
+                    .AsNoTracking()
+                    .FirstOrDefault(u => u.nombreCompleto == nombre);
+
                 if (usuarioDb == null)
+                {
                     return (new List<object>(), 0);
+                }
 
                 int usuarioId = usuarioDb.usuarioId;
 
-                // Obtener todas las cuentas en memoria
                 var ahorros = context.Ahorros
+                    .AsNoTracking()
                     .Where(a => a.usuarioId == usuarioId)
-                    .ToList()
                     .Select(a => new
                     {
                         id = a.ahorroId,
                         tipo = "Ahorro",
-                        descripcion = $"Estado del ahorro: {a.estado}",
+                        descripcion = "Estado del ahorro: " + a.estado,
                         saldo = a.montoActual
-                    }).ToList<object>();
+                    })
+                    .ToList()
+                    .Cast<object>()
+                    .ToList();
 
                 var aportes = context.Aportes
+                    .AsNoTracking()
                     .Where(a => a.usuarioId == usuarioId)
-                    .ToList()
                     .Select(a => new
                     {
                         id = a.aporteId,
                         tipo = "Aporte",
-                        descripcion = $"Aporte {a.tipoAporte}",
+                        descripcion = "Aporte " + a.tipoAporte,
                         saldo = a.monto
-                    }).ToList<object>();
+                    })
+                    .ToList()
+                    .Cast<object>()
+                    .ToList();
 
                 var prestamos = context.Prestamos
+                    .AsNoTracking()
                     .Where(p => p.usuarioId == usuarioId)
-                    .ToList()
                     .Select(p => new
                     {
                         id = p.prestamoId,
                         tipo = "Préstamo",
-                        descripcion = $"Préstamo {p.tipoPrestamo}",
+                        descripcion = "Préstamo " + p.tipoPrestamo,
                         saldo = p.saldoPendiente ?? 0
-                    }).ToList<object>();
+                    })
+                    .ToList()
+                    .Cast<object>()
+                    .ToList();
 
-                // Combinar todas las cuentas en una sola lista
-                var cuentas = ahorros.Concat(aportes).Concat(prestamos).ToList();
+                var cuentas = ahorros
+                    .Concat(aportes)
+                    .Concat(prestamos)
+                    .ToList();
 
                 return (cuentas, usuarioId);
             }
         }
 
-
-
-
         public bool LiquidarCuenta(List<LiquidacionRequest> cuentas)
         {
-            using (var context = new Database.ASECCC_DIGITALEntities())
+            if (cuentas == null || !cuentas.Any())
             {
-                try
+                return false;
+            }
+
+            try
+            {
+                using (var context = new ASECCC_DIGITALEntities())
                 {
                     foreach (var cuenta in cuentas)
                     {
+                        if (cuenta == null)
+                        {
+                            continue;
+                        }
+
                         if (cuenta.Tipo == "Ahorro")
                         {
-                            var ahorro = context.Ahorros.FirstOrDefault(a => a.ahorroId == cuenta.CuentaId);
+                            var ahorro = context.Ahorros
+                                .FirstOrDefault(a => a.ahorroId == cuenta.CuentaId);
+
                             if (ahorro != null)
                             {
                                 ahorro.montoActual = 0;
@@ -262,7 +339,9 @@ namespace ASECCC_Digital.Models
                         }
                         else if (cuenta.Tipo == "Aporte")
                         {
-                            var aporte = context.Aportes.FirstOrDefault(a => a.aporteId == cuenta.CuentaId);
+                            var aporte = context.Aportes
+                                .FirstOrDefault(a => a.aporteId == cuenta.CuentaId);
+
                             if (aporte != null)
                             {
                                 aporte.monto = 0;
@@ -270,61 +349,79 @@ namespace ASECCC_Digital.Models
                         }
                         else if (cuenta.Tipo == "Préstamo")
                         {
-                            var prestamo = context.Prestamos.FirstOrDefault(p => p.prestamoId == cuenta.CuentaId);
+                            var prestamo = context.Prestamos
+                                .FirstOrDefault(p => p.prestamoId == cuenta.CuentaId);
+
                             if (prestamo != null)
                             {
                                 prestamo.saldoPendiente = 0;
                             }
                         }
                     }
+
                     context.SaveChanges();
+
                     return true;
                 }
-                catch (Exception)
-                {
-                    return false;
-                }
-
             }
+            catch (Exception ex)
+            {
+                Trace.TraceError(
+                    $"Error al liquidar cuentas. Error: {ex}"
+                );
 
+                return false;
+            }
         }
+
         public class LiquidacionRequest
         {
             public int CuentaId { get; set; }
             public string Tipo { get; set; }
         }
 
-        public Usuario ObtenerInformacionPersonal(int usuarioId)
+        public Database.Usuario ObtenerInformacionPersonal(int usuarioId)
         {
             using (var context = new ASECCC_DIGITALEntities())
             {
                 return context.Usuario
-                    .Where(u => u.usuarioId == usuarioId)
-                    .FirstOrDefault();
+                    .AsNoTracking()
+                    .FirstOrDefault(u => u.usuarioId == usuarioId);
             }
         }
 
-        public bool ActualizarInformacionPersonal(int usuarioId, string correo, string telefono, string direccion)
+        public bool ActualizarInformacionPersonal(
+            int usuarioId,
+            string correo,
+            string telefono,
+            string direccion)
         {
-            using (var context = new ASECCC_DIGITALEntities())
+            try
             {
-                var usuario = context.Usuario.Find(usuarioId);
+                using (var context = new ASECCC_DIGITALEntities())
+                {
+                    var usuario = context.Usuario.Find(usuarioId);
 
-                if (usuario == null)
-                    return false;
+                    if (usuario == null)
+                    {
+                        return false;
+                    }
 
-                usuario.correoElectronico = correo;
-                usuario.telefono = telefono;
-                usuario.direccion = direccion;
+                    usuario.correoElectronico = correo;
+                    usuario.telefono = telefono;
+                    usuario.direccion = direccion;
 
-                context.SaveChanges();
-                return true;
+                    return context.SaveChanges() > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError(
+                    $"Error al actualizar información personal. UsuarioId: {usuarioId}. Error: {ex}"
+                );
+
+                return false;
             }
         }
     }
 }
-
-
-
-
-
