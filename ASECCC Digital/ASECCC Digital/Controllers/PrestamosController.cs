@@ -1,13 +1,10 @@
-﻿using ASECCC_Digital.Models;
+﻿using ASECCC_Digital.Database;
+using ASECCC_Digital.Models;
 using ASECCC_Digital.ViewModels;
-using ASECCC_Digital.Database;
-using ASECCC_Digital.Entities;
 using System;
 using System.Collections.Generic;
-using System.Web.Mvc;
-using System.Threading.Tasks;
 using System.Linq;
-using System.Web.Util;
+using System.Web.Mvc;
 
 namespace ASECCC_Digital.Controllers
 {
@@ -33,7 +30,6 @@ namespace ASECCC_Digital.Controllers
             return View();  // Pasar el modelo a la vista
         }
 
-
         [HttpGet]
         public ActionResult RegistrarAbonos(string NombreCompleto)
         {
@@ -44,13 +40,11 @@ namespace ASECCC_Digital.Controllers
             {
                 TempData["Sugerencias"] = sugerencias; // Pasar sugerencias a la vista
             }
-
             var viewModel = new PrestamoUsuarioTransaccionesViewModel
             {
                 NombreCompleto = NombreCompleto,
                 ListaPrestamos = prestamos
             };
-
             return View(viewModel);
         }
 
@@ -76,10 +70,6 @@ namespace ASECCC_Digital.Controllers
 
             return RedirectToAction("RegistrarAbonos");
         }
-
-
-
-
         [Authorize]
         public ActionResult ConsultaPrestamosAdmin()
         {
@@ -250,6 +240,18 @@ namespace ASECCC_Digital.Controllers
             }
         }
 
+        [HttpGet]
+        public ActionResult BuscarAsociados(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term) || term.Length < 2)
+            {
+                return Json(new List<string>(), JsonRequestBehavior.AllowGet);
+            }
+
+            var asociados = prestamoM.BuscarAsociados(term);
+
+            return Json(asociados, JsonRequestBehavior.AllowGet);
+        }
 
         #endregion
 

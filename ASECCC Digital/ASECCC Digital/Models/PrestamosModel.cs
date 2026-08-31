@@ -1,12 +1,10 @@
-﻿using ASECCC_Digital.Entities;
-using ASECCC_Digital.Database;
-using System.Data.Entity;
+﻿using ASECCC_Digital.Database;
+using ASECCC_Digital.Entities;
+using ASECCC_Digital.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
-using System.Web;
-using System.Threading.Tasks;
-using ASECCC_Digital.ViewModels;
 
 
 namespace ASECCC_Digital.Models
@@ -134,12 +132,6 @@ namespace ASECCC_Digital.Models
                 return transacciones;
             }
         }
-
-
-
-
-
-
         public SolicitudPrestamoViewModel ObtenerSolicitudPorId(int id)
         {
             using (var context = new Database.ASECCC_DIGITALEntities())
@@ -165,7 +157,6 @@ namespace ASECCC_Digital.Models
                 return null; // Si no se encuentra la solicitud
             }
         }
-
 
         // Método para buscar un préstamo por nombre de usuario en vista RegistrarAbonos
         public List<PrestamoDetalleViewModel> ObtenerPrestamosPorUsuario(string NombreCompleto, out List<string> sugerencias)
@@ -208,7 +199,6 @@ namespace ASECCC_Digital.Models
                     .ToList();
             }
         }
-
         public List<PrestamoDetalleViewModel> ObtenerPrestamosPorUsuarioId(int usuarioId, string tipoPrestamo, string estadoPrestamo)
         {
             using (var context = new ASECCC_DIGITALEntities())
@@ -285,12 +275,20 @@ namespace ASECCC_Digital.Models
             }
         }
 
-
+        public List<string> BuscarAsociados(string term)
+        {
+            using (var context = new Database.ASECCC_DIGITALEntities())
+            {
+                return context.Usuario
+                    .Where(u => u.nombreCompleto.Contains(term))
+                    .Select(u => u.nombreCompleto)
+                    .Distinct()
+                    .Take(10)
+                    .ToList();
+            }
+        }
 
         #endregion
-
-
-
         #region Metodos para Vista de Usuario
 
         //Para registro de nuevas solicitudes
@@ -334,7 +332,6 @@ namespace ASECCC_Digital.Models
                 return false;
             }
         }
-
         public bool NotificacionSolicitudPrestamo(Entities.SolicitudesPrestamo solicitud)
         {
             try
@@ -370,8 +367,6 @@ namespace ASECCC_Digital.Models
                 return false;
             }
         }
-
-
         public List<object> ObtenerPrestamosParaAdmin()
         {
             using (var context = new ASECCC_DIGITALEntities()) // Conexión a la base de datos
@@ -391,7 +386,6 @@ namespace ASECCC_Digital.Models
                               .ToList<object>();
             }
         }
-
         public List<Prestamos> ObtenerPrestamosAsociado(int usuarioId)
         {
             using (var context = new ASECCC_DIGITALEntities()) // Conexión a la base de datos
@@ -401,15 +395,7 @@ namespace ASECCC_Digital.Models
                               .ToList(); // Retorna préstamos del usuario específico
             }
         }
-
-
-
         #endregion
-
-
-
-
-
     }
 }
 
